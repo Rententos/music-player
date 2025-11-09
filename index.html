@@ -2,10 +2,14 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <title>Музыкальный Плеер — Liquid Glass</title>
+  <title>Экслюзивный Музыкальный Плеер — Liquid Glass</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    /* ==== Liquid Glass Borders ==== */
+    /* ==== Liquid Glass Borders with sheen animation ==== */
+    @keyframes sheen {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
     body::before,
     body::after {
       content: "";
@@ -14,7 +18,9 @@
       width: 100%;
       height: 20px;
       backdrop-filter: blur(14px);
-      background: linear-gradient(to right, rgba(255,255,255,0.25), rgba(255,255,255,0.05));
+      background: linear-gradient(90deg, rgba(255,255,255,0.28), rgba(255,255,255,0.06));
+      background-size: 200% 100%;
+      animation: sheen 8s linear infinite;
       z-index: 999;
       pointer-events: none;
     }
@@ -39,6 +45,8 @@
       --btn-bg: rgba(255, 255, 255, 0.15);
       --btn-bg-hover: rgba(255, 255, 255, 0.3);
       --accent: #6aa3ff;
+      --accent-warm: #ff9966;
+      --accent-neon: #7cffb8;
     }
     * { box-sizing: border-box; }
     body {
@@ -47,21 +55,16 @@
       transition: background 0.4s, color 0.4s;
       position: relative;
     }
-    body.dark {
-      background: #000;
-      color: var(--text-dark);
-    }
-    body.light {
-      background: #fff;
-      color: var(--text-light);
-    }
+    body.dark { background: #000; color: var(--text-dark); }
+    body.light { background: #fff; color: var(--text-light); }
+
     .glass {
       backdrop-filter: blur(14px);
       border-radius: 20px;
       padding: 20px;
       box-shadow: var(--shadow);
       border: 1px solid rgba(255, 255, 255, 0.2);
-      transition: background 0.4s, color 0.4s;
+      transition: background 0.4s, color 0.4s, transform 0.2s;
     }
     body.dark .glass { background: var(--glass-bg-dark); color: var(--text-dark); }
     body.light .glass { background: var(--glass-bg-light); color: var(--text-light); }
@@ -93,7 +96,7 @@
       position: fixed;
       top: 80px;
       left: 20px;
-      width: 320px;
+      width: 340px;
       max-height: 0;
       overflow: hidden;
       transition: max-height 0.5s ease, opacity 0.5s ease;
@@ -101,7 +104,7 @@
       z-index: 10;
     }
     #playlist-panel.open {
-      max-height: 520px;
+      max-height: 540px;
       opacity: 1;
     }
     .panel-header {
@@ -109,6 +112,7 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 10px;
+      gap: 8px;
     }
     .filter {
       width: 100%;
@@ -118,6 +122,15 @@
       border: 1px solid rgba(255,255,255,0.25);
       background: rgba(255,255,255,0.12);
       color: inherit;
+    }
+    .dropzone {
+      border: 1px dashed rgba(255,255,255,0.35);
+      border-radius: 12px;
+      padding: 10px;
+      font-size: 0.9em;
+      opacity: 0.85;
+      text-align: center;
+      margin-bottom: 10px;
     }
     .track-entry {
       display: grid;
@@ -148,7 +161,7 @@
 
     /* ==== Player ==== */
     #player {
-      max-width: 680px;
+      max-width: 720px;
       margin: 140px auto 40px;
       text-align: center;
     }
@@ -200,30 +213,48 @@
       margin-top: 10px;
       accent-color: var(--accent);
     }
-    #volume-container {
-      margin-top: 10px;
-      text-align: left;
-    }
+    #volume-container { margin-top: 10px; text-align: left; }
 
     /* ==== Visualizer ==== */
     #visualizer-container {
-      max-width: 680px;
+      max-width: 720px;
       margin: 24px auto;
       text-align: center;
     }
     canvas {
       width: 100%;
-      height: 120px;
+      height: 140px;
       display: block;
       border-radius: 10px;
       margin-top: 10px;
       background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(0,0,0,0.08));
     }
+    #genre-buttons {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .genre-btn {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(6px);
+      border: none;
+      border-radius: 12px;
+      padding: 8px 12px;
+      color: inherit;
+      cursor: pointer;
+      font-size: 0.9em;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .genre-btn:hover {
+      background: rgba(255, 255, 255, 0.28);
+      transform: scale(1.03);
+    }
 
     /* ==== Upload ==== */
     #upload { margin-top: 16px; }
 
-    @media (max-width: 420px) {
+    @media (max-width: 480px) {
       #album-art { width: 160px; height: 160px; }
       button.ctrl { width: 48px; height: 48px; font-size: 1.2em; }
       #playlist-panel { width: calc(100% - 40px); }
@@ -238,8 +269,10 @@
   <!-- Playlist panel -->
   <div id="playlist-panel" class="glass">
     <div class="panel-header">
-      <h3>🎶 Мои файлы</h3>
+      <h3 style="margin:0">🎶 Мои файлы</h3>
+      <button id="clear-list" class="genre-btn" title="Очистить список">Очистить</button>
     </div>
+    <div class="dropzone">Перетащи файлы сюда или воспользуйся загрузкой ниже</div>
     <input id="filter" class="filter" type="text" placeholder="Фильтр по имени…" />
     <div id="track-list"></div>
   </div>
@@ -269,13 +302,18 @@
 
     <input type="file" id="upload" multiple />
     <div style="margin-top:8px; font-size:0.9em; opacity:0.8;">
-      Поддержка воспроизведения зависит от браузера (например: mp3, wav, ogg, aac). Неподдерживаемые файлы помечаются.
+      Браузер обычно поддерживает: mp3, wav, ogg, aac, m4a, webm. Неподдерживаемые файлы помечаются.
     </div>
   </div>
 
   <!-- Visualizer -->
   <div id="visualizer-container" class="glass">
-    <h3>Визуализатор</h3>
+    <h3 style="margin-top:0">Визуализатор</h3>
+    <div id="genre-buttons">
+      <button class="genre-btn" data-preset="ambient">Ambient</button>
+      <button class="genre-btn" data-preset="edm">EDM</button>
+      <button class="genre-btn" data-preset="rock">Rock</button>
+    </div>
     <canvas id="visualizer"></canvas>
   </div>
 
@@ -296,13 +334,14 @@
     const trackListEl = document.getElementById('track-list');
     const libraryToggle = document.getElementById('library-toggle');
     const playlistPanel = document.getElementById('playlist-panel');
+    const clearListBtn = document.getElementById('clear-list');
     const themeToggle = document.getElementById('theme-toggle');
-    const body = document.body;
     const filterInput = document.getElementById('filter');
     const currentTimeEl = document.getElementById('current-time');
     const durationEl = document.getElementById('duration');
     const visualizerCanvas = document.getElementById('visualizer');
     const vCtx = visualizerCanvas.getContext('2d');
+    const genreButtons = document.querySelectorAll('.genre-btn[data-preset]');
 
     // State
     let files = [];        // все выбранные файлы
@@ -312,19 +351,24 @@
     let analyser = null;
     let sourceNode = null;
     let rafId = null;
+    let vizPreset = 'ambient';
+    let fading = false;    // защита от двойного кроссфейда
+    let sleepTimer = null;
 
     // ==== Theme (localStorage) ====
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    setTheme(savedTheme);
-
+    (function initTheme() {
+      const saved = localStorage.getItem('theme') || 'dark';
+      document.body.classList.add(saved);
+      themeToggle.textContent = saved === 'dark' ? '🌙' : '☀️';
+    })();
     function setTheme(theme) {
-      body.classList.remove('dark', 'light');
-      body.classList.add(theme);
+      document.body.classList.remove('dark', 'light');
+      document.body.classList.add(theme);
       themeToggle.textContent = theme === 'dark' ? '🌙' : '☀️';
       localStorage.setItem('theme', theme);
     }
     themeToggle.addEventListener('click', () => {
-      const newTheme = body.classList.contains('dark') ? 'light' : 'dark';
+      const newTheme = document.body.classList.contains('dark') ? 'light' : 'dark';
       setTheme(newTheme);
     });
 
@@ -333,29 +377,31 @@
       playlistPanel.classList.toggle('open');
     });
 
-    // ==== Upload handling ====
-    upload.addEventListener('change', async (e) => {
-      files = [...e.target.files];
-      // Разрешаем выбор любых файлов, но помечаем неподдерживаемые
-      tracks = files.filter(f => canPlayFile(f));
-      renderTrackList();
-      if (tracks.length > 0) {
-        loadTrack(0);
-      } else {
-        // Сброс плеера, если нет поддерживаемых
-        trackTitle.textContent = 'Нет трека';
-        trackArtist.textContent = '—';
-        audio.removeAttribute('src');
-        updateTimes(0, 0);
-        stopVisualizer();
-      }
+    // ==== Drag & Drop ====
+    document.addEventListener('dragover', e => { e.preventDefault(); });
+    document.addEventListener('drop', e => {
+      e.preventDefault();
+      const dropped = [...e.dataTransfer.files];
+      handleFiles(dropped);
     });
 
+    // ==== Upload handling ====
+    upload.addEventListener('change', (e) => {
+      const selected = [...e.target.files];
+      handleFiles(selected);
+    });
+
+    function handleFiles(list) {
+      files = list;
+      tracks = files.filter(canPlayFile);
+      renderTrackList();
+      if (tracks.length > 0) loadTrack(0);
+      else resetPlayer();
+    }
+
     function canPlayFile(file) {
-      // Попытка по MIME
       if (file.type && audio.canPlayType(file.type) !== "") return true;
-      // Попытка по расширению (на случай, когда MIME пустой)
-      const ext = file.name.split('.').pop().toLowerCase();
+      const ext = (file.name.split('.').pop() || '').toLowerCase();
       const guessMime = ({
         mp3: 'audio/mpeg',
         wav: 'audio/wav',
@@ -373,7 +419,7 @@
     function renderTrackList() {
       const filter = filterInput.value.trim().toLowerCase();
       trackListEl.innerHTML = '';
-      files.forEach((file, i) => {
+      files.forEach((file) => {
         const supported = canPlayFile(file);
         if (filter && !file.name.toLowerCase().includes(filter)) return;
 
@@ -403,37 +449,89 @@
       });
     }
     filterInput.addEventListener('input', renderTrackList);
+    clearListBtn.addEventListener('click', () => {
+      files = [];
+      tracks = [];
+      renderTrackList();
+      resetPlayer();
+    });
 
-    // ==== Load and play track (native audio element) ====
+    function resetPlayer() {
+      trackTitle.textContent = 'Нет трека';
+      trackArtist.textContent = '—';
+      audio.removeAttribute('src');
+      updateTimes(0, 0);
+      stopVisualizer();
+    }
+
+    // ==== Load and play track ====
     function loadTrack(i) {
       current = i;
       const file = tracks[i];
       const objectUrl = URL.createObjectURL(file);
 
-      // Update UI
       trackTitle.textContent = file.name;
       trackArtist.textContent = 'Локальный файл';
       audio.src = objectUrl;
-      audio.play().catch(() => {
-        // Автовоспроизведение может быть заблокировано — пользователь нажмёт Play
-      });
 
-      // Init visualizer chain for media element
+      // Обновляем визуализатор цепочку
       initAudioGraphForElement(audio);
+
+      // Автовоспроизведение может быть заблокировано — по кнопке Play всё поедет
+      audio.play().catch(() => {});
     }
 
-    // ==== Play/Pause/Prev/Next ====
+    // ==== Play/Pause with hotkeys ====
     playBtn.onclick = () => {
       if (!audio.src) return;
       if (audio.paused) audio.play();
       else audio.pause();
     };
     prevBtn.onclick = () => {
-      if (tracks.length) loadTrack((current - 1 + tracks.length) % tracks.length);
+      if (tracks.length) crossfadeTo((current - 1 + tracks.length) % tracks.length);
     };
     nextBtn.onclick = () => {
-      if (tracks.length) loadTrack((current + 1) % tracks.length);
+      if (tracks.length) crossfadeTo((current + 1) % tracks.length);
     };
+    document.addEventListener('keydown', e => {
+      if (e.code === 'Space') { e.preventDefault(); playBtn.click(); }
+      if (e.code === 'ArrowRight') nextBtn.click();
+      if (e.code === 'ArrowLeft') prevBtn.click();
+    });
+
+    // ==== Crossfade ====
+    function crossfadeTo(nextIndex, duration = 1.2) {
+      if (fading || !tracks.length || nextIndex === current) return;
+      fading = true;
+      const startVol = audio.volume;
+      const stepMs = 16;
+      let t = 0;
+
+      const fadeOut = setInterval(() => {
+        t += stepMs / 1000;
+        audio.volume = Math.max(0, startVol * (1 - t / duration));
+        if (t >= duration) {
+          clearInterval(fadeOut);
+          loadTrack(nextIndex);
+          audio.volume = 0;
+          let u = 0;
+          const fadeIn = setInterval(() => {
+            u += stepMs / 1000;
+            audio.volume = Math.min(startVol, (u / duration) * startVol);
+            if (u >= duration) {
+              clearInterval(fadeIn);
+              fading = false;
+            }
+          }, stepMs);
+        }
+      }, stepMs);
+    }
+
+    // ==== Gapless-ish: автопереход с коротким кроссфейдом ====
+    audio.addEventListener('ended', () => {
+      if (!tracks.length) return;
+      crossfadeTo((current + 1) % tracks.length, 0.8);
+    });
 
     // ==== Time + Seek ====
     audio.addEventListener('timeupdate', () => {
@@ -473,7 +571,7 @@
       }
       if (!analyser) {
         analyser = audioCtx.createAnalyser();
-        analyser.fftSize = 2048;
+        setVizPreset(vizPreset); // начальная настройка
       }
     }
 
@@ -491,18 +589,37 @@
         analyser.connect(audioCtx.destination);
         startVisualizer();
       } catch (err) {
-        // Если повторно создаём MediaElementSource для одного элемента — может быть ошибка
-        // В таком случае просто запускаем визуализатор без переконнекта
+        // Если повторно создаём MediaElementSource для одного элемента — может произойти ошибка
+        // Визуализатор всё равно запустим
         startVisualizer();
       }
 
-      // Разрешаем контекст при первом пользовательском взаимодействии
+      // Разрешаем контекст при первом взаимодействии
       const resume = () => {
         if (audioCtx.state === 'suspended') audioCtx.resume();
         document.removeEventListener('click', resume);
       };
       document.addEventListener('click', resume);
     }
+
+    // Пресеты для визуализатора
+    function setVizPreset(preset) {
+      vizPreset = preset;
+      if (!analyser) return;
+      // Настройки FFT и цветовых акцентов
+      if (preset === 'edm') {
+        analyser.fftSize = 4096;
+      } else if (preset === 'ambient') {
+        analyser.fftSize = 1024;
+      } else if (preset === 'rock') {
+        analyser.fftSize = 2048;
+      }
+    }
+    genreButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        setVizPreset(btn.dataset.preset);
+      });
+    });
 
     function startVisualizer() {
       stopVisualizer();
@@ -518,8 +635,24 @@
 
         vCtx.clearRect(0, 0, w, h);
 
-        // Bars
-        const barCount = 64;
+        let barCount, colorTop, colorBottom, thickness;
+        if (vizPreset === 'edm') {
+          barCount = 96;
+          colorTop = 'rgba(124,255,184,0.9)';     // неон
+          colorBottom = 'rgba(124,255,184,0.1)';
+          thickness = 1;
+        } else if (vizPreset === 'rock') {
+          barCount = 72;
+          colorTop = 'rgba(255,153,102,0.95)';    // тёплый
+          colorBottom = 'rgba(255,153,102,0.15)';
+          thickness = 2;
+        } else { // ambient
+          barCount = 56;
+          colorTop = 'rgba(106,163,255,0.9)';     // мягкий синий
+          colorBottom = 'rgba(106,163,255,0.1)';
+          thickness = 2;
+        }
+
         const step = Math.floor(bufferLength / barCount);
         const barWidth = w / barCount;
 
@@ -529,13 +662,12 @@
           const x = i * barWidth;
           const y = h - barHeight;
 
-          // Gradient per bar
           const grad = vCtx.createLinearGradient(x, y, x, h);
-          grad.addColorStop(0, 'rgba(106,163,255,0.9)');
-          grad.addColorStop(1, 'rgba(106,163,255,0.1)');
+          grad.addColorStop(0, colorTop);
+          grad.addColorStop(1, colorBottom);
 
           vCtx.fillStyle = grad;
-          vCtx.fillRect(x + 1, y, barWidth - 2, barHeight);
+          vCtx.fillRect(x + thickness, y, barWidth - thickness*2, barHeight);
         }
       };
       draw();
@@ -547,24 +679,15 @@
       vCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
     }
 
-    // ==== Init theme class early ====
-    // Apply saved theme immediately on load
-    (function immediateTheme() {
-      const t = localStorage.getItem('theme') || 'dark';
-      body.classList.add(t);
-      themeToggle.textContent = t === 'dark' ? '🌙' : '☀️';
-    })();
+    // ==== Sleep timer (пример вызова: startSleep(30)) ====
+    function startSleep(minutes = 30) {
+      clearTimeout(sleepTimer);
+      sleepTimer = setTimeout(() => audio.pause(), minutes * 60 * 1000);
+    }
 
-    // ==== Handle page resize to keep canvas crisp ====
+    // ==== Resize handler (полотно подстраивается через clientWidth/Height) ====
     window.addEventListener('resize', () => {
-      // Redraw handled in startVisualizer() loop
-    });
-
-    // ==== Safety: clear object URLs on unload ====
-    window.addEventListener('unload', () => {
-      // No persistent object URLs saved; audio.src is URL.createObjectURL
-      // Browser will collect them automatically.
+      // Перерисовка идёт в анимационном цикле
     });
   </script>
 </body>
-</html>
