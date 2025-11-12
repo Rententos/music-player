@@ -4,39 +4,46 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Моя Музыкальная Библиотека — Liquid Glass</title>
-  <meta name="theme-color" content="#141a21" />
+  <meta name="theme-color" content="#0f141b" />
   <style>
     /* ===== Reset & base ===== */
     *, *::before, *::after { box-sizing: border-box; }
     html, body { height: 100%; }
     :root {
-      --bg1: #0e141b;
-      --bg2: #1b2733;
-      --glass: rgba(255,255,255,0.12);
-      --glass-strong: rgba(255,255,255,0.2);
+      /* Тёмная тема по умолчанию */
+      --bg1: #0f141b;
+      --bg2: #182230;
       --text: #ffffff;
+      --glass: rgba(255,255,255,0.10);
+      --glass-strong: rgba(255,255,255,0.18);
+      --border: rgba(255,255,255,0.12);
       --accent: #4cafef;
       --accent-2: #7fd1ff;
     }
+    /* Светлая тема */
     body.light {
       --bg1: #e9eef3;
       --bg2: #f5f7fa;
-      --glass: rgba(0,0,0,0.08);
-      --glass-strong: rgba(0,0,0,0.16);
       --text: #0f1318;
+      --glass: rgba(0,0,0,0.08);
+      --glass-strong: rgba(0,0,0,0.14);
+      --border: rgba(0,0,0,0.14);
       --accent: #225a8a;
       --accent-2: #3b78a8;
     }
+    /* Пользовательский выбор темы всегда приоритетнее системной */
+    /* Никаких prefers-color-scheme, чтобы не было конфликтов */
+
     body {
       margin: 0;
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
       color: var(--text);
-      background: radial-gradient(1200px 800px at 20% 10%, var(--bg2) 0%, var(--bg1) 45%, #0a0f14 100%);
+      background: radial-gradient(1200px 800px at 20% 10%, var(--bg2) 0%, var(--bg1) 45%, #0b1016 100%);
       min-height: 100vh;
       display: flex;
       align-items: flex-start;
       justify-content: center;
-      transition: background 0.4s ease, color 0.4s ease;
+      transition: background 0.35s ease, color 0.35s ease;
     }
     @media (prefers-reduced-motion: reduce) {
       * { transition: none !important; animation: none !important; }
@@ -50,25 +57,27 @@
     }
     h1 {
       margin: 0;
-      padding: 8px 0 4px;
+      padding: 6px 0 2px;
       text-align: center;
-      letter-spacing: 0.3px;
       font-weight: 700;
       font-size: clamp(20px, 3vw, 28px);
+      letter-spacing: 0.2px;
     }
+
     /* ===== Liquid Glass Card ===== */
     .card {
       background: var(--glass);
       border-radius: 16px;
       backdrop-filter: saturate(140%) blur(16px);
       -webkit-backdrop-filter: saturate(140%) blur(16px);
-      border: 1px solid rgba(255,255,255,0.08);
+      border: 1px solid var(--border);
       box-shadow:
-        0 30px 80px rgba(0,0,0,0.35),
+        0 28px 80px rgba(0,0,0,0.35),
         inset 0 1px 0 rgba(255,255,255,0.08);
     }
+
     /* ===== Controls ===== */
-    #controls {
+    #controls.card {
       padding: 14px;
       display: grid;
       grid-template-columns: 1fr;
@@ -78,24 +87,37 @@
     }
     .inputs {
       width: 100%;
-      max-width: 900px;
+      max-width: 950px;
       display: grid;
       grid-template-columns: 1fr 1fr auto;
       gap: 10px;
     }
-    input, button {
-      font: inherit;
-    }
-    input {
+    input, button { font: inherit; }
+    input[type="text"], input[type="url"] {
       padding: 11px 12px;
       border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.12);
-      background: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.08));
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0.08));
       color: var(--text);
       outline: none;
     }
     input::placeholder { color: rgba(255,255,255,0.78); }
     body.light input::placeholder { color: rgba(0,0,0,0.55); }
+    .file-row {
+      width: 100%;
+      max-width: 950px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+    .file-row input[type="file"] {
+      padding: 9px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0.08));
+      color: var(--text);
+    }
     .buttons {
       display: flex;
       gap: 10px;
@@ -105,8 +127,8 @@
     .btn {
       padding: 10px 16px;
       border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.14);
-      background: linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.12));
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,0.20), rgba(255,255,255,0.12));
       color: var(--text);
       cursor: pointer;
       transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease;
@@ -116,8 +138,9 @@
     .btn:hover { transform: translateY(-1px); border-color: var(--accent-2); }
     .btn.primary {
       border-color: rgba(76,175,239,0.45);
-      box-shadow: inset 0 0 0 1px rgba(76,175,239,0.35);
+      box-shadow: inset 0 0 0 1px rgba(76,175,239,0.32);
     }
+
     /* ===== Main grid ===== */
     .main {
       display: grid;
@@ -125,6 +148,7 @@
       gap: 18px;
       align-items: start;
     }
+
     /* ===== Playlist ===== */
     #playlist.card { padding: 12px; }
     #playlist[aria-busy="true"] { opacity: 0.6; }
@@ -137,13 +161,13 @@
       margin: 8px 0;
       border-radius: 14px;
       background: var(--glass-strong);
-      border: 1px solid rgba(255,255,255,0.10);
+      border: 1px solid var(--border);
       transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease;
       cursor: grab;
     }
     #playlist li:hover {
       transform: translateX(3px);
-      border-color: rgba(255,255,255,0.18);
+      border-color: rgba(255,255,255,0.22);
     }
     #playlist li.dragging { opacity: 0.5; cursor: grabbing; }
     .track-title {
@@ -151,8 +175,8 @@
       font-weight: 600;
     }
     .track-actions { display: flex; gap: 8px; }
-    /* play/delete buttons inside track */
     .track-actions .btn { padding: 8px 12px; border-radius: 10px; }
+
     /* ===== Visualizer ===== */
     #visualizer.card {
       height: 300px;
@@ -171,20 +195,23 @@
       height: 24px;
       transition: height 0.12s ease;
     }
+
     /* ===== Responsive ===== */
     @media (max-width: 980px) {
       .main { grid-template-columns: 1fr; }
       #visualizer.card { height: 220px; }
-      .inputs { grid-template-columns: 1fr 1fr; }
+      .inputs { grid-template-columns: 1fr 1fr auto; }
     }
-    @media (max-width: 620px) {
+    @media (max-width: 680px) {
       .inputs { grid-template-columns: 1fr; }
+      .file-row { grid-template-columns: 1fr; }
       .bar { width: 7px; }
       #visualizer.card { height: 180px; }
       #playlist li { grid-template-columns: 1fr; }
       .track-actions { justify-content: flex-start; }
     }
-    /* ===== Focus visibility for accessibility ===== */
+
+    /* ===== Focus visibility ===== */
     :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   </style>
 </head>
@@ -194,14 +221,19 @@
 
     <!-- Controls -->
     <section id="controls" class="card" role="region" aria-label="Управление">
-      <!-- Two audio channels for safe crossfade -->
+      <!-- Два аудиоканала для безопасного кроссфейда -->
       <audio id="audioA" crossorigin="anonymous"></audio>
       <audio id="audioB" crossorigin="anonymous"></audio>
 
-      <div class="inputs" role="form" aria-label="Добавить трек">
+      <div class="inputs" role="form" aria-label="Добавить трек по ссылке">
         <input id="trackTitle" type="text" placeholder="Название трека" aria-label="Название трека" />
         <input id="trackUrl" type="url" placeholder="Ссылка на mp3 (https://...)" aria-label="Ссылка на трек" />
-        <button id="addBtn" class="btn primary" aria-label="Добавить трек">Добавить</button>
+        <button id="addBtn" class="btn primary" aria-label="Добавить">Добавить</button>
+      </div>
+
+      <div class="file-row" role="form" aria-label="Добавить трек файлом">
+        <input id="fileInput" type="file" accept="audio/*" aria-label="Выбрать аудиофайл" />
+        <button id="addFileBtn" class="btn" aria-label="Импортировать файл">Импорт файла</button>
       </div>
 
       <div class="buttons" role="group" aria-label="Кнопки">
@@ -231,6 +263,7 @@
     const playlistEl = document.getElementById('playlist');
     const visualizer = document.getElementById('visualizer');
 
+    // Инициализация
     let playlist = loadPlaylist();
     applySavedTheme();
     renderPlaylist();
@@ -250,17 +283,21 @@
       }
     }
 
-    // ===== Theme =====
+    // ===== Theme (фикс конфликтов) =====
     function applySavedTheme() {
       const t = localStorage.getItem('theme');
       if (t === 'light') document.body.classList.add('light');
+      else document.body.classList.remove('light'); // тёмная по умолчанию
     }
     function toggleTheme() {
-      document.body.classList.toggle('light');
-      localStorage.setItem('theme', document.body.classList.contains('light') ? 'light' : 'dark');
+      const isLight = document.body.classList.toggle('light');
+      localStorage.setItem('theme', isLight ? 'light' : 'dark');
+      // Точная установка theme-color для адресной строки (Android/Яндекс)
+      const metaTheme = document.querySelector('meta[name="theme-color"]');
+      if (metaTheme) metaTheme.setAttribute('content', isLight ? '#f5f7fa' : '#0f141b');
     }
 
-    // ===== Add track =====
+    // ===== Add track (URL) =====
     function addTrack() {
       const titleEl = document.getElementById('trackTitle');
       const urlEl = document.getElementById('trackUrl');
@@ -270,11 +307,25 @@
       if (!/^https?:\/\//i.test(url)) return alert('Ссылка должна начинаться с http:// или https://');
       if (playlist.some(t => t.url === url)) return alert('Этот трек уже в плейлисте.');
 
-      playlist.push({ title, url });
+      playlist.push({ title, url, local: false });
       savePlaylist();
       renderPlaylist();
       titleEl.value = '';
       urlEl.value = '';
+    }
+
+    // ===== Add track (File) =====
+    function addTrackFile() {
+      const input = document.getElementById('fileInput');
+      const file = input.files && input.files[0];
+      if (!file) return alert('Выбери аудиофайл.');
+      const safeTitle = file.name.replace(/\.(mp3|wav|ogg|m4a|flac)$/i, '');
+      const objectUrl = URL.createObjectURL(file);
+      playlist.push({ title: safeTitle + ' (локально)', url: objectUrl, local: true });
+      savePlaylist();
+      renderPlaylist();
+      input.value = '';
+      alert('Файл добавлен. Учти: локальные треки работают в этом браузере, но их URL временный.');
     }
 
     // ===== Render playlist =====
@@ -304,6 +355,11 @@
         delBtn.textContent = '🗑️';
         delBtn.title = 'Удалить';
         delBtn.onclick = () => {
+          // Освобождаем object URL, если трек локальный
+          const t = playlist[index];
+          if (t && t.local && t.url.startsWith('blob:')) {
+            try { URL.revokeObjectURL(t.url); } catch {}
+          }
           playlist.splice(index, 1);
           savePlaylist();
           renderPlaylist();
@@ -323,8 +379,7 @@
           e.preventDefault();
           const fromIndex = parseInt(e.dataTransfer.getData('text/plain'), 10);
           const toIndex = parseInt(li.dataset.index, 10);
-          if (Number.isNaN(fromIndex) || Number.isNaN(toIndex)) return;
-          if (fromIndex === toIndex) return;
+          if (Number.isNaN(fromIndex) || Number.isNaN(toIndex) || fromIndex === toIndex) return;
           const rect = li.getBoundingClientRect();
           const after = e.clientY > rect.top + rect.height / 2;
           const fromEl = playlistEl.children[fromIndex];
@@ -376,7 +431,7 @@
           }
         }, interval);
       } catch (e) {
-        alert('Не удалось проиграть трек. Проверь ссылку.');
+        alert('Не удалось проиграть трек. Проверь ссылку или файл.');
       }
     }
 
@@ -401,9 +456,10 @@
       alert('Таймер сна установлен');
     }
 
-    // ===== Export/Import =====
+    // ===== Export/Import (JSON) =====
     function exportPlaylist() {
-      const blob = new Blob([JSON.stringify(playlist, null, 2)], { type: 'application/json' });
+      const plain = playlist.map(t => ({ title: t.title, url: t.url, local: !!t.local }));
+      const blob = new Blob([JSON.stringify(plain, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url; a.download = 'playlist.json'; a.click();
@@ -420,7 +476,9 @@
           const text = await file.text();
           const data = JSON.parse(text);
           if (!Array.isArray(data)) throw new Error('Неверный формат');
-          const cleaned = data.filter(t => t && t.title && t.url && /^https?:\/\//i.test(t.url));
+          const cleaned = data.filter(t =>
+            t && t.title && t.url && (t.local || /^https?:\/\//i.test(t.url))
+          );
           playlist = cleaned;
           savePlaylist();
           renderPlaylist();
@@ -435,10 +493,17 @@
     // ===== Controls & hotkeys =====
     function setupControls() {
       document.getElementById('addBtn').onclick = addTrack;
+      document.getElementById('addFileBtn').onclick = addTrackFile;
       document.getElementById('themeBtn').onclick = toggleTheme;
       document.getElementById('sleepBtn').onclick = () => setSleepTimer(60_000);
       document.getElementById('clearBtn').onclick = () => {
         if (confirm('Очистить плейлист?')) {
+          // ревок объектных URL
+          playlist.forEach(t => {
+            if (t.local && t.url && t.url.startsWith('blob:')) {
+              try { URL.revokeObjectURL(t.url); } catch {}
+            }
+          });
           playlist = []; savePlaylist(); renderPlaylist();
         }
       };
