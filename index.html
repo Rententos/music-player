@@ -95,10 +95,10 @@
     <audio id="audio" controls></audio><br>
     <input type="text" id="trackTitle" placeholder="Название">
     <input type="text" id="trackUrl" placeholder="Ссылка на mp3">
-    <button onclick="addTrack()">➕</button>
-    <button onclick="togglePlayPause()">⏯</button>
-    <button onclick="setSleepTimer()">⏱</button>
-    <button onclick="clearPlaylist()">🗑</button>
+    <button id="addBtn">➕</button>
+    <button id="playPauseBtn">⏯</button>
+    <button id="sleepBtn">⏱</button>
+    <button id="clearBtn">🗑</button>
   </div>
 
   <!-- Playlist -->
@@ -113,11 +113,21 @@ const audio = document.getElementById("audio");
 const playlistEl = document.getElementById("playlist");
 let sleepTimer;
 
-renderPlaylist();
+/* Render playlist */
+function renderPlaylist(){
+  playlistEl.innerHTML="";
+  playlist.forEach((track,index)=>{
+    const li=document.createElement("li");
+    li.className="glass";
+    li.textContent=track.title;
+    li.onclick=()=>playTrack(index);
+    playlistEl.appendChild(li);
+  });
+}
 
+/* Player functions */
 function savePlaylist(){localStorage.setItem("myPlaylist",JSON.stringify(playlist));}
 function loadPlaylist(){const d=localStorage.getItem("myPlaylist");return d?JSON.parse(d):[];}
-
 function addTrack(){
   const title=document.getElementById("trackTitle").value.trim();
   const url=document.getElementById("trackUrl").value.trim();
@@ -135,38 +145,35 @@ function setSleepTimer(){
   sleepTimer=setTimeout(()=>{audio.pause();alert("⏱️ Таймер сна: стоп");},60000);
 }
 function clearPlaylist(){playlist=[];savePlaylist();renderPlaylist();}
-function renderPlaylist(){
-  playlistEl.innerHTML="";
-  playlist.forEach((track,index)=>{
-    const li=document.createElement("li");
-    li.className="glass";
-    li.textContent=track.title;
-    li.onclick=()=>playTrack(index);
-    playlistEl.appendChild(li);
-  });
-}
 
 /* Settings logic */
 const settingsIcon=document.getElementById("settingsIcon");
 const settingsPanel=document.getElementById("settingsPanel");
-settingsIcon.onclick=()=>settingsPanel.classList.toggle("open");
+settingsIcon.addEventListener("click",()=>settingsPanel.classList.toggle("open"));
 
-document.getElementById("themeToggle").onclick=()=>{
+document.getElementById("themeToggle").addEventListener("click",()=>{
   document.body.classList.toggle("light");
   localStorage.setItem("theme", document.body.classList.contains("light") ? "light" : "dark");
-};
-document.getElementById("opacitySlider").oninput=(e)=>{
+});
+document.getElementById("opacitySlider").addEventListener("input",(e)=>{
   document.documentElement.style.setProperty("--glass-opacity", e.target.value);
   localStorage.setItem("opacity", e.target.value);
-};
+});
 
-// Restore settings
-window.onload=()=>{
+/* Restore settings instantly */
+window.addEventListener("DOMContentLoaded",()=>{
   const theme=localStorage.getItem("theme");
   if(theme==="light") document.body.classList.add("light");
   const op=localStorage.getItem("opacity");
   if(op) document.documentElement.style.setProperty("--glass-opacity", op);
-};
+  renderPlaylist();
+});
+
+/* Register player buttons */
+document.getElementById("addBtn").addEventListener("click", addTrack);
+document.getElementById("playPauseBtn").addEventListener("click", togglePlayPause);
+document.getElementById("sleepBtn").addEventListener("click", setSleepTimer);
+document.getElementById("clearBtn").addEventListener("click", clearPlaylist);
 </script>
 </body>
 </html>
