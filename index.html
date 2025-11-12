@@ -1,227 +1,243 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Музыкальная Библиотека</title>
-  <meta name="theme-color" content="#203a43">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Моя Музыкальная Библиотека — Liquid Glass</title>
+  <meta name="theme-color" content="#141a21" />
   <style>
-    /* Базовая стабильность и доступность */
+    /* ===== Reset & base ===== */
     *, *::before, *::after { box-sizing: border-box; }
     html, body { height: 100%; }
-    :focus-visible { outline: 2px solid #4cafef; outline-offset: 2px; }
-
-    body {
-      font-family: system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      color: #fff;
-      transition: background 0.4s ease, color 0.4s ease;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
+    :root {
+      --bg1: #0e141b;
+      --bg2: #1b2733;
+      --glass: rgba(255,255,255,0.12);
+      --glass-strong: rgba(255,255,255,0.2);
+      --text: #ffffff;
+      --accent: #4cafef;
+      --accent-2: #7fd1ff;
     }
     body.light {
-      background: linear-gradient(135deg, #f6f7f9, #e9eaed);
-      color: #222;
+      --bg1: #e9eef3;
+      --bg2: #f5f7fa;
+      --glass: rgba(0,0,0,0.08);
+      --glass-strong: rgba(0,0,0,0.16);
+      --text: #0f1318;
+      --accent: #225a8a;
+      --accent-2: #3b78a8;
     }
-    @media (prefers-color-scheme: light) {
-      body:not(.dark) { background: linear-gradient(135deg, #f6f7f9, #e9eaed); color: #222; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--text);
+      background: radial-gradient(1200px 800px at 20% 10%, var(--bg2) 0%, var(--bg1) 45%, #0a0f14 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      transition: background 0.4s ease, color 0.4s ease;
     }
     @media (prefers-reduced-motion: reduce) {
       * { transition: none !important; animation: none !important; }
     }
-
     .container {
-      width: 94%;
-      max-width: 1100px;
+      width: min(1100px, 94vw);
       margin: 28px auto;
       display: grid;
       grid-template-rows: auto auto 1fr;
-      gap: 16px;
+      gap: 18px;
     }
-
     h1 {
-      text-align: center;
       margin: 0;
-      padding: 12px 0;
+      padding: 8px 0 4px;
+      text-align: center;
+      letter-spacing: 0.3px;
+      font-weight: 700;
+      font-size: clamp(20px, 3vw, 28px);
     }
-
-    /* Панель управления */
+    /* ===== Liquid Glass Card ===== */
+    .card {
+      background: var(--glass);
+      border-radius: 16px;
+      backdrop-filter: saturate(140%) blur(16px);
+      -webkit-backdrop-filter: saturate(140%) blur(16px);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow:
+        0 30px 80px rgba(0,0,0,0.35),
+        inset 0 1px 0 rgba(255,255,255,0.08);
+    }
+    /* ===== Controls ===== */
     #controls {
+      padding: 14px;
       display: grid;
       grid-template-columns: 1fr;
       gap: 12px;
+      align-items: center;
       justify-items: center;
-      background: rgba(255,255,255,0.10);
-      backdrop-filter: blur(10px);
-      border-radius: 14px;
-      padding: 12px;
     }
-
     .inputs {
-      display: grid;
-      grid-template-columns: 1fr 1fr auto;
-      gap: 8px;
       width: 100%;
       max-width: 900px;
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 10px;
     }
-    input, button { font: inherit; }
+    input, button {
+      font: inherit;
+    }
     input {
-      padding: 10px;
-      border-radius: 10px;
-      border: none;
-      background: rgba(255,255,255,0.18);
-      color: inherit;
+      padding: 11px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.08));
+      color: var(--text);
       outline: none;
     }
-    input::placeholder { color: rgba(255,255,255,0.8); }
-    body.light input::placeholder { color: #666; }
-
+    input::placeholder { color: rgba(255,255,255,0.78); }
+    body.light input::placeholder { color: rgba(0,0,0,0.55); }
     .buttons {
       display: flex;
-      gap: 8px;
+      gap: 10px;
       flex-wrap: wrap;
       justify-content: center;
     }
-    button {
-      background: rgba(255,255,255,0.18);
-      border: none;
+    .btn {
       padding: 10px 16px;
       border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.12));
+      color: var(--text);
       cursor: pointer;
-      color: inherit;
+      transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease;
       backdrop-filter: blur(8px);
-      transition: background 0.2s, transform 0.15s;
+      -webkit-backdrop-filter: blur(8px);
     }
-    button:hover { background: rgba(255,255,255,0.30); transform: translateY(-1px); }
-
-    /* Основная зона: сетка Плейлист + Визуализатор */
+    .btn:hover { transform: translateY(-1px); border-color: var(--accent-2); }
+    .btn.primary {
+      border-color: rgba(76,175,239,0.45);
+      box-shadow: inset 0 0 0 1px rgba(76,175,239,0.35);
+    }
+    /* ===== Main grid ===== */
     .main {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 16px;
+      gap: 18px;
       align-items: start;
     }
-
-    /* Плейлист */
-    #playlist {
-      list-style: none;
-      padding: 10px;
-      margin: 0;
-      background: rgba(255,255,255,0.08);
-      backdrop-filter: blur(12px);
-      border-radius: 14px;
-    }
+    /* ===== Playlist ===== */
+    #playlist.card { padding: 12px; }
     #playlist[aria-busy="true"] { opacity: 0.6; }
     #playlist li {
       display: grid;
       grid-template-columns: 1fr auto;
-      gap: 10px;
       align-items: center;
-      background: rgba(255,255,255,0.10);
-      border-radius: 12px;
+      gap: 10px;
       padding: 12px;
       margin: 8px 0;
-      transition: background 0.2s, transform 0.2s;
+      border-radius: 14px;
+      background: var(--glass-strong);
+      border: 1px solid rgba(255,255,255,0.10);
+      transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease;
+      cursor: grab;
     }
-    #playlist li:hover { background: rgba(255,255,255,0.18); transform: translateX(3px); }
-    #playlist li.dragging { opacity: 0.5; }
+    #playlist li:hover {
+      transform: translateX(3px);
+      border-color: rgba(255,255,255,0.18);
+    }
+    #playlist li.dragging { opacity: 0.5; cursor: grabbing; }
     .track-title {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      font-weight: 600;
     }
     .track-actions { display: flex; gap: 8px; }
-
-    /* Визуализатор */
-    #visualizer {
-      height: 280px;
-      background: rgba(255,255,255,0.08);
-      backdrop-filter: blur(12px);
-      border-radius: 14px;
+    /* play/delete buttons inside track */
+    .track-actions .btn { padding: 8px 12px; border-radius: 10px; }
+    /* ===== Visualizer ===== */
+    #visualizer.card {
+      height: 300px;
+      padding: 10px;
       display: flex;
       align-items: flex-end;
       justify-content: center;
-      padding: 6px;
       overflow: hidden;
     }
     .bar {
       width: 9px;
       margin: 2px;
-      background: #4cafef;
+      border-radius: 6px;
+      background: linear-gradient(180deg, var(--accent-2), var(--accent));
+      box-shadow: 0 6px 18px rgba(76,175,239,0.35);
       height: 24px;
-      transition: height 0.12s;
-      border-radius: 4px;
+      transition: height 0.12s ease;
     }
-
-    /* Адаптивность */
-    @media (max-width: 900px) {
-      .inputs { grid-template-columns: 1fr; }
+    /* ===== Responsive ===== */
+    @media (max-width: 980px) {
       .main { grid-template-columns: 1fr; }
-      #visualizer { height: 180px; }
+      #visualizer.card { height: 220px; }
+      .inputs { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 620px) {
+      .inputs { grid-template-columns: 1fr; }
+      .bar { width: 7px; }
+      #visualizer.card { height: 180px; }
       #playlist li { grid-template-columns: 1fr; }
       .track-actions { justify-content: flex-start; }
     }
-    @media (max-width: 520px) {
-      button { padding: 9px 12px; border-radius: 10px; }
-      input { padding: 9px; }
-      .bar { width: 7px; margin: 2px; }
-      #visualizer { height: 160px; }
-    }
+    /* ===== Focus visibility for accessibility ===== */
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1 id="app-title">🎶 Моя Музыкальная Библиотека</h1>
+    <h1>🎶 Моя Музыкальная Библиотека</h1>
 
-    <div id="controls" role="region" aria-labelledby="app-title">
-      <!-- Два аудиоканала для стабильного кроссфейда -->
+    <!-- Controls -->
+    <section id="controls" class="card" role="region" aria-label="Управление">
+      <!-- Two audio channels for safe crossfade -->
       <audio id="audioA" crossorigin="anonymous"></audio>
       <audio id="audioB" crossorigin="anonymous"></audio>
 
       <div class="inputs" role="form" aria-label="Добавить трек">
-        <input type="text" id="trackTitle" placeholder="Название трека" aria-label="Название трека">
-        <input type="url" id="trackUrl" placeholder="Ссылка на mp3 (https://...)" aria-label="Ссылка на трек">
-        <button id="addBtn" aria-label="Добавить трек">Добавить трек</button>
+        <input id="trackTitle" type="text" placeholder="Название трека" aria-label="Название трека" />
+        <input id="trackUrl" type="url" placeholder="Ссылка на mp3 (https://...)" aria-label="Ссылка на трек" />
+        <button id="addBtn" class="btn primary" aria-label="Добавить трек">Добавить</button>
       </div>
 
-      <div class="buttons" role="group" aria-label="Управление">
-        <button id="playPauseBtn" aria-label="Плей/Пауза">Плей/Пауза</button>
-        <button id="themeBtn" aria-label="Сменить тему">Сменить тему</button>
-        <button id="sleepBtn" aria-label="Таймер сна 1 мин">Таймер сна 1 мин</button>
-        <button id="clearBtn" aria-label="Очистить плейлист">Очистить плейлист</button>
-        <button id="exportBtn" aria-label="Экспорт плейлиста">Экспорт</button>
-        <button id="importBtn" aria-label="Импорт плейлиста">Импорт</button>
+      <div class="buttons" role="group" aria-label="Кнопки">
+        <button id="playPauseBtn" class="btn" aria-label="Плей/Пауза">Плей/Пауза</button>
+        <button id="themeBtn" class="btn" aria-label="Сменить тему">Тема</button>
+        <button id="sleepBtn" class="btn" aria-label="Таймер сна 1 мин">Сон 1 мин</button>
+        <button id="clearBtn" class="btn" aria-label="Очистить плейлист">Очистить</button>
+        <button id="exportBtn" class="btn" aria-label="Экспорт плейлиста">Экспорт</button>
+        <button id="importBtn" class="btn" aria-label="Импорт плейлиста">Импорт</button>
       </div>
-    </div>
+    </section>
 
-    <div class="main">
-      <ul id="playlist" role="list" aria-label="Список треков"></ul>
-      <div id="visualizer" role="img" aria-label="Аудио визуализатор"></div>
-    </div>
+    <!-- Main: playlist + visualizer -->
+    <section class="main">
+      <ul id="playlist" class="card" role="list" aria-label="Список треков"></ul>
+      <div id="visualizer" class="card" role="img" aria-label="Визуализатор"></div>
+    </section>
   </div>
 
   <script>
-    // Состояние
+    // ===== State =====
     const audioA = document.getElementById('audioA');
     const audioB = document.getElementById('audioB');
-    let active = 'A'; // какой канал активен сейчас
+    let active = 'A';
     let sleepTimer = null;
 
     const playlistEl = document.getElementById('playlist');
     const visualizer = document.getElementById('visualizer');
 
-    // Инициализация
     let playlist = loadPlaylist();
     applySavedTheme();
     renderPlaylist();
     setupControls();
     (window.requestIdleCallback || setTimeout)(initVisualizer, 0);
-    setupPWA();
 
-    // Сохранение/загрузка
+    // ===== Storage =====
     function savePlaylist() {
       localStorage.setItem('myPlaylist', JSON.stringify(playlist));
     }
@@ -234,17 +250,17 @@
       }
     }
 
-    // Тема
+    // ===== Theme =====
     function applySavedTheme() {
-      const theme = localStorage.getItem('theme');
-      if (theme === 'light') document.body.classList.add('light');
+      const t = localStorage.getItem('theme');
+      if (t === 'light') document.body.classList.add('light');
     }
     function toggleTheme() {
       document.body.classList.toggle('light');
       localStorage.setItem('theme', document.body.classList.contains('light') ? 'light' : 'dark');
     }
 
-    // Добавление трека
+    // ===== Add track =====
     function addTrack() {
       const titleEl = document.getElementById('trackTitle');
       const urlEl = document.getElementById('trackUrl');
@@ -261,7 +277,7 @@
       urlEl.value = '';
     }
 
-    // Рендер плейлиста
+    // ===== Render playlist =====
     function renderPlaylist() {
       playlistEl.setAttribute('aria-busy', 'true');
       playlistEl.innerHTML = '';
@@ -278,22 +294,25 @@
         actions.className = 'track-actions';
 
         const playBtn = document.createElement('button');
+        playBtn.className = 'btn';
         playBtn.textContent = '▶️';
-        playBtn.setAttribute('aria-label', 'Проиграть трек');
+        playBtn.title = 'Играть';
         playBtn.onclick = () => playTrack(index);
 
         const delBtn = document.createElement('button');
+        delBtn.className = 'btn';
         delBtn.textContent = '🗑️';
-        delBtn.setAttribute('aria-label', 'Удалить трек');
-        delBtn.onclick = () => { playlist.splice(index, 1); savePlaylist(); renderPlaylist(); };
+        delBtn.title = 'Удалить';
+        delBtn.onclick = () => {
+          playlist.splice(index, 1);
+          savePlaylist();
+          renderPlaylist();
+        };
 
-        actions.appendChild(playBtn);
-        actions.appendChild(delBtn);
+        actions.append(playBtn, delBtn);
+        li.append(title, actions);
 
-        li.appendChild(title);
-        li.appendChild(actions);
-
-        // Drag & Drop сортировка
+        // Drag & drop
         li.addEventListener('dragstart', (e) => {
           li.classList.add('dragging');
           e.dataTransfer.effectAllowed = 'move';
@@ -304,13 +323,12 @@
           e.preventDefault();
           const fromIndex = parseInt(e.dataTransfer.getData('text/plain'), 10);
           const toIndex = parseInt(li.dataset.index, 10);
+          if (Number.isNaN(fromIndex) || Number.isNaN(toIndex)) return;
           if (fromIndex === toIndex) return;
           const rect = li.getBoundingClientRect();
-          const mid = rect.top + rect.height / 2;
-          const after = e.clientY > mid;
+          const after = e.clientY > rect.top + rect.height / 2;
           const fromEl = playlistEl.children[fromIndex];
-          if (!fromEl) return;
-          playlistEl.insertBefore(fromEl, after ? li.nextSibling : li);
+          if (fromEl) playlistEl.insertBefore(fromEl, after ? li.nextSibling : li);
         });
         li.addEventListener('drop', (e) => {
           e.preventDefault();
@@ -326,14 +344,14 @@
     }
 
     function moveItem(from, to) {
-      if (from === to) return;
+      if (from === to || from < 0 || to < 0 || from >= playlist.length || to >= playlist.length) return;
       const item = playlist.splice(from, 1)[0];
       playlist.splice(to, 0, item);
       savePlaylist();
       renderPlaylist();
     }
 
-    // Проигрывание трека с кроссфейдом
+    // ===== Play & crossfade =====
     async function playTrack(index) {
       const track = playlist[index];
       if (!track) return;
@@ -346,13 +364,11 @@
         to.volume = 0;
         await to.play();
 
-        // Плавный кроссфейд
         const step = 0.05;
         const interval = 120;
         const fade = setInterval(() => {
           from.volume = Math.max(0, from.volume - step);
           to.volume = Math.min(1, to.volume + step);
-
           if (from.volume <= 0 && to.volume >= 1) {
             clearInterval(fade);
             from.pause();
@@ -364,68 +380,33 @@
       }
     }
 
-    // Кнопки управления
-    function setupControls() {
-      document.getElementById('addBtn').onclick = addTrack;
-      document.getElementById('themeBtn').onclick = toggleTheme;
-      document.getElementById('sleepBtn').onclick = () => setSleepTimer(60_000);
-      document.getElementById('clearBtn').onclick = () => {
-        if (confirm('Очистить плейлист?')) {
-          playlist = [];
-          savePlaylist();
-          renderPlaylist();
-        }
-      };
-      document.getElementById('playPauseBtn').onclick = togglePlayPause;
-
-      document.getElementById('exportBtn').onclick = exportPlaylist;
-      document.getElementById('importBtn').onclick = importPlaylist;
-
-      // Горячие клавиши
-      document.addEventListener('keydown', (e) => {
-        if (e.code === 'Space') {
-          e.preventDefault();
-          togglePlayPause();
-        } else if (e.code === 'ArrowRight') {
-          currentAudio().currentTime += 5;
-        } else if (e.code === 'ArrowLeft') {
-          currentAudio().currentTime -= 5;
-        }
-      });
-    }
-
-    function currentAudio() {
-      return active === 'A' ? audioA : audioB;
-    }
+    function currentAudio() { return active === 'A' ? audioA : audioB; }
 
     function togglePlayPause() {
       const a = currentAudio();
       if (a.src) {
         a.paused ? a.play() : a.pause();
-      } else {
-        if (playlist.length) playTrack(0);
+      } else if (playlist.length) {
+        playTrack(0);
       }
     }
 
-    // Таймер сна
+    // ===== Sleep timer =====
     function setSleepTimer(ms) {
       clearTimeout(sleepTimer);
       sleepTimer = setTimeout(() => {
-        audioA.pause();
-        audioB.pause();
+        audioA.pause(); audioB.pause();
         alert('⏱️ Таймер сна: воспроизведение остановлено');
       }, ms);
       alert('Таймер сна установлен');
     }
 
-    // Экспорт/Импорт плейлиста
+    // ===== Export/Import =====
     function exportPlaylist() {
       const blob = new Blob([JSON.stringify(playlist, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url;
-      a.download = 'playlist.json';
-      a.click();
+      a.href = url; a.download = 'playlist.json'; a.click();
       URL.revokeObjectURL(url);
     }
     async function importPlaylist() {
@@ -433,13 +414,12 @@
       input.type = 'file';
       input.accept = 'application/json';
       input.onchange = async () => {
-        const file = input.files[0];
+        const file = input.files?.[0];
         if (!file) return;
         try {
           const text = await file.text();
           const data = JSON.parse(text);
           if (!Array.isArray(data)) throw new Error('Неверный формат');
-          // простая валидация
           const cleaned = data.filter(t => t && t.title && t.url && /^https?:\/\//i.test(t.url));
           playlist = cleaned;
           savePlaylist();
@@ -452,12 +432,33 @@
       input.click();
     }
 
-    // Визуализатор (адаптивный, экономный)
+    // ===== Controls & hotkeys =====
+    function setupControls() {
+      document.getElementById('addBtn').onclick = addTrack;
+      document.getElementById('themeBtn').onclick = toggleTheme;
+      document.getElementById('sleepBtn').onclick = () => setSleepTimer(60_000);
+      document.getElementById('clearBtn').onclick = () => {
+        if (confirm('Очистить плейлист?')) {
+          playlist = []; savePlaylist(); renderPlaylist();
+        }
+      };
+      document.getElementById('playPauseBtn').onclick = togglePlayPause;
+      document.getElementById('exportBtn').onclick = exportPlaylist;
+      document.getElementById('importBtn').onclick = importPlaylist;
+
+      document.addEventListener('keydown', (e) => {
+        if (e.code === 'Space') { e.preventDefault(); togglePlayPause(); }
+        else if (e.code === 'ArrowRight') { currentAudio().currentTime += 5; }
+        else if (e.code === 'ArrowLeft') { currentAudio().currentTime -= 5; }
+      });
+    }
+
+    // ===== Visualizer (adaptive) =====
     let resizeObserver;
     function initVisualizer() {
       visualizer.innerHTML = '';
       const barsCount = Math.floor(visualizer.clientWidth / 14);
-      for (let i = 0; i < Math.max(24, barsCount); i++) {
+      for (let i = 0; i < Math.max(28, barsCount); i++) {
         const bar = document.createElement('div');
         bar.className = 'bar';
         visualizer.appendChild(bar);
@@ -466,10 +467,10 @@
 
       function animate() {
         const base = currentAudio();
-        const amp = base.paused ? 0.15 : 1;
+        const amp = base.paused ? 0.18 : 1;
         for (let i = 0; i < bars.length; i++) {
           const r = Math.random() * amp;
-          const h = 40 + r * (visualizer.clientHeight - 60);
+          const h = 40 + r * (visualizer.clientHeight - 70);
           bars[i].style.height = Math.max(20, Math.min(visualizer.clientHeight - 20, h)) + 'px';
         }
         requestAnimationFrame(animate);
@@ -477,83 +478,18 @@
       animate();
 
       if (resizeObserver) resizeObserver.disconnect();
-      resizeObserver = new ResizeObserver(debounce(() => initVisualizer(), 200));
-      resizeObserver.observe(visualizer);
+      if ('ResizeObserver' in window) {
+        resizeObserver = new ResizeObserver(debounce(initVisualizer, 200));
+        resizeObserver.observe(visualizer);
+      } else {
+        window.addEventListener('resize', debounce(initVisualizer, 200));
+      }
     }
 
-    // Вспомогательное: debounce
+    // ===== Debounce =====
     function debounce(fn, delay) {
       let t = null;
-      return (...args) => {
-        clearTimeout(t);
-        t = setTimeout(() => fn(...args), delay);
-      };
-    }
-
-    // PWA: динамический манифест и сервис-воркер из одного файла
-    function setupPWA() {
-      // Иконки как data URI (простые цветные квадраты)
-      const icon192 = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192"><rect width="192" height="192" fill="#203a43"/><text x="50%" y="55%" font-size="72" text-anchor="middle" fill="#ffffff">🎵</text></svg>');
-      const icon512 = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512"><rect width="512" height="512" fill="#203a43"/><text x="50%" y="55%" font-size="192" text-anchor="middle" fill="#ffffff">🎵</text></svg>');
-
-      const manifest = {
-        name: 'Моя Музыкальная Библиотека',
-        short_name: 'Музыка',
-        start_url: '.',
-        display: 'standalone',
-        background_color: '#203a43',
-        theme_color: '#203a43',
-        icons: [
-          { src: icon192, sizes: '192x192', type: 'image/svg+xml' },
-          { src: icon512, sizes: '512x512', type: 'image/svg+xml' }
-        ]
-      };
-      const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
-      const manifestUrl = URL.createObjectURL(manifestBlob);
-      const link = document.createElement('link');
-      link.rel = 'manifest';
-      link.href = manifestUrl;
-      document.head.appendChild(link);
-
-      // Сервис-воркер: кэширует страницу и манифест
-      const swCode = `
-        const CACHE = 'music-lib-v1';
-        const ASSETS = [
-          './',
-          './index.html'
-        ];
-        self.addEventListener('install', (e) => {
-          e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
-        });
-        self.addEventListener('activate', (e) => {
-          e.waitUntil(
-            caches.keys().then(keys => Promise.all(keys.map(k => k !== CACHE && caches.delete(k))))
-          );
-        });
-        self.addEventListener('fetch', (e) => {
-          const { request } = e;
-          if (request.mode === 'navigate') {
-            e.respondWith(
-              fetch(request).catch(() => caches.match('./index.html'))
-            );
-            return;
-          }
-          e.respondWith(
-            fetch(request)
-              .then(resp => {
-                const copy = resp.clone();
-                caches.open(CACHE).then(c => c.put(request, copy));
-                return resp;
-              })
-              .catch(() => caches.match(request))
-          );
-        });
-      `;
-      const swBlob = new Blob([swCode], { type: 'application/javascript' });
-      const swUrl = URL.createObjectURL(swBlob);
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register(swUrl).catch(()=>{});
-      }
+      return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), delay); };
     }
   </script>
 </body>
