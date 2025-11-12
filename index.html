@@ -38,6 +38,12 @@
     button:hover {
       background: rgba(255,255,255,0.4);
     }
+    input {
+      padding: 6px;
+      border-radius: 6px;
+      border: none;
+      margin: 5px;
+    }
     #playlist {
       list-style: none;
       padding: 0;
@@ -124,7 +130,7 @@
 
     function playTrack(index) {
       if (audio.src) {
-        crossfade(audio.src, playlist[index].url);
+        crossfade(playlist[index].url);
       } else {
         audio.src = playlist[index].url;
         audio.play();
@@ -167,11 +173,12 @@
     }
 
     // Crossfade
-    function crossfade(oldSrc, newSrc) {
+    function crossfade(newSrc) {
       const oldAudio = audio;
-      const newAudio = new Audio(newSrc);
-      newAudio.volume = 0;
-      newAudio.play();
+      const tempAudio = new Audio(newSrc);
+      tempAudio.volume = 0;
+      tempAudio.play();
+
       let fadeOut = setInterval(() => {
         if (oldAudio.volume > 0.05) {
           oldAudio.volume -= 0.05;
@@ -180,13 +187,16 @@
           oldAudio.pause();
           oldAudio.src = newSrc;
           oldAudio.volume = 1;
+          oldAudio.play();
         }
       }, 200);
+
       let fadeIn = setInterval(() => {
-        if (newAudio.volume < 1) {
-          newAudio.volume += 0.05;
+        if (tempAudio.volume < 1) {
+          tempAudio.volume += 0.05;
         } else {
           clearInterval(fadeIn);
+          tempAudio.pause();
         }
       }, 200);
     }
@@ -210,6 +220,7 @@
     // Hotkeys
     document.addEventListener("keydown", e => {
       if (e.code === "Space") {
+        e.preventDefault();
         audio.paused ? audio.play() : audio.pause();
       }
       if (e.code === "ArrowRight") {
