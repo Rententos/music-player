@@ -3,18 +3,18 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Liquid Glass Music — Roman</title>
+<title>Liquid Glass Music — Roman (EQ)</title>
 <meta name="theme-color" content="#0f141b" />
 <style>
 :root{
   --bg1:#0f141b; --bg2:#172130; --text:#fff;
   --muted:#b7c0cc; --accent:#4cafef; --accent-2:#7fd1ff;
-  --glass-opacity:0.10; --glass-border:0.16;
-  --press-scale:0.98;
+  --glass-opacity:0.10; --glass-border:0.16; --press-scale:0.98;
+  --control-size:64px; --icon-size:28px; --gap:14px;
 }
-body{margin:0;font-family:Inter,Segoe UI,Roboto,sans-serif;color:var(--text);background:linear-gradient(180deg,var(--bg1),var(--bg2));-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
-body.light{
-  --bg1:#fdfdfd; --bg2:#f5f7fa; --text:#0f1318; --muted:#4a596b;
+body{margin:0;font-family:Inter,Segoe UI,Roboto,sans-serif;color:var(--text);
+  background:linear-gradient(180deg,var(--bg1),var(--bg2));-webkit-font-smoothing:antialiased;}
+body.light{ --bg1:#fdfdfd; --bg2:#f5f7fa; --text:#0f1318; --muted:#4a596b;
   --accent:#225a8a; --accent-2:#3b78a8; --glass-border:0.20;
   background: radial-gradient(circle at 50% 20%, rgba(255,255,255,1) 0%, rgba(255,255,255,0.85) 30%, rgba(245,247,250,0.9) 60%, rgba(230,235,240,1) 100%);
   color:var(--text);
@@ -22,105 +22,123 @@ body.light{
 .glass{
   background: rgba(255,255,255,var(--glass-opacity));
   border:1px solid rgba(255,255,255,var(--glass-border));
-  border-radius:14px;
-  -webkit-backdrop-filter: blur(14px) saturate(150%);
-  backdrop-filter: blur(14px) saturate(150%);
-  box-shadow: 0 26px 60px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06);
-  transition: transform .12s ease, box-shadow .15s ease;
+  border-radius:16px;
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  backdrop-filter: blur(16px) saturate(150%);
+  box-shadow: 0 30px 70px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06);
+  transition: transform .12s ease, box-shadow .15s ease, padding .12s ease;
 }
 .icon-btn{
-  width:48px;height:48px;display:grid;place-items:center;border-radius:12px;border:1px solid rgba(255,255,255,var(--glass-border));
-  background:rgba(255,255,255,calc(var(--glass-opacity)+0.02));cursor:pointer;user-select:none;
-  transition: transform .08s ease, box-shadow .08s ease, border-color .12s ease;
+  width:var(--control-size); height:var(--control-size); display:grid; place-items:center; border-radius:14px;
+  font-size:var(--icon-size); cursor:pointer; user-select:none;
+  border:1px solid rgba(255,255,255,var(--glass-border));
+  background:rgba(255,255,255,calc(var(--glass-opacity)+0.03));
+  transition:transform .08s ease,box-shadow .08s ease,border-color .12s;
 }
 .icon-btn:active{ transform: scale(var(--press-scale)); }
-.icon-btn:focus{ outline:2px solid rgba(127,196,255,0.24); outline-offset:3px; }
+.icon-btn.small{ width:48px;height:48px;border-radius:10px;font-size:18px }
 
-.app{ width:min(1180px,95vw); height:min(760px,94vh); margin:18px auto; display:grid;
-  grid-template-columns:280px 1fr 260px; grid-template-rows:64px 1fr 110px;
-  grid-template-areas:"sidebar header settings" "sidebar center settings" "sidebar controls settings"; gap:14px;
+.app{ width:min(1280px,96vw); margin:22px auto; display:grid;
+  grid-template-columns:300px 1fr 360px; grid-template-rows:80px 1fr 140px;
+  grid-template-areas:"sidebar header settings" "sidebar center settings" "sidebar controls settings";
+  gap:var(--gap);
   padding:12px;
 }
 
 /* Sidebar */
-.sidebar{grid-area:sidebar;padding:12px;display:grid;grid-template-rows:auto 1fr;gap:10px}
-.sidebar-title{font-weight:700;font-size:16px}
-.library{padding:8px;overflow:auto;display:grid;gap:8px;max-height:calc(94vh - 220px)}
-.lib-item{display:grid;grid-template-columns:52px 1fr 36px;gap:10px;align-items:center;padding:8px;border-radius:12px;cursor:pointer;transition:background .12s,transform .12s}
-.lib-item:hover{transform:translateY(-3px)}
-.cover-sm{width:52px;height:52px;border-radius:10px;background:linear-gradient(120deg,#243040,#0f141b);display:grid;place-items:center;color:var(--text);font-size:18px}
-.lib-title{font-weight:600}
+.sidebar{grid-area:sidebar;padding:18px;display:grid;grid-template-rows:auto 1fr auto;gap:14px}
+.sidebar-title{font-weight:800;font-size:18px;margin-bottom:6px}
+.library{padding:10px;overflow:auto;display:grid;gap:10px;max-height:calc(100vh - 280px)}
+.lib-item{display:grid;grid-template-columns:68px 1fr 44px;gap:12px;align-items:center;padding:10px;border-radius:12px;cursor:pointer;transition:transform .12s,box-shadow .12s}
+.lib-item:hover{transform:translateY(-4px); box-shadow:0 10px 30px rgba(0,0,0,0.25)}
+.cover-sm{width:68px;height:68px;border-radius:12px;background:linear-gradient(120deg,#243040,#0f141b);display:grid;place-items:center;color:var(--text);font-size:20px}
+.lib-title{font-weight:700}
 .lib-tools{display:flex;gap:8px;align-items:center}
 
 /* Header */
-.header{grid-area:header;display:flex;align-items:center;gap:12px;padding:8px}
+.header{grid-area:header;display:flex;align-items:center;gap:12px;padding:12px}
+.header-left{display:flex;gap:12px;align-items:center}
+.header-title{font-weight:700;font-size:16px;opacity:.9}
 
 /* Settings */
 .settings{grid-area:settings;padding:12px;display:flex;justify-content:flex-end;align-items:start;position:relative}
-.settings-panel{position:absolute;top:58px;right:8px;width:320px;padding:0;max-height:0;overflow:hidden;opacity:0;transition:max-height .36s ease,opacity .22s ease,padding .22s}
-.settings-panel.open{padding:12px;max-height:420px;opacity:1}
-.settings-grid{display:grid;gap:10px}
-.set-btn{padding:10px;border-radius:10px;cursor:pointer;background:rgba(255,255,255,calc(var(--glass-opacity)+0.02));border:1px solid rgba(255,255,255,var(--glass-border))}
+.settings-panel{position:absolute;top:74px;right:8px;width:320px;padding:0;max-height:0;overflow:hidden;opacity:0;transition:max-height .36s ease,opacity .22s ease,padding .22s}
+.settings-panel.open{padding:14px;max-height:520px;opacity:1}
+.settings-grid{display:grid;gap:12px}
+.set-btn{padding:10px;border-radius:10px;cursor:pointer;background:rgba(255,255,255,calc(var(--glass-opacity)+0.03));border:1px solid rgba(255,255,255,var(--glass-border));font-weight:600}
 
 /* Center */
-.center{grid-area:center;display:grid;place-items:center;padding:16px}
-.now-card{width:min(640px,86%);display:grid;gap:12px;padding:16px;border-radius:12px}
-.cover{width:100%;aspect-ratio:1/1;border-radius:12px;background:radial-gradient(80% 80% at 45% 35%,#2a3c49,#0f141b);display:grid;place-items:center;overflow:hidden;position:relative}
+.center{grid-area:center;display:grid;place-items:center;padding:18px}
+.now-card{width:min(760px,92%);display:grid;gap:16px;padding:18px;border-radius:14px}
+.cover{width:100%;aspect-ratio:1/1;border-radius:14px;background:radial-gradient(80% 80% at 45% 35%,#2a3c49,#0f141b);display:grid;place-items:center;overflow:hidden;position:relative}
 .cover img{width:100%;height:100%;object-fit:cover;display:block}
 #coverIcon{font-size:46px;color:var(--text);display:grid;place-items:center}
-.now-title{text-align:center;font-weight:800;font-size:clamp(18px,2.8vw,26px)}
+.now-title{text-align:center;font-weight:900;font-size:clamp(18px,3.2vw,28px)}
 .now-meta{text-align:center;color:var(--muted)}
 
 /* Controls */
-.controls{grid-area:controls;padding:14px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px}
-.progress{height:10px;border-radius:10px;overflow:hidden;background:rgba(255,255,255,0.06)}
+.controls{grid-area:controls;padding:18px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px}
+.progress{height:14px;border-radius:12px;overflow:hidden;background:rgba(255,255,255,0.04)}
 .progress .bar{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width .12s linear}
-.ctrl-row{display:flex;gap:8px;align-items:center;justify-content:center}
+.ctrl-row{display:flex;gap:12px;align-items:center;justify-content:center}
 
-/* Small helpers */
-.hidden{display:none}
-.btn-ghost{background:transparent;border:1px dashed rgba(255,255,255,0.06)}
+/* Equalizer panel */
+.eq-panel{margin-top:12px;padding:12px;border-radius:12px;background:rgba(0,0,0,0.12);display:grid;gap:10px}
+.eq-controls{display:flex;gap:10px;align-items:end;justify-content:center}
+.eq-band{display:flex;flex-direction:column;align-items:center;gap:8px}
+.eq-band input[type=range]{writing-mode:bt-lr; -webkit-appearance:none; width:120px; height:6px; transform:rotate(-90deg); margin-bottom:6px}
+.eq-band label{font-size:12px;color:var(--muted)}
+.eq-meter{height:6px;width:100%;background:rgba(255,255,255,0.06);border-radius:6px;overflow:hidden}
+.eq-meter .lvl{height:100%;width:0%;background:linear-gradient(90deg,#ffd66b,#ff7b7b)}
+
+/* inputs */
 .input{padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);color:inherit}
-.small{font-size:13px}
-
-/* pressed animation for library tools */
-.tool-btn{padding:6px;border-radius:8px;cursor:pointer;user-select:none}
-.tool-btn:active{transform:scale(0.96)}
+.small{font-size:13px;color:var(--muted)}
 
 /* responsive */
-@media (max-width:920px){
-  .app{grid-template-columns:1fr;grid-template-rows:64px 1fr 1fr;grid-template-areas:"header" "center" "controls"}
-  .settings, .sidebar{display:none}
-  .controls{grid-template-columns:1fr}
+@media (max-width:980px){
+  .app{grid-template-columns:1fr;grid-template-rows:64px 1fr 240px;grid-template-areas:"header" "center" "controls";}
+  .sidebar,.settings{display:none}
+  .now-card{width:94%}
+  .icon-btn{--control-size:56px}
 }
 </style>
 </head>
 <body>
 <div class="app">
-  <aside class="glass sidebar">
-    <div class="sidebar-title">Библиотека</div>
+  <aside class="glass sidebar" aria-label="Библиотека">
+    <div>
+      <div class="sidebar-title">Библиотека</div>
+      <div class="small" style="margin-top:6px;color:var(--muted)">Добавляй треки по ссылке или файлу</div>
+    </div>
+
     <div id="library" class="glass library" aria-live="polite"></div>
-    <div style="display:flex;gap:8px;margin-top:8px">
-      <label class="icon-btn" id="addFileBtn" title="Добавить файл" tabindex="0">📁</label>
-      <input id="fileInput" class="hidden" type="file" accept="audio/*" />
-      <label class="icon-btn" id="addUrlToggle" title="Добавить по ссылке" tabindex="0">🔗</label>
+
+    <div style="display:flex;gap:12px;align-items:center">
+      <label id="addFileBtn" class="icon-btn small" title="Добавить файл" tabindex="0">📁</label>
+      <input id="fileInput" type="file" accept="audio/*" style="display:none" />
+      <label id="addUrlToggle" class="icon-btn small" title="Добавить по ссылке" tabindex="0">🔗</label>
+      <div style="flex:1"></div>
+      <button id="clearBtnSmall" class="set-btn" title="Очистить библиотеку">Очистить</button>
     </div>
   </aside>
 
-  <header class="glass header">
-    <div id="homeBtn" class="icon-btn" title="Главная" tabindex="0">🎵</div>
-    <div id="eqBtn" class="icon-btn" title="Эквалайзер" tabindex="0">🎚</div>
+  <header class="glass header" role="banner">
+    <div class="header-left">
+      <div id="homeBtn" class="icon-btn small" title="Главная" tabindex="0">🎵</div>
+      <div id="eqBtn" class="icon-btn small" title="Эквалайзер" tabindex="0">🎚</div>
+    </div>
     <div style="flex:1"></div>
-    <div style="opacity:.8;font-size:13px" class="small">Liquid Glass Player</div>
+    <div class="header-title">Liquid Glass Player — Roman</div>
   </header>
 
-  <section class="settings">
-    <div id="settingsBtn" class="icon-btn glass" title="Настройки" tabindex="0">⚙️</div>
+  <section class="settings" aria-label="Настройки">
+    <div id="settingsBtn" class="icon-btn small glass" title="Настройки" tabindex="0">⚙️</div>
     <div id="settingsPanel" class="glass settings-panel" aria-hidden="true">
       <div class="settings-grid">
-        <button id="themeToggle" class="set-btn" title="Сменить тему">🌗 Сменить тему</button>
+        <button id="themeToggle" class="set-btn">🌗 Сменить тему</button>
 
-        <label class="set-btn" style="display:grid;gap:6px">
+        <label style="display:grid;gap:6px" class="set-btn">
           <div class="small">Прозрачность стекла</div>
           <input id="opacitySlider" type="range" min="0.05" max="0.30" step="0.01" value="0.10" />
         </label>
@@ -129,75 +147,99 @@ body.light{
           <div class="small">Добавить трек по ссылке</div>
           <input id="urlTitle" class="input" type="text" placeholder="Название трека" />
           <input id="urlInput" class="input" type="url" placeholder="Ссылка на аудио (https://...)" />
-          <div style="display:flex;gap:8px">
+          <div style="display:flex;gap:8px;justify-content:flex-end">
             <button id="addByUrl" class="set-btn">➕ Добавить</button>
-            <button id="cancelUrl" class="set-btn btn-ghost">Отмена</button>
+            <button id="cancelUrl" class="set-btn" id="cancelUrl">Отмена</button>
           </div>
         </div>
+
+        <div style="display:grid;gap:8px" class="set-btn">
+          <div class="small">Эквалайзер (5 полос)</div>
+          <div id="eqPanel" class="eq-panel hidden" style="display:block">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+              <div class="small">Включить EQ</div>
+              <label style="display:flex;align-items:center;gap:8px">
+                <input id="eqEnable" type="checkbox" /> <span class="small">ON</span>
+              </label>
+            </div>
+            <div class="eq-controls" id="eqControls"></div>
+          </div>
+        </div>
+
       </div>
     </div>
   </section>
 
-  <main class="glass center">
+  <main class="glass center" role="main">
     <div class="glass now-card">
-      <div class="cover" role="img" aria-label="Обложка трека">
+      <div class="cover" role="img" aria-label="Обложка">
         <img id="coverImg" class="hidden" alt="cover"/>
         <div id="coverIcon">♪</div>
       </div>
-      <div id="nowTitle" class="now-title">Ничего не играет</div>
-      <div id="nowMeta" class="now-meta">—</div>
+
+      <div style="display:flex;flex-direction:column;gap:6px;align-items:center">
+        <div id="nowTitle" class="now-title">Ничего не играет</div>
+        <div id="nowMeta" class="now-meta">—</div>
+      </div>
+
+      <div style="display:flex;gap:12px;align-items:center;justify-content:center">
+        <div style="width:48%;"><input id="seek" type="range" min="0" max="100" value="0" style="width:100%" /></div>
+        <div style="width:160px;display:flex;gap:8px;align-items:center;justify-content:center">
+          <div id="volDec" class="icon-btn small">🔉</div>
+          <input id="volume" type="range" min="0" max="1" step="0.01" value="1" style="width:100px" />
+        </div>
+      </div>
     </div>
   </main>
 
-  <footer class="glass controls">
-    <div class="progress" aria-hidden="true"><div id="progressBar" class="bar"></div></div>
+  <footer class="glass controls" role="contentinfo">
+    <div style="padding:6px"><div class="progress" aria-hidden="true"><div id="progressBar" class="bar"></div></div></div>
 
-    <div class="ctrl-row" style="justify-self:center">
-      <button id="prevBtn" class="icon-btn" title="Предыдущий" tabindex="0">⏮</button>
-      <button id="playPauseBtn" class="icon-btn" title="Плей/Пауза" tabindex="0">⏯</button>
-      <button id="nextBtn" class="icon-btn" title="Следующий" tabindex="0">⏭</button>
-      <button id="sleepBtn" class="icon-btn" title="Таймер сна 1 мин" tabindex="0">⏱</button>
-      <button id="clearBtn" class="icon-btn" title="Очистить библиотеку" tabindex="0">🗑</button>
+    <div class="ctrl-row" style="gap:18px">
+      <button id="prevBtn" class="icon-btn" title="Предыдущий">⏮</button>
+      <button id="playPauseBtn" class="icon-btn" title="Плей/Пауза">⏯</button>
+      <button id="nextBtn" class="icon-btn" title="Следующий">⏭</button>
+      <button id="sleepBtn" class="icon-btn" title="Таймер сна">⏱</button>
+      <button id="clearBtn" class="icon-btn" title="Очистить">🗑</button>
     </div>
 
-    <div style="text-align:right;font-size:12px;color:var(--muted)">Горячие клавиши: Space / ← / →</div>
+    <div style="text-align:right;font-size:13px;color:var(--muted)">Горячие клавиши: Space / ← / →</div>
   </footer>
 </div>
 
+<!-- audio -->
 <audio id="audioA" preload="auto"></audio>
 <audio id="audioB" preload="auto"></audio>
 
 <script>
-/* ===== helpers ===== */
+/* ===== Utilities ===== */
 const $ = id => document.getElementById(id);
-const save = (k,v) => localStorage.setItem(k, JSON.stringify(v));
+const save = (k,v)=> localStorage.setItem(k, JSON.stringify(v));
 const load = k => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null } };
-const id = ()=> Math.random().toString(36).slice(2,9);
+const uid = ()=> Math.random().toString(36).slice(2,9);
 
-/* ===== state & elements ===== */
+/* ===== Elements & state ===== */
 const audioA = $('audioA'), audioB = $('audioB');
-let active = 'A';
-let sleepTimer = null;
-let db = null;
-
-let tracks = load('lg_tracks') || sampleData();
+let active='A', sleepTimer=null, db=null;
+let tracks = load('lg_tracks') || sampleTracks();
 let currentIndex = -1;
 
 const libraryEl = $('library');
 const settingsBtn = $('settingsBtn'), settingsPanel = $('settingsPanel');
 const themeToggle = $('themeToggle'), opacitySlider = $('opacitySlider');
 const fileInput = $('fileInput'), addFileBtn = $('addFileBtn'), addUrlToggle = $('addUrlToggle');
-const addByUrl = $('addByUrl'), urlInput = $('urlInput'), urlTitle = $('urlTitle'), addUrlPanel = $('addUrlPanel'), cancelUrl = $('cancelUrl');
+const addByUrlBtn = $('addByUrl'), urlInput = $('urlInput'), urlTitle = $('urlTitle'), addUrlPanel = $('addUrlPanel'), cancelUrl = $('cancelUrl');
 const coverImg = $('coverImg'), coverIcon = $('coverIcon'), nowTitle = $('nowTitle'), nowMeta = $('nowMeta');
-const progressBar = $('progressBar');
-const playPauseBtn = $('playPauseBtn'), prevBtn = $('prevBtn'), nextBtn = $('nextBtn'), sleepBtn = $('sleepBtn'), clearBtn = $('clearBtn');
-const homeBtn = $('homeBtn'), eqBtn = $('eqBtn'), addUrlPanelWrapper = $('addUrlPanel');
+const playPauseBtn = $('playPauseBtn'), prevBtn=$('prevBtn'), nextBtn=$('nextBtn'), sleepBtn=$('sleepBtn'), clearBtn=$('clearBtn'), clearBtnSmall=$('clearBtnSmall');
+const seek = $('seek'), progressBar = $('progressBar'), volume = $('volume'), volDec = $('volDec');
+const settingsPanelEl=$('settingsPanel'), eqPanelContainer=$('eqPanel'), eqEnable=$('eqEnable');
+const eqControls = $('eqControls');
 
-/* ===== sample data ===== */
-function sampleData(){
+/* ===== Sample tracks ===== */
+function sampleTracks(){
   return [
-    {id:id(), title:'Glass Sunrise', artist:'Aether', cover:null, srcType:'url', src:'https://www2.cs.uic.edu/~i101/SoundFiles/StarWars60.wav'},
-    {id:id(), title:'Liquid Night', artist:'Noctis', cover:null, srcType:'url', src:'https://www2.cs.uic.edu/~i101/SoundFiles/ImperialMarch60.wav'}
+    {id:uid(), title:'Glass Sunrise', artist:'Aether', cover:null, srcType:'url', src:'https://www2.cs.uic.edu/~i101/SoundFiles/StarWars60.wav'},
+    {id:uid(), title:'Liquid Night', artist:'Noctis', cover:null, srcType:'url', src:'https://www2.cs.uic.edu/~i101/SoundFiles/ImperialMarch60.wav'}
   ];
 }
 
@@ -206,17 +248,15 @@ function initDB(){
   try{
     const req = indexedDB.open('lgm_db',1);
     req.onupgradeneeded = ()=> { const d=req.result; if(!d.objectStoreNames.contains('audio')) d.createObjectStore('audio'); };
-    req.onsuccess = ()=> { db = req.result; };
-    req.onerror = ()=> { console.warn('IndexedDB error', req.error); db = null; };
-  }catch(e){ db = null; }
+    req.onsuccess = ()=> { db=req.result; };
+    req.onerror = ()=> { db=null; console.warn('IndexedDB error', req.error); };
+  }catch(e){ db=null; }
 }
 function putBlob(store,key,blob){
   return new Promise((res,rej)=>{
     if(!db) return rej(new Error('no db'));
-    const tx = db.transaction(store,'readwrite');
-    tx.objectStore(store).put(blob,key);
-    tx.oncomplete = ()=> res();
-    tx.onerror = ()=> rej(tx.error);
+    const tx = db.transaction(store,'readwrite'); tx.objectStore(store).put(blob,key);
+    tx.oncomplete = ()=> res(); tx.onerror = ()=> rej(tx.error);
   });
 }
 function getBlob(store,key){
@@ -234,32 +274,27 @@ function delBlob(store,key){
   });
 }
 
-/* ===== render library ===== */
+/* ===== Render library ===== */
 function renderLibrary(){
-  libraryEl.innerHTML = '';
+  libraryEl.innerHTML='';
   tracks.forEach((t, idx)=>{
-    const row = document.createElement('div');
-    row.className = 'lib-item glass';
-    row.tabIndex = 0;
+    const row = document.createElement('div'); row.className='lib-item glass'; row.tabIndex=0;
     const cover = document.createElement('div'); cover.className='cover-sm';
-    if(t.cover){ const i = document.createElement('img'); i.src=t.cover; i.style.width='100%'; i.style.height='100%'; i.style.objectFit='cover'; cover.textContent=''; cover.appendChild(i); }
-    else cover.textContent='♪';
-    const title = document.createElement('div'); title.className='lib-title'; title.textContent = t.title;
+    if(t.cover){ const i=document.createElement('img'); i.src=t.cover; i.style.width='100%'; i.style.height='100%'; i.style.objectFit='cover'; cover.textContent=''; cover.appendChild(i); } else cover.textContent='♪';
+    const title = document.createElement('div'); title.className='lib-title'; title.textContent=t.title;
     const tools = document.createElement('div'); tools.className='lib-tools';
-    const playTool = document.createElement('div'); playTool.className='tool-btn'; playTool.textContent='⏯'; playTool.title='Воспроизвести';
-    const delTool = document.createElement('div'); delTool.className='tool-btn'; delTool.textContent='✖'; delTool.title='Удалить';
-    tools.append(playTool, delTool);
-    row.append(cover, title, tools);
+    const play = document.createElement('div'); play.className='tool-btn'; play.textContent='⏯'; play.title='Воспроизвести';
+    const del = document.createElement('div'); del.className='tool-btn'; del.textContent='✖'; del.title='Удалить';
+    tools.append(play,del);
+    row.append(cover,title,tools);
     libraryEl.appendChild(row);
 
-    // clicks
     row.addEventListener('click', ()=> playTrackByIndex(idx));
-    row.addEventListener('keydown', e => { if(e.key==='Enter') playTrackByIndex(idx); });
-    playTool.addEventListener('click', e => { e.stopPropagation(); playTrackByIndex(idx); });
-    delTool.addEventListener('click', async e => {
-      e.stopPropagation();
-      if(!confirm('Удалить трек?')) return;
-      const tdel = tracks[idx];
+    row.addEventListener('keydown', e=> { if(e.key==='Enter') playTrackByIndex(idx); });
+    play.addEventListener('click', e=> { e.stopPropagation(); playTrackByIndex(idx); });
+    del.addEventListener('click', async e=> {
+      e.stopPropagation(); if(!confirm('Удалить трек?')) return;
+      const tdel=tracks[idx];
       if(tdel.srcType==='blob'){ try{ await delBlob('audio', tdel.id); }catch{} }
       if(tdel.srcType==='url' && tdel.src && tdel.src.startsWith('blob:')){ try{ URL.revokeObjectURL(tdel.src); }catch{} }
       tracks.splice(idx,1); save('lg_tracks',tracks); renderLibrary();
@@ -268,7 +303,7 @@ function renderLibrary(){
   });
 }
 
-/* ===== resolve and play ===== */
+/* ===== Resolve URL and play ===== */
 async function resolveTrackURL(t){
   if(!t) return null;
   if(t.srcType==='url') return t.src;
@@ -288,185 +323,251 @@ async function playTrackByIndex(idx){
   nowMeta.textContent = t.artist || '—';
   if(t.cover){ coverImg.src = t.cover; coverImg.classList.remove('hidden'); coverIcon.style.display='none'; } else { coverImg.classList.add('hidden'); coverIcon.style.display='grid'; }
 
-  const from = active==='A' ? audioA : audioB;
-  const to = active==='A' ? audioB : audioA;
-
+  const from = active==='A'?audioA:audioB;
+  const to = active==='A'?audioB:audioA;
   const url = await resolveTrackURL(t);
-  if(!url){ alert('Файл недоступен. Попробуйте добавить снова.'); return; }
+  if(!url){ alert('Файл недоступен'); return; }
 
-  // set and play with crossfade
   try{
-    to.src = url;
-    to.currentTime = 0;
-    to.volume = 0;
+    to.src = url; to.currentTime = 0; to.volume = 0;
     await to.play();
     startProgress();
     // crossfade
     from.volume = from.volume || 1;
-    const duration = 300; // ms per step
-    const steps = 12;
-    let step = 0;
+    const steps = 12; let step=0;
     const fade = setInterval(()=>{
       step++;
       from.volume = Math.max(0, from.volume - (1/steps));
       to.volume = Math.min(1, to.volume + (1/steps));
-      if(step>=steps){
-        clearInterval(fade);
-        try{ from.pause(); }catch{}
-        active = active==='A' ? 'B' : 'A';
-      }
-    }, duration/steps);
+      if(step>=steps){ clearInterval(fade); try{ from.pause(); }catch{} active = active==='A'?'B':'A'; }
+    }, 120);
   }catch(e){
-    console.warn('play error', e);
-    alert('Не удалось воспроизвести трек (браузер может блокировать автоплей). Нажмите Play.');
+    console.warn(e); alert('Не удалось воспроизвести трек. Нажмите Play.');
   }
 }
 
+/* ===== Play / Pause / Navigation ===== */
 function togglePlayPause(){
-  const a = active==='A' ? audioA : audioB;
-  if(a.src){
-    if(a.paused) { a.play().catch(()=>{}); }
-    else a.pause();
-  }else if(tracks.length){ playTrackByIndex(0); }
+  const a = active==='A'?audioA:audioB;
+  if(a.src){ a.paused? a.play().catch(()=>{}): a.pause(); }
+  else if(tracks.length) playTrackByIndex(0);
 }
-
-/* ===== navigation ===== */
 function navigate(dir){
   if(tracks.length===0) return;
   if(currentIndex<0) currentIndex=0;
-  let next = currentIndex + dir;
-  if(next<0) next = 0;
-  if(next>=tracks.length) next = tracks.length-1;
+  let next = currentIndex + dir; if(next<0) next=0; if(next>=tracks.length) next=tracks.length-1;
   playTrackByIndex(next);
 }
 
-/* ===== progress ===== */
-let progressTimer = null;
+/* ===== Progress & Seek ===== */
+let progressTimer=null;
 function startProgress(){
   stopProgress();
   progressTimer = setInterval(()=>{
-    const a = active==='A' ? audioA : audioB;
+    const a = active==='A'?audioA:audioB;
     if(a && a.duration && !isNaN(a.duration)){
-      progressBar.style.width = Math.max(0, Math.min(100, (a.currentTime / a.duration)*100)) + '%';
-    }else progressBar.style.width = '0%';
-  },200);
+      const pct = Math.max(0, Math.min(100, (a.currentTime/a.duration)*100));
+      progressBar.style.width = pct+'%';
+      seek.value = pct;
+    } else { progressBar.style.width='0%'; seek.value=0; }
+  }, 200);
 }
 function stopProgress(){ if(progressTimer){ clearInterval(progressTimer); progressTimer=null; } }
 function stopAll(){ try{ audioA.pause(); audioB.pause(); }catch{} stopProgress(); }
 
-/* ===== settings ===== */
-function applyTheme(theme){
-  const isLight = theme==='light';
-  document.body.classList.toggle('light', isLight);
-  save('lg_theme', isLight ? 'light' : 'dark');
-}
-function applyOpacity(val){
-  const n = Number(val);
-  const clamped = Math.min(0.30, Math.max(0.05, isNaN(n)?0.10:n));
-  document.documentElement.style.setProperty('--glass-opacity', clamped);
-  save('lg_opacity', clamped);
-}
+/* ===== Settings & UI helpers ===== */
+function applyTheme(theme){ const isLight = theme==='light'; document.body.classList.toggle('light', isLight); save('lg_theme', isLight?'light':'dark'); }
+function applyOpacity(val){ const n=Number(val); const clamped=Math.min(0.30, Math.max(0.05, isNaN(n)?0.10:n)); document.documentElement.style.setProperty('--glass-opacity', clamped); save('lg_opacity', clamped); }
+function openSettings(){ settingsPanel.classList.add('open'); settingsPanel.setAttribute('aria-hidden','false'); }
+function closeSettings(){ settingsPanel.classList.remove('open'); settingsPanel.setAttribute('aria-hidden','true'); }
+function toggleSettings(){ settingsPanel.classList.toggle('open'); const open=settingsPanel.classList.contains('open'); settingsPanel.setAttribute('aria-hidden',(!open).toString()); }
 
-/* ===== add tracks ===== */
-async function addByUrlAction(){
-  const title = (urlTitle.value||'').trim();
-  const src = (urlInput.value||'').trim();
+/* ===== Add tracks ===== */
+async function addByUrl(){
+  const title = (urlTitle.value||'').trim(); const src=(urlInput.value||'').trim();
   if(!src) return alert('Укажи ссылку на аудио');
-  const t = { id:id(), title: title || src.split('/').pop(), artist:'Link', cover:null, srcType:'url', src };
+  const t = { id:uid(), title: title||src.split('/').pop(), artist:'Link', cover:null, srcType:'url', src };
   tracks.push(t); save('lg_tracks',tracks); renderLibrary();
-  urlTitle.value=''; urlInput.value='';
-  closeSettingsPanel();
+  urlTitle.value=''; urlInput.value=''; closeSettings();
 }
-
-async function addByFileAction(file){
+async function addByFile(file){
   if(!file) return;
   const name = file.name.replace(/\.(mp3|wav|ogg|m4a|flac|aac|aiff)$/i,'') || file.name;
-  const t = { id:id(), title:name, artist:'Local', cover:null, srcType:'blob' };
+  const t = { id:uid(), title:name, artist:'Local', cover:null, srcType:'blob' };
   try{
-    if(db){
-      await putBlob('audio', t.id, file);
-    }else{
-      t.srcType='url'; t.src = URL.createObjectURL(file);
-    }
-  }catch(e){
-    t.srcType='url'; t.src = URL.createObjectURL(file);
-  }
+    if(db){ await putBlob('audio', t.id, file); } else { t.srcType='url'; t.src = URL.createObjectURL(file); }
+  }catch(e){ t.srcType='url'; t.src = URL.createObjectURL(file); }
   tracks.push(t); save('lg_tracks',tracks); renderLibrary();
 }
 
-/* ===== UI helpers ===== */
-function openSettingsPanel(){
-  settingsPanel.classList.add('open'); settingsPanel.setAttribute('aria-hidden','false');
-}
-function closeSettingsPanel(){
-  settingsPanel.classList.remove('open'); settingsPanel.setAttribute('aria-hidden','true');
-}
-function toggleSettingsPanel(){ settingsPanel.classList.toggle('open'); const open = settingsPanel.classList.contains('open'); settingsPanel.setAttribute('aria-hidden', (!open).toString()); }
+/* ===== Equalizer (WebAudio) ===== */
+let audioCtx=null, sourceNode=null, eqNodes=[], analyser=null;
+const EQ_BANDS = [
+  {freq:60, type:'lowshelf'},
+  {freq:250, type:'peaking'},
+  {freq:1000, type:'peaking'},
+  {freq:4000, type:'peaking'},
+  {freq:10000, type:'highshelf'}
+];
 
-/* ===== init & bindings ===== */
+function initAudioGraph(){
+  if(audioCtx) return;
+  try{
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    sourceNode = audioCtx.createMediaElementSource(audioA); // we'll connect active element dynamically
+    // create eq nodes
+    eqNodes = EQ_BANDS.map(b=> {
+      const f = audioCtx.createBiquadFilter();
+      f.type = b.type; f.frequency.value = b.freq; f.gain.value = 0; f.Q.value = 1;
+      return f;
+    });
+    analyser = audioCtx.createAnalyser(); analyser.fftSize = 256;
+    // chain: source -> eq[0] -> ... -> eq[n] -> analyser -> destination
+    let nodeChainStart = sourceNode;
+    eqNodes.forEach((n,i)=>{
+      nodeChainStart.connect(n);
+      nodeChainStart = n;
+    });
+    nodeChainStart.connect(analyser);
+    analyser.connect(audioCtx.destination);
+    // Also create second source mapping for audioB
+    // For simplicity we will recreate source when playing on other audio element
+  }catch(e){ console.warn('WebAudio init failed', e); audioCtx=null; }
+}
+
+function rebuildSourceFor(element){
+  if(!audioCtx) return;
+  try{
+    // disconnect old sourceNode
+    try{ sourceNode.disconnect(); }catch{}
+    sourceNode = audioCtx.createMediaElementSource(element);
+    let node = sourceNode;
+    eqNodes.forEach(n=> { node.connect(n); node = n; });
+    node.connect(analyser);
+    analyser.connect(audioCtx.destination);
+  }catch(e){ console.warn('rebuild source failed', e); }
+}
+
+function createEQUI(){
+  eqControls.innerHTML='';
+  EQ_BANDS.forEach((b, idx)=>{
+    const wrap = document.createElement('div'); wrap.className='eq-band';
+    const input = document.createElement('input'); input.type='range'; input.min='-12'; input.max='12'; input.step='0.5'; input.value='0';
+    input.dataset.idx = idx;
+    const label = document.createElement('label'); label.textContent = b.freq+'Hz';
+    const meter = document.createElement('div'); meter.className='eq-meter'; const lvl = document.createElement('div'); lvl.className='lvl'; meter.appendChild(lvl);
+    wrap.appendChild(input); wrap.appendChild(label); wrap.appendChild(meter);
+    eqControls.appendChild(wrap);
+
+    input.addEventListener('input', e=>{
+      const val = Number(e.target.value);
+      if(eqNodes[idx]) eqNodes[idx].gain.value = val;
+    });
+  });
+}
+
+/* ===== Init & bindings ===== */
 window.addEventListener('load', ()=>{
-  initDB();
-  renderLibrary();
-
-  // restore theme & opacity
+  initDB(); renderLibrary();
   applyTheme(load('lg_theme') || 'dark');
-  const op = load('lg_opacity'); applyOpacity(op ?? 0.10); if(op) opacitySlider.value = op;
+  const op = load('lg_opacity'); applyOpacity(op ?? 0.10); if(op) $('opacitySlider').value = op;
 
-  // settings open
-  settingsBtn.addEventListener('click', ()=> toggleSettingsPanel());
-  // theme
+  // Settings toggle
+  settingsBtn.addEventListener('click', ()=> toggleSettings());
   themeToggle.addEventListener('click', ()=> applyTheme(document.body.classList.contains('light') ? 'dark' : 'light'));
-  // opacity
-  opacitySlider.addEventListener('input', e => applyOpacity(e.target.value));
+  opacitySlider.addEventListener('input', e=> applyOpacity(e.target.value));
 
-  // add file controls
-  addFileBtn.addEventListener('click', ()=> fileInput.click());
-  fileInput.addEventListener('change', e => { const f = e.target.files && e.target.files[0]; if(f) addByFileAction(f); fileInput.value=''; });
+  // Add file
+  addFileBtn.addEventListener('click', ()=> $('fileInput').click());
+  fileInput.addEventListener('change', e=> { const f = e.target.files && e.target.files[0]; if(f) addByFile(f); fileInput.value=''; });
 
-  // add by url panel
-  addUrlToggle.addEventListener('click', ()=> { openSettingsPanel(); urlInput.focus(); });
-  addByUrl.addEventListener('click', addByUrlAction);
-  cancelUrl.addEventListener('click', ()=> { urlTitle.value=''; urlInput.value=''; closeSettingsPanel(); });
+  // Add by URL
+  addUrlToggle.addEventListener('click', ()=> { openSettings(); $('urlInput').focus(); });
+  addByUrlBtn.addEventListener('click', addByUrl);
+  cancelUrl.addEventListener('click', ()=> { urlTitle.value=''; urlInput.value=''; closeSettings(); });
 
-  // buttons
-  playPauseBtn.addEventListener('click', togglePlayPause);
+  // Controls
+  playPauseBtn.addEventListener('click', ()=> { if(!audioCtx) initAudioGraph(); togglePlayPause(); });
   prevBtn.addEventListener('click', ()=> navigate(-1));
   nextBtn.addEventListener('click', ()=> navigate(1));
-  homeBtn.addEventListener('click', ()=> { alert('Главная — демонстрация'); });
-  eqBtn.addEventListener('click', ()=> { alert('Эквалайзер пока что демонстрационный'); });
+  clearBtn.addEventListener('click', async ()=> { if(!confirm('Очистить библиотеку?')) return; for(const t of tracks){ if(t.srcType==='blob'){ try{ await delBlob('audio', t.id); }catch{} } } tracks.forEach(t=>{ if(t.srcType==='url'&&t.src&&t.src.startsWith('blob:')){ try{ URL.revokeObjectURL(t.src);}catch{} } }); tracks=[]; save('lg_tracks',tracks); renderLibrary(); stopAll(); nowTitle.textContent='Ничего не играет'; nowMeta.textContent='—'; coverImg.classList.add('hidden'); coverIcon.style.display='grid'; });
+  clearBtnSmall.addEventListener('click', ()=> clearBtn.click());
 
-  // sleep
+  // Seek & progress
+  seek.addEventListener('input', ()=> {
+    const a = active==='A'?audioA:audioB;
+    if(a && a.duration){ a.currentTime = (seek.value/100)*a.duration; }
+  });
+
+  // Volume
+  volume.addEventListener('input', ()=> {
+    const a = active==='A'?audioA:audioB;
+    audioA.volume = volume.value; audioB.volume = volume.value; // keep them similar
+  });
+  volDec.addEventListener('click', ()=> {
+    volume.value = Math.max(0, Number(volume.value)-0.1); volume.dispatchEvent(new Event('input'));
+  });
+
+  // Sleep timer
   sleepBtn.addEventListener('click', ()=> {
     if(sleepTimer){ clearTimeout(sleepTimer); sleepTimer=null; alert('Таймер сна отменён'); return; }
     sleepTimer = setTimeout(()=> { stopAll(); alert('Таймер сна сработал — воспроизведение остановлено'); sleepTimer=null; }, 60_000);
     alert('Таймер сна установлен на 1 минуту');
   });
 
-  // clear
-  clearBtn.addEventListener('click', async ()=>{
-    if(!confirm('Очистить библиотеку?')) return;
-    for(const t of tracks){ if(t.srcType==='blob'){ try{ await delBlob('audio', t.id); }catch{} } }
-    tracks.forEach(t => { if(t.srcType==='url' && t.src && t.src.startsWith('blob:')){ try{ URL.revokeObjectURL(t.src); }catch{} } });
-    tracks = []; save('lg_tracks',tracks); renderLibrary();
-    stopAll(); nowTitle.textContent='Ничего не играет'; nowMeta.textContent='—'; coverImg.classList.add('hidden'); coverIcon.style.display='grid';
+  // Home / EQ demo
+  $('homeBtn').addEventListener('click', ()=> alert('Главная — демонстрация'));
+  $('eqBtn').addEventListener('click', ()=> { openSettings(); eqPanelContainer.style.display = eqPanelContainer.style.display === 'block' ? 'none' : 'block'; });
+
+  // keyboard controls
+  window.addEventListener('keydown', e=> {
+    if(e.code==='Space'){ e.preventDefault(); if(!audioCtx) initAudioGraph(); togglePlayPause(); }
+    if(e.code==='ArrowRight'){ const a = active==='A'?audioA:audioB; if(a && a.duration) a.currentTime = Math.min(a.duration, a.currentTime + 5); }
+    if(e.code==='ArrowLeft'){ const a = active==='A'?audioA:audioB; if(a) a.currentTime = Math.max(0, a.currentTime - 5); }
   });
 
-  // keyboard
-  window.addEventListener('keydown', e => {
-    if(e.code==='Space'){ e.preventDefault(); togglePlayPause(); }
-    if(e.code==='ArrowRight'){ const a = active==='A' ? audioA : audioB; if(a) a.currentTime = Math.min((a.duration||0), a.currentTime + 5); }
-    if(e.code==='ArrowLeft'){ const a = active==='A' ? audioA : audioB; if(a) a.currentTime = Math.max(0, a.currentTime - 5); }
+  // Init EQ UI
+  createEQUI();
+  eqEnable.addEventListener('change', (e)=>{
+    if(e.target.checked){
+      if(!audioCtx) initAudioGraph();
+      // When enabling, rebuild source to current active element
+      const aElem = active==='A'?audioA:audioB;
+      try{ rebuildSourceFor(aElem); }catch{}
+    } else {
+      // bypass EQ: disconnect eq nodes and connect source directly to destination
+      // simplified approach: resume audio context and do nothing destructive
+    }
   });
 
-  // autoplay safety: start audio volumes
-  audioA.volume = 1; audioB.volume = 0;
+  // set default volumes
+  audioA.volume = Number(volume.value); audioB.volume = Number(volume.value);
 
-  // small UI: aria/click feedback
-  [playPauseBtn, prevBtn, nextBtn, sleepBtn, clearBtn, settingsBtn, addFileBtn, addUrlToggle, homeBtn, eqBtn].forEach(b=>{
-    b.addEventListener('mousedown', ()=> b.classList.add('pressed'));
-    b.addEventListener('mouseup', ()=> b.classList.remove('pressed'));
-    b.addEventListener('mouseleave', ()=> b.classList.remove('pressed'));
-  });
+  // restore saved library UI
+  renderLibrary();
+});
+
+/* ===== Helpers for audio graph when switching active element ===== */
+function rebuildSourceFor(element){
+  if(!audioCtx) return;
+  try{
+    // disconnect previous sources: quick and safe approach — re-create connections
+    // create new media element source and connect through eqNodes -> analyser -> destination
+    // Note: createMediaElementSource can't be called twice for same element in some browsers; we only call when needed
+    const src = audioCtx.createMediaElementSource(element);
+    let node = src;
+    eqNodes.forEach(n => { node.connect(n); node = n; });
+    node.connect(audioCtx.destination);
+    // replace sourceNode reference
+    sourceNode = src;
+  }catch(e){ console.warn('rebuildSourceFor error', e); }
+}
+
+/* ===== Small UI niceties ===== */
+[playPauseBtn, prevBtn, nextBtn, sleepBtn, clearBtn, addFileBtn, addUrlToggle, settingsBtn].forEach(b=>{
+  b.addEventListener('mousedown', ()=> b.classList.add('pressed'));
+  b.addEventListener('mouseup', ()=> b.classList.remove('pressed'));
+  b.addEventListener('mouseleave', ()=> b.classList.remove('pressed'));
 });
 </script>
 </body>
