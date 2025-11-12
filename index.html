@@ -11,10 +11,19 @@
       background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
       color: #fff;
       transition: background 0.5s, color 0.5s;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
     }
     body.light {
       background: linear-gradient(135deg, #f0f0f0, #dcdcdc);
       color: #222;
+    }
+    .container {
+      width: 90%;
+      max-width: 800px;
+      margin-top: 30px;
     }
     h1 {
       text-align: center;
@@ -22,7 +31,7 @@
     }
     #controls {
       text-align: center;
-      margin: 20px;
+      margin: 20px 0;
     }
     button {
       background: rgba(255,255,255,0.15);
@@ -50,7 +59,6 @@
       list-style: none;
       padding: 0;
       margin: 20px auto;
-      max-width: 600px;
     }
     #playlist li {
       background: rgba(255,255,255,0.1);
@@ -89,20 +97,22 @@
   </style>
 </head>
 <body>
-  <h1>🎶 Моя Музыкальная Библиотека</h1>
+  <div class="container">
+    <h1>🎶 Моя Музыкальная Библиотека</h1>
 
-  <div id="controls">
-    <audio id="audio" controls></audio><br>
-    <input type="text" id="trackTitle" placeholder="Название трека">
-    <input type="text" id="trackUrl" placeholder="Ссылка на mp3">
-    <button onclick="addTrack()">Добавить трек</button>
-    <button onclick="toggleTheme()">Сменить тему</button>
-    <button onclick="setSleepTimer()">Таймер сна</button>
+    <div id="controls">
+      <audio id="audio" controls></audio><br>
+      <input type="text" id="trackTitle" placeholder="Название трека">
+      <input type="text" id="trackUrl" placeholder="Ссылка на mp3">
+      <button onclick="addTrack()">Добавить трек</button>
+      <button onclick="toggleTheme()">Сменить тему</button>
+      <button onclick="setSleepTimer()">Таймер сна</button>
+    </div>
+
+    <ul id="playlist"></ul>
+
+    <div id="visualizer"></div>
   </div>
-
-  <ul id="playlist"></ul>
-
-  <div id="visualizer"></div>
 
   <script>
     let playlist = loadPlaylist();
@@ -113,7 +123,6 @@
 
     renderPlaylist();
 
-    // LocalStorage
     function savePlaylist() {
       localStorage.setItem("myPlaylist", JSON.stringify(playlist));
     }
@@ -164,21 +173,18 @@
       });
     }
 
-    // Theme switching
     function toggleTheme() {
       document.body.classList.toggle("light");
     }
 
-    // Sleep timer
     function setSleepTimer() {
       clearTimeout(sleepTimer);
       sleepTimer = setTimeout(() => {
         audio.pause();
         alert("⏱️ Таймер сна: воспроизведение остановлено");
-      }, 60000); // 1 минута
+      }, 60000);
     }
 
-    // Crossfade
     function crossfade(newSrc) {
       const oldAudio = audio;
       const tempAudio = new Audio(newSrc);
@@ -207,7 +213,6 @@
       }, 200);
     }
 
-    // Visualizer
     for (let i = 0; i < 40; i++) {
       const bar = document.createElement("div");
       bar.className = "bar";
@@ -223,7 +228,6 @@
     }
     animateVisualizer();
 
-    // Hotkeys
     document.addEventListener("keydown", e => {
       if (e.code === "Space") {
         e.preventDefault();
