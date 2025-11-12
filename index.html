@@ -2,123 +2,167 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Музыкальная Библиотека</title>
   <style>
+    /* Базовая стабильность верстки */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { height: 100%; }
     body {
-      font-family: 'Segoe UI', sans-serif;
+      font-family: 'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
       margin: 0;
       padding: 0;
       background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
       color: #fff;
       transition: background 0.5s, color 0.5s;
-      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: flex-start;
     }
     body.light {
-      background: linear-gradient(135deg, #f0f0f0, #dcdcdc);
+      background: linear-gradient(135deg, #f7f7f7, #eaeaea);
       color: #222;
     }
+
     .container {
-      width: 95%;
-      max-width: 1200px;
-      margin-top: 30px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
+      width: 94%;
+      max-width: 1100px;
+      margin: 28px auto;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 16px;
     }
+
     h1 {
       text-align: center;
-      padding: 20px;
+      margin: 0;
+      padding: 12px 0;
     }
+
+    /* Панель управления */
     #controls {
-      text-align: center;
-      margin: 20px 0;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      justify-items: center;
+      background: rgba(255,255,255,0.10);
+      backdrop-filter: blur(10px);
+      border-radius: 14px;
+      padding: 12px;
+    }
+
+    .inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 8px;
+      width: 100%;
+      max-width: 800px;
+    }
+
+    input, button {
+      font: inherit;
+    }
+    input {
+      padding: 10px;
+      border-radius: 10px;
+      border: none;
+      background: rgba(255,255,255,0.18);
+      color: inherit;
+      outline: none;
+    }
+    input::placeholder { color: rgba(255,255,255,0.8); }
+    body.light input::placeholder { color: #666; }
+
+    .buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
     }
     button {
-      background: rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.18);
       border: none;
-      padding: 8px 16px;
-      margin: 5px;
+      padding: 10px 16px;
       border-radius: 12px;
       cursor: pointer;
       color: inherit;
       backdrop-filter: blur(8px);
-      transition: background 0.3s, transform 0.2s;
+      transition: background 0.2s, transform 0.15s;
     }
-    button:hover {
-      background: rgba(255,255,255,0.3);
-      transform: scale(1.05);
-    }
-    input {
-      padding: 6px;
-      border-radius: 8px;
-      border: none;
-      margin: 5px;
-      backdrop-filter: blur(6px);
-    }
+    button:hover { background: rgba(255,255,255,0.30); transform: translateY(-1px); }
+
+    /* Основная зона: сетка Плейлист + Визуализатор */
     .main {
-      display: flex;
-      gap: 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      align-items: start;
     }
+
+    /* Плейлист */
     #playlist {
-      flex: 1;
       list-style: none;
       padding: 0;
       margin: 0;
-      min-width: 300px;
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(12px);
+      border-radius: 14px;
+      padding: 10px;
     }
     #playlist li {
-      background: rgba(255,255,255,0.1);
-      margin: 8px 0;
-      padding: 14px;
-      border-radius: 16px;
-      display: flex;
-      justify-content: space-between;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
       align-items: center;
-      backdrop-filter: blur(12px);
-      transition: transform 0.3s, background 0.3s;
+      background: rgba(255,255,255,0.10);
+      border-radius: 12px;
+      padding: 12px;
+      margin: 8px 0;
+      transition: background 0.2s, transform 0.2s;
     }
-    #playlist li:hover {
-      transform: translateX(5px);
-      background: rgba(255,255,255,0.2);
+    #playlist li:hover { background: rgba(255,255,255,0.18); transform: translateX(3px); }
+    .track-title {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
+    .track-actions { display: flex; gap: 8px; }
+
+    /* Визуализатор */
     #visualizer {
-      flex: 1;
-      min-width: 300px;
-      height: 300px;
-      background: rgba(255,255,255,0.05);
+      height: 280px;
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(12px);
+      border-radius: 14px;
       display: flex;
       align-items: flex-end;
       justify-content: center;
-      border-radius: 12px;
-      backdrop-filter: blur(10px);
+      padding: 6px;
+      overflow: hidden;
     }
     .bar {
-      width: 10px;
+      width: 9px;
       margin: 2px;
       background: #4cafef;
-      height: 20px;
-      transition: height 0.1s;
+      height: 24px;
+      transition: height 0.12s;
       border-radius: 4px;
     }
 
-    /* 📱 Адаптивность для телефонов */
-    @media (max-width: 768px) {
-      .main {
-        flex-direction: column;
-      }
-      #visualizer {
-        height: 150px;
-      }
-      #playlist li {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      #playlist li div {
-        margin-top: 8px;
-      }
+    /* Адаптивность */
+    @media (max-width: 900px) {
+      .inputs { grid-template-columns: 1fr; }
+      .main { grid-template-columns: 1fr; }
+      #visualizer { height: 180px; }
+      #playlist li { grid-template-columns: 1fr; }
+      .track-actions { justify-content: flex-start; }
+    }
+
+    @media (max-width: 520px) {
+      button { padding: 9px 12px; border-radius: 10px; }
+      input { padding: 9px; }
+      .bar { width: 7px; margin: 2px; }
+      #visualizer { height: 160px; }
     }
   </style>
 </head>
@@ -127,12 +171,22 @@
     <h1>🎶 Моя Музыкальная Библиотека</h1>
 
     <div id="controls">
-      <audio id="audio" controls></audio><br>
-      <input type="text" id="trackTitle" placeholder="Название трека">
-      <input type="text" id="trackUrl" placeholder="Ссылка на mp3">
-      <button onclick="addTrack()">Добавить трек</button>
-      <button onclick="toggleTheme()">Сменить тему</button>
-      <button onclick="setSleepTimer()">Таймер сна</button>
+      <!-- Два аудиоканала для стабильного кроссфейда -->
+      <audio id="audioA" crossorigin="anonymous"></audio>
+      <audio id="audioB" crossorigin="anonymous"></audio>
+
+      <div class="inputs">
+        <input type="text" id="trackTitle" placeholder="Название трека">
+        <input type="url" id="trackUrl" placeholder="Ссылка на mp3 (https://...)">
+        <button id="addBtn">Добавить трек</button>
+      </div>
+
+      <div class="buttons">
+        <button id="playPauseBtn">Плей/Пауза</button>
+        <button id="themeBtn">Сменить тему</button>
+        <button id="sleepBtn">Таймер сна 1 мин</button>
+        <button id="clearBtn">Очистить плейлист</button>
+      </div>
     </div>
 
     <div class="main">
@@ -142,131 +196,212 @@
   </div>
 
   <script>
+    // Состояние
+    const audioA = document.getElementById('audioA');
+    const audioB = document.getElementById('audioB');
+    let active = 'A'; // какой канал активен сейчас
+    let sleepTimer = null;
+
+    const playlistEl = document.getElementById('playlist');
+    const visualizer = document.getElementById('visualizer');
+
+    // Инициализация
     let playlist = loadPlaylist();
-    const audio = document.getElementById("audio");
-    const playlistEl = document.getElementById("playlist");
-    const visualizer = document.getElementById("visualizer");
-    let sleepTimer;
-
+    applySavedTheme();
     renderPlaylist();
+    setupControls();
+    initVisualizer();
 
+    // Сохранение/загрузка
     function savePlaylist() {
-      localStorage.setItem("myPlaylist", JSON.stringify(playlist));
+      localStorage.setItem('myPlaylist', JSON.stringify(playlist));
     }
     function loadPlaylist() {
-      const data = localStorage.getItem("myPlaylist");
-      return data ? JSON.parse(data) : [];
+      try {
+        const data = localStorage.getItem('myPlaylist');
+        return data ? JSON.parse(data) : [];
+      } catch {
+        return [];
+      }
     }
 
+    // Тема
+    function applySavedTheme() {
+      const theme = localStorage.getItem('theme');
+      if (theme === 'light') document.body.classList.add('light');
+    }
+    function toggleTheme() {
+      document.body.classList.toggle('light');
+      localStorage.setItem('theme', document.body.classList.contains('light') ? 'light' : 'dark');
+    }
+
+    // Добавление трека
     function addTrack() {
-      const title = document.getElementById("trackTitle").value.trim();
-      const url = document.getElementById("trackUrl").value.trim();
-      if (title && url) {
-        playlist.push({ title, url });
-        savePlaylist();
-        renderPlaylist();
-        document.getElementById("trackTitle").value = "";
-        document.getElementById("trackUrl").value = "";
-      }
-    }
+      const titleEl = document.getElementById('trackTitle');
+      const urlEl = document.getElementById('trackUrl');
+      const title = titleEl.value.trim();
+      const url = urlEl.value.trim();
+      if (!title || !url) return alert('Укажи название и ссылку.');
+      if (!/^https?:\/\//i.test(url)) return alert('Ссылка должна начинаться с http:// или https://');
 
-    function playTrack(index) {
-      if (audio.src) {
-        crossfade(playlist[index].url);
-      } else {
-        audio.src = playlist[index].url;
-        audio.play();
-      }
-    }
-
-    function deleteTrack(index) {
-      playlist.splice(index, 1);
+      playlist.push({ title, url });
       savePlaylist();
       renderPlaylist();
+      titleEl.value = '';
+      urlEl.value = '';
     }
 
+    // Рендер плейлиста
     function renderPlaylist() {
-      playlistEl.innerHTML = "";
+      playlistEl.innerHTML = '';
       playlist.forEach((track, index) => {
-        const li = document.createElement("li");
-        li.innerHTML = `
-          <span>${track.title}</span>
-          <div>
-            <button onclick="playTrack(${index})">▶️</button>
-            <button onclick="deleteTrack(${index})">🗑️</button>
-          </div>
-        `;
+        const li = document.createElement('li');
+        const title = document.createElement('span');
+        title.className = 'track-title';
+        title.textContent = track.title;
+
+        const actions = document.createElement('div');
+        actions.className = 'track-actions';
+
+        const playBtn = document.createElement('button');
+        playBtn.textContent = '▶️';
+        playBtn.onclick = () => playTrack(index);
+
+        const delBtn = document.createElement('button');
+        delBtn.textContent = '🗑️';
+        delBtn.onclick = () => { playlist.splice(index, 1); savePlaylist(); renderPlaylist(); };
+
+        actions.appendChild(playBtn);
+        actions.appendChild(delBtn);
+
+        li.appendChild(title);
+        li.appendChild(actions);
         playlistEl.appendChild(li);
       });
     }
 
-    function toggleTheme() {
-      document.body.classList.toggle("light");
+    // Проигрывание трека с кроссфейдом
+    async function playTrack(index) {
+      const track = playlist[index];
+      if (!track) return;
+
+      const from = active === 'A' ? audioA : audioB;
+      const to = active === 'A' ? audioB : audioA;
+
+      try {
+        to.src = track.url;
+        to.volume = 0;
+        await to.play();
+
+        // Плавный кроссфейд
+        const step = 0.05;
+        const interval = 120;
+        const fade = setInterval(() => {
+          // на всякий случай, если громкость пользователя изменена
+          from.volume = Math.max(0, from.volume - step);
+          to.volume = Math.min(1, to.volume + step);
+
+          if (from.volume <= 0 && to.volume >= 1) {
+            clearInterval(fade);
+            from.pause();
+            // активируем новый канал
+            active = active === 'A' ? 'B' : 'A';
+          }
+        }, interval);
+      } catch (e) {
+        alert('Не удалось проиграть трек. Проверь ссылку.');
+      }
     }
 
-    function setSleepTimer() {
+    // Кнопки управления
+    function setupControls() {
+      document.getElementById('addBtn').onclick = addTrack;
+      document.getElementById('themeBtn').onclick = toggleTheme;
+      document.getElementById('sleepBtn').onclick = () => setSleepTimer(60_000);
+      document.getElementById('clearBtn').onclick = () => {
+        if (confirm('Очистить плейлист?')) {
+          playlist = [];
+          savePlaylist();
+          renderPlaylist();
+        }
+      };
+      document.getElementById('playPauseBtn').onclick = togglePlayPause;
+
+      // Горячие клавиши
+      document.addEventListener('keydown', (e) => {
+        if (e.code === 'Space') {
+          e.preventDefault();
+          togglePlayPause();
+        } else if (e.code === 'ArrowRight') {
+          currentAudio().currentTime += 5;
+        } else if (e.code === 'ArrowLeft') {
+          currentAudio().currentTime -= 5;
+        }
+      });
+    }
+
+    function currentAudio() {
+      return active === 'A' ? audioA : audioB;
+    }
+
+    function togglePlayPause() {
+      const a = currentAudio();
+      if (a.src) {
+        a.paused ? a.play() : a.pause();
+      } else {
+        // если еще ничего не играет — попробуем первый трек
+        if (playlist.length) playTrack(0);
+      }
+    }
+
+    // Таймер сна
+    function setSleepTimer(ms) {
       clearTimeout(sleepTimer);
       sleepTimer = setTimeout(() => {
-        audio.pause();
-        alert("⏱️ Таймер сна: воспроизведение остановлено");
-      }, 60000);
+        audioA.pause();
+        audioB.pause();
+        alert('⏱️ Таймер сна: воспроизведение остановлено');
+      }, ms);
+      alert('Таймер сна установлен');
     }
 
-    function crossfade(newSrc) {
-      const oldAudio = audio;
-      const tempAudio = new Audio(newSrc);
-      tempAudio.volume = 0;
-      tempAudio.play();
-
-      let fadeOut = setInterval(() => {
-        if (oldAudio.volume > 0.05) {
-          oldAudio.volume -= 0.05;
-        } else {
-          clearInterval(fadeOut);
-          oldAudio.pause();
-          oldAudio.src = newSrc;
-          oldAudio.volume = 1;
-          oldAudio.play();
-        }
-      }, 200);
-
-      let fadeIn = setInterval(() => {
-        if (tempAudio.volume < 1) {
-          tempAudio.volume += 0.05;
-        } else {
-          clearInterval(fadeIn);
-          tempAudio.pause();
-        }
-      }, 200);
-    }
-
-    for (let i = 0; i < 40; i++) {
-      const bar = document.createElement("div");
-      bar.className = "bar";
-      visualizer.appendChild(bar);
-    }
-    const bars = document.querySelectorAll(".bar");
-
-    function animateVisualizer() {
-      bars.forEach(bar => {
-        bar.style.height = Math.random() * 300 + "px";
-      });
-      requestAnimationFrame(animateVisualizer);
-    }
-    animateVisualizer();
-
-    document.addEventListener("keydown", e => {
-      if (e.code === "Space") {
-        e.preventDefault();
-        audio.paused ? audio.play() : audio.pause();
+    // Визуализатор (лайт-версия, адаптивная)
+    function initVisualizer() {
+      visualizer.innerHTML = '';
+      const barsCount = Math.floor(visualizer.clientWidth / 14); // динамически под ширину
+      for (let i = 0; i < Math.max(24, barsCount); i++) {
+        const bar = document.createElement('div');
+        bar.className = 'bar';
+        visualizer.appendChild(bar);
       }
-      if (e.code === "ArrowRight") {
-        audio.currentTime += 5;
+      const bars = Array.from(visualizer.querySelectorAll('.bar'));
+
+      function animate() {
+        const base = active === 'A' ? audioA : audioB;
+        const amp = base.paused ? 0.15 : 1; // при паузе колебания меньше
+        bars.forEach((bar, i) => {
+          const r = Math.random() * amp;
+          const h = 40 + r * (visualizer.clientHeight - 60);
+          bar.style.height = Math.max(20, Math.min(visualizer.clientHeight - 20, h)) + 'px';
+        });
+        requestAnimationFrame(animate);
       }
-      if (e.code === "ArrowLeft") {
-        audio.currentTime -= 5;
-      }
-    });
+      animate();
+
+      // перестройка по ресайзу
+      window.addEventListener('resize', debounce(() => {
+        initVisualizer();
+      }, 200));
+    }
+
+    // Вспомогательное: debounce
+    function debounce(fn, delay) {
+      let t = null;
+      return (...args) => {
+        clearTimeout(t);
+        t = setTimeout(() => fn(...args), delay);
+      };
+    }
   </script>
 </body>
 </html>
