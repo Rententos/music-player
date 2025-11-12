@@ -1,169 +1,606 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Музыкальная Библиотека — Liquid Glass</title>
-<style>
-  body {
-    margin:0; font-family:system-ui, sans-serif;
-    background: radial-gradient(circle at 20% 20%, #1b2733, #0f141b);
-    color:#fff; min-height:100vh;
-    display:flex; flex-direction:column; align-items:center;
-  }
-  .glass {
-    background:rgba(255,255,255,0.08);
-    border-radius:14px;
-    backdrop-filter:blur(12px) saturate(140%);
-    -webkit-backdrop-filter:blur(12px) saturate(140%);
-    border:1px solid rgba(255,255,255,0.15);
-    box-shadow:0 20px 40px rgba(0,0,0,0.35);
-  }
-  /* Библиотека */
-  #library {
-    position:fixed; top:20px; left:20px;
-    width:240px; max-height:70vh; overflow-y:auto;
-    padding:12px;
-  }
-  #library h2 {margin:0 0 10px; font-size:18px;}
-  .genre-block {margin-bottom:12px;}
-  .genre-title {font-weight:bold; margin-bottom:6px;}
-  .track {margin:6px 0; padding:8px; border-radius:10px;}
-  .track:hover {background:rgba(255,255,255,0.15);}
-  .eq-icon {cursor:pointer; margin-left:6px;}
-  .eq-panel {
-    max-height:0; overflow:hidden;
-    transition:max-height 0.5s ease, padding 0.3s ease;
-    background:rgba(255,255,255,0.12);
-    border-radius:12px; margin-top:6px; padding:0 10px;
-  }
-  .eq-panel.open {max-height:200px; padding:10px;}
-  .eq-option {padding:6px; margin:4px 0; border-radius:8px; background:rgba(255,255,255,0.15); cursor:pointer;}
-  .eq-option:hover {background:rgba(255,255,255,0.25);}
-  /* Плеер */
-  #controls {margin-top:100px; width:80%; max-width:600px; text-align:center; padding:20px;}
-  #controls input {padding:8px; border-radius:10px; border:none; margin:5px;}
-  #controls button {
-    padding:10px; border-radius:12px; border:none; margin:5px;
-    cursor:pointer; background:rgba(255,255,255,0.12); color:inherit;
-    transition:background 0.2s, transform 0.2s;
-    font-size:20px;
-  }
-  #controls button:hover {background:rgba(255,255,255,0.25); transform:scale(1.1);}
-  #fileUpload {margin-top:20px; padding:15px; text-align:center;}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Liquid Glass Music — VK Style</title>
+  <meta name="theme-color" content="#0f141b" />
+  <style>
+    /* Base & theme variables */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { height: 100%; }
+    :root {
+      --bg1: #0f141b;
+      --bg2: #182230;
+      --text: #ffffff;
+      --muted: #b7c0cc;
+      --accent: #4cafef;
+      --accent-2: #7fd1ff;
+      --glass: rgba(255,255,255,0.08);
+      --glass-strong: rgba(255,255,255,0.14);
+      --border: rgba(255,255,255,0.12);
+      --like: #ff5177;
+    }
+    body.light {
+      --bg1: #e9eef3;
+      --bg2: #f5f7fa;
+      --text: #0f1318;
+      --muted: #4a596b;
+      --accent: #225a8a;
+      --accent-2: #3b78a8;
+      --glass: rgba(0,0,0,0.08);
+      --glass-strong: rgba(0,0,0,0.14);
+      --border: rgba(0,0,0,0.18);
+      --like: #e8436f;
+    }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--text);
+      background: radial-gradient(1200px 800px at 25% 15%, var(--bg2) 0%, var(--bg1) 45%, #0b1016 100%);
+      transition: background .35s ease, color .35s ease;
+      overflow: hidden;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+    }
+
+    /* Liquid glass */
+    .glass {
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      backdrop-filter: blur(14px) saturate(140%);
+      -webkit-backdrop-filter: blur(14px) saturate(140%);
+      box-shadow: 0 28px 80px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.08);
+    }
+    .glass-item {
+      background: var(--glass-strong);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    /* Layout: header, sidebar, content, player bar */
+    .app {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      grid-template-rows: 64px 1fr 76px;
+      grid-template-areas:
+        "header header"
+        "sidebar content"
+        "player player";
+      height: 100vh;
+      gap: 12px;
+      padding: 12px;
+    }
+    header {
+      grid-area: header;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+    }
+    .logo {
+      display: flex; align-items: center; gap: 10px;
+      font-weight: 700; letter-spacing: .2px;
+    }
+    .search {
+      flex: 1;
+      display: flex; gap: 10px;
+      align-items: center;
+      padding: 8px 10px;
+    }
+    .search input {
+      flex: 1;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0.08));
+      color: var(--text);
+      outline: none;
+    }
+    .icon-btn {
+      width: 40px; height: 40px;
+      display: grid; place-items: center;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, var(--glass-strong), var(--glass));
+      color: var(--text);
+      cursor: pointer;
+      transition: transform .15s ease, border-color .2s ease, background .2s ease;
+    }
+    .icon-btn:hover { transform: translateY(-1px); border-color: var(--accent-2); }
+
+    aside {
+      grid-area: sidebar; padding: 12px;
+      display: flex; flex-direction: column; gap: 12px; overflow: auto;
+    }
+    .nav {
+      display: grid; gap: 8px; padding: 12px;
+    }
+    .nav .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; cursor: pointer;
+    }
+    .nav .nav-item:hover { background: var(--glass-strong); border-radius: 10px; }
+
+    .genre-section { padding: 12px; }
+    .genre-title { font-weight: 700; margin-bottom: 8px; color: var(--muted); }
+
+    main {
+      grid-area: content; padding: 12px; overflow: auto;
+      display: grid; gap: 12px;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      align-content: start;
+    }
+
+    /* Track card (VK-like) */
+    .track-card {
+      display: grid;
+      grid-template-columns: 64px 1fr auto;
+      grid-template-rows: auto auto auto;
+      grid-template-areas:
+        "cover title actions"
+        "cover meta actions"
+        "cover eq actions";
+      gap: 8px;
+      padding: 12px;
+      cursor: pointer;
+      transition: border-color .2s ease, transform .12s ease;
+    }
+    .track-card:hover { transform: translateY(-1px); border-color: var(--accent-2); }
+    .cover {
+      grid-area: cover; width: 64px; height: 64px; border-radius: 10px;
+      background: radial-gradient(circle at 40% 30%, #2a3c49, #0f141b);
+      display: grid; place-items: center; font-size: 22px;
+    }
+    .title {
+      grid-area: title; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .meta {
+      grid-area: meta; color: var(--muted); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .actions {
+      grid-area: actions; display: flex; align-items: center; gap: 8px;
+    }
+    .eq-row {
+      grid-area: eq; display: flex; align-items: center; gap: 6px; color: var(--muted);
+    }
+
+    /* Droplet EQ panel */
+    .eq-toggle { cursor: pointer; }
+    .eq-panel {
+      max-height: 0; overflow: hidden;
+      transition: max-height .45s ease, padding .3s ease, opacity .3s ease;
+      background: var(--glass-strong);
+      border: 1px solid var(--border);
+      border-radius: 12px; padding: 0 10px; margin-top: 6px; opacity: 0;
+    }
+    .eq-panel.open { max-height: 180px; padding: 10px; opacity: 1; }
+    .eq-option {
+      padding: 8px; border-radius: 10px; margin: 6px 0;
+      background: rgba(255,255,255,0.12);
+      cursor: pointer; transition: background .2s ease;
+    }
+    .eq-option:hover { background: rgba(255,255,255,0.22); }
+
+    /* Bottom player bar */
+    .player-bar {
+      grid-area: player; display: grid; grid-template-columns: 320px 1fr 320px;
+      align-items: center; gap: 12px; padding: 10px 14px;
+    }
+    .pb-left { display: flex; align-items: center; gap: 10px; }
+    .pb-title { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pb-meta { color: var(--muted); font-size: 13px; }
+    .pb-center { display: grid; grid-template-rows: auto auto; gap: 8px; }
+    .pb-controls { display: flex; align-items: center; gap: 12px; justify-content: center; }
+    .progress {
+      height: 8px; border-radius: 8px; background: rgba(255,255,255,0.14);
+      overflow: hidden;
+    }
+    .progress .bar {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      transition: width .1s linear;
+    }
+    .pb-right { display: flex; justify-content: flex-end; gap: 8px; align-items: center; }
+
+    /* Forms row below header (add by link + by file) */
+    .add-row {
+      grid-area: header;
+      position: absolute; left: 50%; transform: translateX(-50%);
+      top: 76px; display: flex; gap: 8px;
+      padding: 8px 10px;
+    }
+    .add-row .field { padding: 10px 12px; border-radius: 12px; border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0.08)); color: var(--text); }
+    .add-row .file { display: none; }
+    .add-row .file-label { padding: 10px 12px; border-radius: 12px; border: 1px solid var(--border);
+      background: linear-gradient(180deg, var(--glass-strong), var(--glass)); cursor: pointer; }
+
+    /* Responsive */
+    @media (max-width: 960px) {
+      .app { grid-template-columns: 1fr; grid-template-rows: 64px auto 1fr 76px;
+        grid-template-areas: "header" "sidebar" "content" "player"; }
+      aside { height: 28vh; }
+      .add-row { top: 132px; }
+      .player-bar { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
-  <!-- Библиотека -->
-  <div id="library" class="glass">
-    <h2>📚 Библиотека</h2>
-    <div id="genres"></div>
+  <div class="app">
+    <!-- Header -->
+    <header class="glass">
+      <div class="logo">
+        <div class="icon-btn" title="Музыка">🎵</div>
+        <div>Liquid Glass Music</div>
+      </div>
+      <div class="search glass-item" style="flex:1">
+        <div class="icon-btn" title="Поиск">🔎</div>
+        <input id="search" type="text" placeholder="Поиск по названию, артисту, жанру…" />
+        <div id="themeBtn" class="icon-btn" title="Тема">🌗</div>
+      </div>
+    </header>
+
+    <!-- Add row (centered under header) -->
+    <div class="add-row glass">
+      <input id="titleInput" class="field" type="text" placeholder="Название" />
+      <input id="artistInput" class="field" type="text" placeholder="Артист" />
+      <input id="genreInput" class="field" type="text" placeholder="Жанр" />
+      <input id="urlInput" class="field" type="url" placeholder="Ссылка на mp3 (https://…)" />
+      <div id="addBtn" class="icon-btn" title="Добавить">➕</div>
+      <input id="fileInput" class="file" type="file" accept="audio/*" />
+      <label for="fileInput" class="file-label">📂 Файл</label>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="glass">
+      <div class="nav glass-item">
+        <div class="nav-item"><span class="icon-btn">🏠</span> Главная</div>
+        <div class="nav-item"><span class="icon-btn">❤️</span> Любимые</div>
+        <div class="nav-item"><span class="icon-btn">🎧</span> Недавние</div>
+        <div class="nav-item"><span class="icon-btn">📁</span> Жанры</div>
+      </div>
+      <div id="genreList" class="genre-section glass-item"></div>
+    </aside>
+
+    <!-- Content: track feed -->
+    <main id="feed" class="glass">
+      <!-- Заполняется скриптом -->
+    </main>
+
+    <!-- Bottom Player Bar -->
+    <div class="player-bar glass">
+      <div class="pb-left">
+        <div class="icon-btn" id="pbCover">🎵</div>
+        <div>
+          <div class="pb-title" id="pbTitle">Ничего не играет</div>
+          <div class="pb-meta" id="pbMeta">—</div>
+        </div>
+      </div>
+      <div class="pb-center">
+        <div class="pb-controls">
+          <div class="icon-btn" id="prevBtn" title="Назад">⏮</div>
+          <div class="icon-btn" id="playPauseBtn" title="Плей/Пауза">⏯</div>
+          <div class="icon-btn" id="nextBtn" title="Вперёд">⏭</div>
+          <div class="icon-btn" id="sleepBtn" title="Сон 1 мин">⏱</div>
+        </div>
+        <div class="progress glass-item"><div class="bar" id="progressBar"></div></div>
+      </div>
+      <div class="pb-right">
+        <div class="icon-btn" id="queueBtn" title="Очередь">🧾</div>
+        <div class="icon-btn" id="clearBtn" title="Очистить">🗑</div>
+        <audio id="audioA" crossorigin="anonymous"></audio>
+        <audio id="audioB" crossorigin="anonymous"></audio>
+      </div>
+    </div>
   </div>
 
-  <!-- Центр — плеер -->
-  <div id="controls" class="glass">
-    <audio id="audio" controls></audio><br>
-    <input type="text" id="trackTitle" placeholder="Название">
-    <input type="text" id="trackUrl" placeholder="Ссылка">
-    <input type="text" id="trackGenre" placeholder="Жанр">
-    <button onclick="addTrack()">➕</button>
-    <button onclick="toggleTheme()">🌗</button>
-    <button onclick="setSleepTimer()">⏱</button>
-    <button onclick="clearPlaylist()">🗑</button>
-    <button onclick="togglePlayPause()">⏯</button>
-  </div>
+  <script>
+    // State
+    const audioA = document.getElementById('audioA');
+    const audioB = document.getElementById('audioB');
+    let active = 'A';
+    let sleepTimer = null;
 
-  <!-- Загрузка файла -->
-  <div id="fileUpload" class="glass">
-    <input type="file" id="fileInput" accept="audio/*">
-    <button onclick="addTrackFile()">📂</button>
-  </div>
+    let tracks = load('lgm_tracks') || sampleData();
+    let likes = load('lgm_likes') || {};
+    let queue = load('lgm_queue') || [];
+    let currentIndex = -1;
 
-<script>
-let playlist = loadPlaylist();
-const audio = document.getElementById("audio");
-let sleepTimer;
+    // Elements
+    const feedEl = document.getElementById('feed');
+    const genreListEl = document.getElementById('genreList');
+    const searchEl = document.getElementById('search');
 
-renderLibrary();
+    const pbTitle = document.getElementById('pbTitle');
+    const pbMeta = document.getElementById('pbMeta');
+    const progressBar = document.getElementById('progressBar');
 
-function savePlaylist(){localStorage.setItem("myPlaylist",JSON.stringify(playlist));}
-function loadPlaylist(){const d=localStorage.getItem("myPlaylist");return d?JSON.parse(d):[];}
+    // Init
+    applyTheme(load('lgm_theme') || 'dark');
+    renderAll();
+    bindControls();
 
-function addTrack(){
-  const title=document.getElementById("trackTitle").value.trim();
-  const url=document.getElementById("trackUrl").value.trim();
-  const genre=document.getElementById("trackGenre").value.trim()||"Разное";
-  if(title&&url){
-    playlist.push({title,url,genre});
-    savePlaylist(); renderLibrary();
-    document.getElementById("trackTitle").value="";
-    document.getElementById("trackUrl").value="";
-    document.getElementById("trackGenre").value="";
-  }
-}
-function addTrackFile(){
-  const file=document.getElementById("fileInput").files[0];
-  if(!file)return;
-  const url=URL.createObjectURL(file);
-  playlist.push({title:file.name,url,genre:"Локальные"});
-  savePlaylist(); renderLibrary();
-  document.getElementById("fileInput").value="";
-}
-function playTrack(url){audio.src=url; audio.play();}
-function togglePlayPause(){audio.paused?audio.play():audio.pause();}
-function toggleTheme(){document.body.classList.toggle("light");}
-function setSleepTimer(){
-  clearTimeout(sleepTimer);
-  sleepTimer=setTimeout(()=>{audio.pause();alert("⏱️ Таймер сна: стоп");},60000);
-}
-function clearPlaylist(){playlist=[];savePlaylist();renderLibrary();}
+    function save(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
+    function load(key) { try { return JSON.parse(localStorage.getItem(key)); } catch { return null; } }
 
-function renderLibrary(){
-  const genresEl=document.getElementById("genres");
-  genresEl.innerHTML="";
-  // группировка по жанрам
-  const grouped={};
-  playlist.forEach(t=>{
-    if(!grouped[t.genre]) grouped[t.genre]=[];
-    grouped[t.genre].push(t);
-  });
-  // сортировка жанров и треков
-  Object.keys(grouped).sort().forEach(genre=>{
-    const block=document.createElement("div");
-    block.className="genre-block";
-    const title=document.createElement("div");
-    title.className="genre-title";
-    title.textContent=genre;
-    block.appendChild(title);
-    grouped[genre].sort((a,b)=>a.title.localeCompare(b.title)).forEach((track,i)=>{
-      const li=document.createElement("div");
-      li.className="track glass";
-      li.textContent=track.title;
-      li.onclick=()=>playTrack(track.url);
-      const eqIcon=document.createElement("span");
-      eqIcon.className="eq-icon";
-      eqIcon.textContent="🎚";
-      eqIcon.onclick=(e)=>{e.stopPropagation();toggleEq(track.title+genre+i);};
-      const eqPanel=document.createElement("div");
-      eqPanel.className="eq-panel";
-      eqPanel.id="eq-"+track.title+genre+i;
-      ["Бас","Тре́бл","Вокал","Эхо"].forEach(opt=>{
-        const div=document.createElement("div");
-        div.className="eq-option";
-        div.textContent=opt;
-        eqPanel.appendChild(div);
+    function sampleData() {
+      return [
+        { id: id(), title: 'Glass Sunrise', artist: 'Aether', genre: 'Ambient', url: 'https://www2.cs.uic.edu/~i101/SoundFiles/StarWars60.wav', duration: '3:20' },
+        { id: id(), title: 'Liquid Night', artist: 'Noctis', genre: 'Synthwave', url: 'https://www2.cs.uic.edu/~i101/SoundFiles/ImperialMarch60.wav', duration: '2:58' },
+        { id: id(), title: 'Velvet Bass', artist: 'Pulse', genre: 'House', url: 'https://www2.cs.uic.edu/~i101/SoundFiles/CantinaBand60.wav', duration: '2:35' }
+      ];
+    }
+    function id() { return Math.random().toString(36).slice(2, 9); }
+
+    // Rendering
+    function renderAll() {
+      renderGenres();
+      renderFeed();
+    }
+
+    function renderGenres() {
+      // Group by genre -> sort genres, sort titles inside
+      const map = {};
+      tracks.forEach(t => { (map[t.genre] ||= []).push(t); });
+      const genres = Object.keys(map).sort((a,b)=>a.localeCompare(b));
+      genreListEl.innerHTML = '';
+      genres.forEach(g => {
+        const box = document.createElement('div');
+        box.className = 'glass-item';
+        box.style.padding = '10px';
+        const title = document.createElement('div');
+        title.className = 'genre-title';
+        title.textContent = g;
+        box.appendChild(title);
+
+        const list = document.createElement('div');
+        map[g].sort((a,b)=>a.title.localeCompare(b.title)).forEach(t => {
+          const item = document.createElement('div');
+          item.className = 'glass-item';
+          item.style.padding = '8px';
+          item.style.margin = '6px 0';
+          item.style.display = 'flex';
+          item.style.alignItems = 'center';
+          item.style.justifyContent = 'space-between';
+          item.innerHTML = `<span>${t.title}</span>
+            <span style="display:flex; gap:8px; align-items:center;">
+              <span class="eq-toggle">🎚</span>
+              <span style="color:${likes[t.id] ? 'var(--like)' : 'var(--muted)'}">❤️</span>
+            </span>`;
+          item.onclick = () => playById(t.id);
+          const eqPanel = document.createElement('div');
+          eqPanel.className = 'eq-panel';
+          ['Бас', 'Тре́бл', 'Вокал', 'Эхо'].forEach(opt => {
+            const o = document.createElement('div');
+            o.className = 'eq-option'; o.textContent = opt;
+            eqPanel.appendChild(o);
+          });
+          item.querySelector('.eq-toggle').addEventListener('click', (e) => {
+            e.stopPropagation(); eqPanel.classList.toggle('open');
+          });
+          box.appendChild(item);
+          box.appendChild(eqPanel);
+        });
+        genreListEl.appendChild(box);
       });
-      li.appendChild(eqIcon);
-      li.appendChild(eqPanel);
-      block.appendChild(li);
-    });
-    genresEl.appendChild(block);
-  });
-}
-function toggleEq(id){
-  const panel=document.getElementById("eq-"+id);
-  if(panel) panel.classList.toggle("open");
-}
-</script>
+    }
+
+    function renderFeed() {
+      const q = searchEl.value.trim().toLowerCase();
+      const filtered = q ? tracks.filter(t =>
+        t.title.toLowerCase().includes(q) ||
+        t.artist.toLowerCase().includes(q) ||
+        t.genre.toLowerCase().includes(q)
+      ) : tracks.slice();
+
+      feedEl.innerHTML = '';
+      filtered.forEach(t => {
+        const card = document.createElement('div');
+        card.className = 'track-card glass-item';
+        // cover
+        const cover = document.createElement('div'); cover.className = 'cover glass-item'; cover.textContent = '♪';
+        const title = document.createElement('div'); title.className = 'title'; title.textContent = t.title;
+        const meta = document.createElement('div'); meta.className = 'meta'; meta.textContent = `${t.artist} • ${t.genre} • ${t.duration || ''}`;
+
+        const actions = document.createElement('div'); actions.className = 'actions';
+        const play = iconButton('⏯', 'Играть/Пауза', () => playById(t.id));
+        const like = iconButton('❤️', 'Лайк', () => { likes[t.id] = !likes[t.id]; save('lgm_likes', likes); renderAll(); });
+        like.style.color = likes[t.id] ? 'var(--like)' : 'var(--text)';
+
+        const addQueue = iconButton('➕', 'В очередь', () => { queue.push(t.id); save('lgm_queue', queue); });
+        const droplet = document.createElement('div'); droplet.className = 'icon-btn'; droplet.title = 'Эквалайзер'; droplet.textContent = '🎚';
+
+        actions.append(play, like, addQueue, droplet);
+
+        const eqRow = document.createElement('div'); eqRow.className = 'eq-row';
+        const eqLabel = document.createElement('span'); eqLabel.textContent = 'Эквалайзер';
+        const eqPanel = document.createElement('div'); eqPanel.className = 'eq-panel';
+        ['Бас', 'Тре́бл', 'Вокал', 'Эхо'].forEach(opt => {
+          const o = document.createElement('div'); o.className = 'eq-option'; o.textContent = opt; eqPanel.appendChild(o);
+        });
+        droplet.addEventListener('click', (e)=>{ e.stopPropagation(); eqPanel.classList.toggle('open'); });
+
+        eqRow.append(eqLabel, eqPanel);
+
+        card.append(cover, title, meta, eqRow, actions);
+        card.addEventListener('click', () => playById(t.id));
+        feedEl.appendChild(card);
+      });
+    }
+
+    function iconButton(symbol, title, onClick) {
+      const b = document.createElement('div');
+      b.className = 'icon-btn';
+      b.textContent = symbol;
+      b.title = title;
+      b.addEventListener('click', (e)=>{ e.stopPropagation(); onClick(); });
+      return b;
+    }
+
+    // Play logic with crossfade and player bar updates
+    async function playById(id) {
+      const idx = tracks.findIndex(t => t.id === id);
+      if (idx === -1) return;
+      currentIndex = idx;
+      const t = tracks[idx];
+      pbTitle.textContent = t.title;
+      pbMeta.textContent = `${t.artist} • ${t.genre}`;
+      const from = active === 'A' ? audioA : audioB;
+      const to = active === 'A' ? audioB : audioA;
+      try {
+        to.src = t.url;
+        to.volume = 0;
+        await to.play();
+        const step = 0.05, interval = 120;
+        const fade = setInterval(() => {
+          from.volume = Math.max(0, from.volume - step);
+          to.volume = Math.min(1, to.volume + step);
+          if (from.volume <= 0 && to.volume >= 1) {
+            clearInterval(fade);
+            from.pause();
+            active = active === 'A' ? 'B' : 'A';
+          }
+        }, interval);
+      } catch {
+        alert('Не удалось воспроизвести трек. Проверь ссылку/файл.');
+      }
+    }
+
+    // Progress bar
+    setInterval(() => {
+      const a = active === 'A' ? audioA : audioB;
+      if (a.duration > 0) {
+        progressBar.style.width = `${(a.currentTime / a.duration) * 100}%`;
+      } else {
+        progressBar.style.width = '0%';
+      }
+    }, 200);
+
+    // Controls
+    function bindControls() {
+      document.getElementById('themeBtn').onclick = () => {
+        const isLight = document.body.classList.toggle('light');
+        save('lgm_theme', isLight ? 'light' : 'dark');
+        const metaTheme = document.querySelector('meta[name="theme-color"]');
+        if (metaTheme) metaTheme.setAttribute('content', isLight ? '#f5f7fa' : '#0f141b');
+      };
+      document.getElementById('addBtn').onclick = addByLink;
+      document.getElementById('fileInput').onchange = addByFile;
+
+      document.getElementById('playPauseBtn').onclick = () => {
+        const a = active === 'A' ? audioA : audioB;
+        if (a.src) a.paused ? a.play() : a.pause();
+      };
+      document.getElementById('prevBtn').onclick = () => navigate(-1);
+      document.getElementById('nextBtn').onclick = () => navigate(1);
+      document.getElementById('sleepBtn').onclick = () => setSleep(60_000);
+      document.getElementById('clearBtn').onclick = () => { if (confirm('Очистить очередь?')) { queue = []; save('lgm_queue', queue); } };
+      document.getElementById('queueBtn').onclick = showQueue;
+
+      searchEl.addEventListener('input', renderFeed);
+
+      // Hotkeys
+      document.addEventListener('keydown', (e) => {
+        if (e.code === 'Space') { e.preventDefault(); const a = active === 'A' ? audioA : audioB; if (a.src) a.paused ? a.play() : a.pause(); }
+        else if (e.code === 'ArrowRight') { const a = active === 'A' ? audioA : audioB; a.currentTime += 5; }
+        else if (e.code === 'ArrowLeft') { const a = active === 'A' ? audioA : audioB; a.currentTime -= 5; }
+      });
+    }
+
+    function addByLink() {
+      const title = document.getElementById('titleInput').value.trim();
+      const artist = document.getElementById('artistInput').value.trim();
+      const genre = document.getElementById('genreInput').value.trim() || 'Разное';
+      const url = document.getElementById('urlInput').value.trim();
+      if (!title || !artist || !url) return alert('Заполни: название, артист, ссылка.');
+      if (!/^https?:\/\//i.test(url)) return alert('Ссылка должна начинаться с http:// или https://');
+      const t = { id: id(), title, artist, genre, url, duration: '' };
+      tracks.push(t); save('lgm_tracks', tracks); renderAll();
+      document.getElementById('titleInput').value = '';
+      document.getElementById('artistInput').value = '';
+      document.getElementById('genreInput').value = '';
+      document.getElementById('urlInput').value = '';
+    }
+
+    function addByFile(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const url = URL.createObjectURL(file);
+      const baseTitle = file.name.replace(/\.(mp3|wav|ogg|m4a|flac)$/i, '');
+      const t = { id: id(), title: baseTitle + ' (локально)', artist: 'Local', genre: 'Локальные', url, duration: '' };
+      tracks.push(t); save('lgm_tracks', tracks); renderAll();
+      e.target.value = '';
+      alert('Файл добавлен (URL временный, работает в этом браузере).');
+    }
+
+    function setSleep(ms) {
+      clearTimeout(sleepTimer);
+      sleepTimer = setTimeout(() => {
+        audioA.pause(); audioB.pause();
+        alert('⏱️ Таймер сна: воспроизведение остановлено');
+      }, ms);
+      alert('Таймер сна установлен');
+    }
+
+    function navigate(dir) {
+      if (currentIndex === -1) return;
+      const idx = Math.max(0, Math.min(tracks.length - 1, currentIndex + dir));
+      playById(tracks[idx].id);
+    }
+
+    // Queue modal (simple)
+    function showQueue() {
+      const list = queue.map(id => tracks.find(t => t.id === id)).filter(Boolean);
+      const modal = document.createElement('div');
+      modal.className = 'glass';
+      modal.style.position = 'fixed';
+      modal.style.right = '20px';
+      modal.style.bottom = '100px';
+      modal.style.padding = '12px';
+      modal.style.width = '320px';
+      modal.style.maxHeight = '60vh';
+      modal.style.overflow = 'auto';
+      modal.innerHTML = '<div style="font-weight:700; margin-bottom:8px;">Очередь</div>';
+
+      const ul = document.createElement('div');
+      list.forEach((t, i) => {
+        const row = document.createElement('div');
+        row.className = 'glass-item';
+        row.style.padding = '8px';
+        row.style.margin = '6px 0';
+        row.style.display = 'grid';
+        row.style.gridTemplateColumns = '1fr auto';
+        row.style.alignItems = 'center';
+        row.innerHTML = `<span>${t.title}</span>`;
+        const tools = document.createElement('div'); tools.style.display = 'flex'; tools.style.gap = '8px';
+        const up = iconButton('🔼','Вверх',()=>moveQueue(i, i-1));
+        const down = iconButton('🔽','Вниз',()=>moveQueue(i, i+1));
+        const play = iconButton('⏯','Играть',()=> playById(t.id));
+        const del = iconButton('🗑','Удалить',()=> { queue.splice(i,1); save('lgm_queue',queue); modal.remove(); showQueue(); });
+        tools.append(up,down,play,del);
+        row.appendChild(tools);
+        ul.appendChild(row);
+      });
+
+      const close = iconButton('✖','Закрыть',()=> modal.remove());
+      close.style.position='absolute'; close.style.top='8px'; close.style.right='8px';
+
+      modal.appendChild(close);
+      modal.appendChild(ul);
+      document.body.appendChild(modal);
+    }
+    function moveQueue(from,to){
+      if (to<0 || to>=queue.length) return;
+      const id = queue.splice(from,1)[0];
+      queue.splice(to,0,id);
+      save('lgm_queue',queue);
+      showQueue();
+    }
+  </script>
 </body>
 </html>
