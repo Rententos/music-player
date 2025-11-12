@@ -3,558 +3,205 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Моя Музыкальная Библиотека — Liquid Glass</title>
-  <meta name="theme-color" content="#0f141b" />
+  <title>Музыкальная Библиотека — Liquid Glass</title>
   <style>
-    /* ===== Reset & base ===== */
-    *, *::before, *::after { box-sizing: border-box; }
-    html, body { height: 100%; }
-    :root {
-      /* Тёмная тема по умолчанию */
-      --bg1: #0f141b;
-      --bg2: #182230;
-      --text: #ffffff;
-      --glass: rgba(255,255,255,0.10);
-      --glass-strong: rgba(255,255,255,0.18);
-      --border: rgba(255,255,255,0.12);
-      --accent: #4cafef;
-      --accent-2: #7fd1ff;
-    }
-    /* Светлая тема */
-    body.light {
-      --bg1: #e9eef3;
-      --bg2: #f5f7fa;
-      --text: #0f1318;
-      --glass: rgba(0,0,0,0.08);
-      --glass-strong: rgba(0,0,0,0.14);
-      --border: rgba(0,0,0,0.14);
-      --accent: #225a8a;
-      --accent-2: #3b78a8;
-    }
-    /* Пользовательский выбор темы всегда приоритетнее системной */
-    /* Никаких prefers-color-scheme, чтобы не было конфликтов */
-
     body {
       margin: 0;
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-      color: var(--text);
-      background: radial-gradient(1200px 800px at 20% 10%, var(--bg2) 0%, var(--bg1) 45%, #0b1016 100%);
+      background: radial-gradient(circle at 20% 20%, #1b2733, #0f141b);
+      color: #fff;
       min-height: 100vh;
       display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      transition: background 0.35s ease, color 0.35s ease;
+      flex-direction: column;
     }
-    @media (prefers-reduced-motion: reduce) {
-      * { transition: none !important; animation: none !important; }
-    }
-    .container {
-      width: min(1100px, 94vw);
-      margin: 28px auto;
-      display: grid;
-      grid-template-rows: auto auto 1fr;
-      gap: 18px;
-    }
-    h1 {
-      margin: 0;
-      padding: 6px 0 2px;
-      text-align: center;
-      font-weight: 700;
-      font-size: clamp(20px, 3vw, 28px);
-      letter-spacing: 0.2px;
-    }
-
-    /* ===== Liquid Glass Card ===== */
-    .card {
-      background: var(--glass);
+    /* Liquid Glass Card */
+    .glass {
+      background: rgba(255,255,255,0.08);
       border-radius: 16px;
-      backdrop-filter: saturate(140%) blur(16px);
-      -webkit-backdrop-filter: saturate(140%) blur(16px);
-      border: 1px solid var(--border);
-      box-shadow:
-        0 28px 80px rgba(0,0,0,0.35),
-        inset 0 1px 0 rgba(255,255,255,0.08);
+      backdrop-filter: blur(12px) saturate(140%);
+      -webkit-backdrop-filter: blur(12px) saturate(140%);
+      border: 1px solid rgba(255,255,255,0.15);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.35);
     }
-
-    /* ===== Controls ===== */
-    #controls.card {
-      padding: 14px;
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-      align-items: center;
-      justify-items: center;
+    /* Библиотека слева сверху */
+    #library {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      width: 220px;
+      max-height: 60vh;
+      overflow-y: auto;
+      padding: 12px;
     }
-    .inputs {
-      width: 100%;
-      max-width: 950px;
-      display: grid;
-      grid-template-columns: 1fr 1fr auto;
-      gap: 10px;
+    #library h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
     }
-    input, button { font: inherit; }
-    input[type="text"], input[type="url"] {
-      padding: 11px 12px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0.08));
-      color: var(--text);
-      outline: none;
+    #library ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
     }
-    input::placeholder { color: rgba(255,255,255,0.78); }
-    body.light input::placeholder { color: rgba(0,0,0,0.55); }
-    .file-row {
-      width: 100%;
-      max-width: 950px;
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 10px;
-      align-items: center;
-    }
-    .file-row input[type="file"] {
-      padding: 9px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0.08));
-      color: var(--text);
-    }
-    .buttons {
+    #library li {
+      background: rgba(255,255,255,0.1);
+      margin: 6px 0;
+      padding: 8px;
+      border-radius: 10px;
       display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: center;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: background 0.2s;
     }
-    .btn {
+    #library li:hover { background: rgba(255,255,255,0.2); }
+    .eq-icon {
+      font-size: 18px;
+      cursor: pointer;
+      margin-left: 8px;
+    }
+    /* Эквалайзер капля */
+    .eq-panel {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.5s ease, padding 0.3s ease;
+      background: rgba(255,255,255,0.12);
+      border-radius: 12px;
+      margin-top: 6px;
+      padding: 0 10px;
+    }
+    .eq-panel.open {
+      max-height: 200px;
+      padding: 10px;
+    }
+    .eq-option {
+      padding: 6px;
+      margin: 4px 0;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.15);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .eq-option:hover { background: rgba(255,255,255,0.25); }
+    /* Центр — инструменты плеера */
+    #controls {
+      margin: auto;
+      width: 80%;
+      max-width: 600px;
+      text-align: center;
+      padding: 20px;
+    }
+    #controls input {
+      padding: 8px;
+      border-radius: 10px;
+      border: none;
+      margin: 5px;
+    }
+    #controls button {
       padding: 10px 16px;
       border-radius: 12px;
-      border: 1px solid var(--border);
-      background: linear-gradient(180deg, rgba(255,255,255,0.20), rgba(255,255,255,0.12));
-      color: var(--text);
+      border: none;
+      margin: 5px;
       cursor: pointer;
-      transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease;
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      background: rgba(255,255,255,0.15);
+      color: inherit;
+      transition: background 0.2s, transform 0.2s;
     }
-    .btn:hover { transform: translateY(-1px); border-color: var(--accent-2); }
-    .btn.primary {
-      border-color: rgba(76,175,239,0.45);
-      box-shadow: inset 0 0 0 1px rgba(76,175,239,0.32);
+    #controls button:hover {
+      background: rgba(255,255,255,0.3);
+      transform: scale(1.05);
     }
-
-    /* ===== Main grid ===== */
-    .main {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 18px;
-      align-items: start;
-    }
-
-    /* ===== Playlist ===== */
-    #playlist.card { padding: 12px; }
-    #playlist[aria-busy="true"] { opacity: 0.6; }
-    #playlist li {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      align-items: center;
-      gap: 10px;
-      padding: 12px;
-      margin: 8px 0;
-      border-radius: 14px;
-      background: var(--glass-strong);
-      border: 1px solid var(--border);
-      transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease;
-      cursor: grab;
-    }
-    #playlist li:hover {
-      transform: translateX(3px);
-      border-color: rgba(255,255,255,0.22);
-    }
-    #playlist li.dragging { opacity: 0.5; cursor: grabbing; }
-    .track-title {
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-      font-weight: 600;
-    }
-    .track-actions { display: flex; gap: 8px; }
-    .track-actions .btn { padding: 8px 12px; border-radius: 10px; }
-
-    /* ===== Visualizer ===== */
-    #visualizer.card {
-      height: 300px;
-      padding: 10px;
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      overflow: hidden;
-    }
-    .bar {
-      width: 9px;
-      margin: 2px;
-      border-radius: 6px;
-      background: linear-gradient(180deg, var(--accent-2), var(--accent));
-      box-shadow: 0 6px 18px rgba(76,175,239,0.35);
-      height: 24px;
-      transition: height 0.12s ease;
-    }
-
-    /* ===== Responsive ===== */
-    @media (max-width: 980px) {
-      .main { grid-template-columns: 1fr; }
-      #visualizer.card { height: 220px; }
-      .inputs { grid-template-columns: 1fr 1fr auto; }
-    }
-    @media (max-width: 680px) {
-      .inputs { grid-template-columns: 1fr; }
-      .file-row { grid-template-columns: 1fr; }
-      .bar { width: 7px; }
-      #visualizer.card { height: 180px; }
-      #playlist li { grid-template-columns: 1fr; }
-      .track-actions { justify-content: flex-start; }
-    }
-
-    /* ===== Focus visibility ===== */
-    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🎶 Моя Музыкальная Библиотека</h1>
+  <!-- Библиотека -->
+  <div id="library" class="glass">
+    <h2>📚 Библиотека</h2>
+    <ul id="playlist"></ul>
+  </div>
 
-    <!-- Controls -->
-    <section id="controls" class="card" role="region" aria-label="Управление">
-      <!-- Два аудиоканала для безопасного кроссфейда -->
-      <audio id="audioA" crossorigin="anonymous"></audio>
-      <audio id="audioB" crossorigin="anonymous"></audio>
-
-      <div class="inputs" role="form" aria-label="Добавить трек по ссылке">
-        <input id="trackTitle" type="text" placeholder="Название трека" aria-label="Название трека" />
-        <input id="trackUrl" type="url" placeholder="Ссылка на mp3 (https://...)" aria-label="Ссылка на трек" />
-        <button id="addBtn" class="btn primary" aria-label="Добавить">Добавить</button>
-      </div>
-
-      <div class="file-row" role="form" aria-label="Добавить трек файлом">
-        <input id="fileInput" type="file" accept="audio/*" aria-label="Выбрать аудиофайл" />
-        <button id="addFileBtn" class="btn" aria-label="Импортировать файл">Импорт файла</button>
-      </div>
-
-      <div class="buttons" role="group" aria-label="Кнопки">
-        <button id="playPauseBtn" class="btn" aria-label="Плей/Пауза">Плей/Пауза</button>
-        <button id="themeBtn" class="btn" aria-label="Сменить тему">Тема</button>
-        <button id="sleepBtn" class="btn" aria-label="Таймер сна 1 мин">Сон 1 мин</button>
-        <button id="clearBtn" class="btn" aria-label="Очистить плейлист">Очистить</button>
-        <button id="exportBtn" class="btn" aria-label="Экспорт плейлиста">Экспорт</button>
-        <button id="importBtn" class="btn" aria-label="Импорт плейлиста">Импорт</button>
-      </div>
-    </section>
-
-    <!-- Main: playlist + visualizer -->
-    <section class="main">
-      <ul id="playlist" class="card" role="list" aria-label="Список треков"></ul>
-      <div id="visualizer" class="card" role="img" aria-label="Визуализатор"></div>
-    </section>
+  <!-- Центр — инструменты -->
+  <div id="controls" class="glass">
+    <audio id="audio" controls></audio><br>
+    <input type="text" id="trackTitle" placeholder="Название трека">
+    <input type="text" id="trackUrl" placeholder="Ссылка на mp3">
+    <button onclick="addTrack()">Добавить трек</button>
+    <button onclick="toggleTheme()">Сменить тему</button>
+    <button onclick="setSleepTimer()">Таймер сна</button>
   </div>
 
   <script>
-    // ===== State =====
-    const audioA = document.getElementById('audioA');
-    const audioB = document.getElementById('audioB');
-    let active = 'A';
-    let sleepTimer = null;
-
-    const playlistEl = document.getElementById('playlist');
-    const visualizer = document.getElementById('visualizer');
-
-    // Инициализация
     let playlist = loadPlaylist();
-    applySavedTheme();
-    renderPlaylist();
-    setupControls();
-    (window.requestIdleCallback || setTimeout)(initVisualizer, 0);
+    const audio = document.getElementById("audio");
+    const playlistEl = document.getElementById("playlist");
+    let sleepTimer;
 
-    // ===== Storage =====
+    renderPlaylist();
+
     function savePlaylist() {
-      localStorage.setItem('myPlaylist', JSON.stringify(playlist));
+      localStorage.setItem("myPlaylist", JSON.stringify(playlist));
     }
     function loadPlaylist() {
-      try {
-        const data = localStorage.getItem('myPlaylist');
-        return data ? JSON.parse(data) : [];
-      } catch {
-        return [];
+      const data = localStorage.getItem("myPlaylist");
+      return data ? JSON.parse(data) : [];
+    }
+
+    function addTrack() {
+      const title = document.getElementById("trackTitle").value.trim();
+      const url = document.getElementById("trackUrl").value.trim();
+      if (title && url) {
+        playlist.push({ title, url });
+        savePlaylist();
+        renderPlaylist();
+        document.getElementById("trackTitle").value = "";
+        document.getElementById("trackUrl").value = "";
       }
     }
 
-    // ===== Theme (фикс конфликтов) =====
-    function applySavedTheme() {
-      const t = localStorage.getItem('theme');
-      if (t === 'light') document.body.classList.add('light');
-      else document.body.classList.remove('light'); // тёмная по умолчанию
-    }
-    function toggleTheme() {
-      const isLight = document.body.classList.toggle('light');
-      localStorage.setItem('theme', isLight ? 'light' : 'dark');
-      // Точная установка theme-color для адресной строки (Android/Яндекс)
-      const metaTheme = document.querySelector('meta[name="theme-color"]');
-      if (metaTheme) metaTheme.setAttribute('content', isLight ? '#f5f7fa' : '#0f141b');
+    function playTrack(index) {
+      audio.src = playlist[index].url;
+      audio.play();
     }
 
-    // ===== Add track (URL) =====
-    function addTrack() {
-      const titleEl = document.getElementById('trackTitle');
-      const urlEl = document.getElementById('trackUrl');
-      const title = titleEl.value.trim();
-      const url = urlEl.value.trim();
-      if (!title || !url) return alert('Укажи название и ссылку.');
-      if (!/^https?:\/\//i.test(url)) return alert('Ссылка должна начинаться с http:// или https://');
-      if (playlist.some(t => t.url === url)) return alert('Этот трек уже в плейлисте.');
-
-      playlist.push({ title, url, local: false });
-      savePlaylist();
-      renderPlaylist();
-      titleEl.value = '';
-      urlEl.value = '';
-    }
-
-    // ===== Add track (File) =====
-    function addTrackFile() {
-      const input = document.getElementById('fileInput');
-      const file = input.files && input.files[0];
-      if (!file) return alert('Выбери аудиофайл.');
-      const safeTitle = file.name.replace(/\.(mp3|wav|ogg|m4a|flac)$/i, '');
-      const objectUrl = URL.createObjectURL(file);
-      playlist.push({ title: safeTitle + ' (локально)', url: objectUrl, local: true });
-      savePlaylist();
-      renderPlaylist();
-      input.value = '';
-      alert('Файл добавлен. Учти: локальные треки работают в этом браузере, но их URL временный.');
-    }
-
-    // ===== Render playlist =====
     function renderPlaylist() {
-      playlistEl.setAttribute('aria-busy', 'true');
-      playlistEl.innerHTML = '';
+      playlistEl.innerHTML = "";
       playlist.forEach((track, index) => {
-        const li = document.createElement('li');
-        li.draggable = true;
-        li.dataset.index = index;
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <span>${track.title}</span>
+          <span class="eq-icon" onclick="toggleEq(${index})">🎚</span>
+        `;
+        li.onclick = () => playTrack(index);
 
-        const title = document.createElement('span');
-        title.className = 'track-title';
-        title.textContent = track.title;
-
-        const actions = document.createElement('div');
-        actions.className = 'track-actions';
-
-        const playBtn = document.createElement('button');
-        playBtn.className = 'btn';
-        playBtn.textContent = '▶️';
-        playBtn.title = 'Играть';
-        playBtn.onclick = () => playTrack(index);
-
-        const delBtn = document.createElement('button');
-        delBtn.className = 'btn';
-        delBtn.textContent = '🗑️';
-        delBtn.title = 'Удалить';
-        delBtn.onclick = () => {
-          // Освобождаем object URL, если трек локальный
-          const t = playlist[index];
-          if (t && t.local && t.url.startsWith('blob:')) {
-            try { URL.revokeObjectURL(t.url); } catch {}
-          }
-          playlist.splice(index, 1);
-          savePlaylist();
-          renderPlaylist();
-        };
-
-        actions.append(playBtn, delBtn);
-        li.append(title, actions);
-
-        // Drag & drop
-        li.addEventListener('dragstart', (e) => {
-          li.classList.add('dragging');
-          e.dataTransfer.effectAllowed = 'move';
-          e.dataTransfer.setData('text/plain', index.toString());
-        });
-        li.addEventListener('dragend', () => li.classList.remove('dragging'));
-        li.addEventListener('dragover', (e) => {
-          e.preventDefault();
-          const fromIndex = parseInt(e.dataTransfer.getData('text/plain'), 10);
-          const toIndex = parseInt(li.dataset.index, 10);
-          if (Number.isNaN(fromIndex) || Number.isNaN(toIndex) || fromIndex === toIndex) return;
-          const rect = li.getBoundingClientRect();
-          const after = e.clientY > rect.top + rect.height / 2;
-          const fromEl = playlistEl.children[fromIndex];
-          if (fromEl) playlistEl.insertBefore(fromEl, after ? li.nextSibling : li);
-        });
-        li.addEventListener('drop', (e) => {
-          e.preventDefault();
-          const fromIndex = parseInt(e.dataTransfer.getData('text/plain'), 10);
-          const toIndex = parseInt(li.dataset.index, 10);
-          moveItem(fromIndex, toIndex);
+        const eqPanel = document.createElement("div");
+        eqPanel.className = "eq-panel";
+        eqPanel.id = "eq-" + index;
+        ["Бас", "Тре́бл", "Вокал", "Эхо"].forEach(opt => {
+          const div = document.createElement("div");
+          div.className = "eq-option";
+          div.textContent = opt;
+          eqPanel.appendChild(div);
         });
 
+        li.appendChild(eqPanel);
         playlistEl.appendChild(li);
       });
-      playlistEl.removeAttribute('aria-busy');
-      Array.from(playlistEl.children).forEach((child, idx) => child.dataset.index = idx);
     }
 
-    function moveItem(from, to) {
-      if (from === to || from < 0 || to < 0 || from >= playlist.length || to >= playlist.length) return;
-      const item = playlist.splice(from, 1)[0];
-      playlist.splice(to, 0, item);
-      savePlaylist();
-      renderPlaylist();
+    function toggleEq(index) {
+      const panel = document.getElementById("eq-" + index);
+      panel.classList.toggle("open");
     }
 
-    // ===== Play & crossfade =====
-    async function playTrack(index) {
-      const track = playlist[index];
-      if (!track) return;
-
-      const from = active === 'A' ? audioA : audioB;
-      const to = active === 'A' ? audioB : audioA;
-
-      try {
-        to.src = track.url;
-        to.volume = 0;
-        await to.play();
-
-        const step = 0.05;
-        const interval = 120;
-        const fade = setInterval(() => {
-          from.volume = Math.max(0, from.volume - step);
-          to.volume = Math.min(1, to.volume + step);
-          if (from.volume <= 0 && to.volume >= 1) {
-            clearInterval(fade);
-            from.pause();
-            active = active === 'A' ? 'B' : 'A';
-          }
-        }, interval);
-      } catch (e) {
-        alert('Не удалось проиграть трек. Проверь ссылку или файл.');
-      }
+    function toggleTheme() {
+      document.body.classList.toggle("light");
     }
 
-    function currentAudio() { return active === 'A' ? audioA : audioB; }
-
-    function togglePlayPause() {
-      const a = currentAudio();
-      if (a.src) {
-        a.paused ? a.play() : a.pause();
-      } else if (playlist.length) {
-        playTrack(0);
-      }
-    }
-
-    // ===== Sleep timer =====
-    function setSleepTimer(ms) {
+    function setSleepTimer() {
       clearTimeout(sleepTimer);
       sleepTimer = setTimeout(() => {
-        audioA.pause(); audioB.pause();
-        alert('⏱️ Таймер сна: воспроизведение остановлено');
-      }, ms);
-      alert('Таймер сна установлен');
-    }
-
-    // ===== Export/Import (JSON) =====
-    function exportPlaylist() {
-      const plain = playlist.map(t => ({ title: t.title, url: t.url, local: !!t.local }));
-      const blob = new Blob([JSON.stringify(plain, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = 'playlist.json'; a.click();
-      URL.revokeObjectURL(url);
-    }
-    async function importPlaylist() {
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'application/json';
-      input.onchange = async () => {
-        const file = input.files?.[0];
-        if (!file) return;
-        try {
-          const text = await file.text();
-          const data = JSON.parse(text);
-          if (!Array.isArray(data)) throw new Error('Неверный формат');
-          const cleaned = data.filter(t =>
-            t && t.title && t.url && (t.local || /^https?:\/\//i.test(t.url))
-          );
-          playlist = cleaned;
-          savePlaylist();
-          renderPlaylist();
-          alert('Импорт завершён');
-        } catch {
-          alert('Ошибка импорта. Проверь файл.');
-        }
-      };
-      input.click();
-    }
-
-    // ===== Controls & hotkeys =====
-    function setupControls() {
-      document.getElementById('addBtn').onclick = addTrack;
-      document.getElementById('addFileBtn').onclick = addTrackFile;
-      document.getElementById('themeBtn').onclick = toggleTheme;
-      document.getElementById('sleepBtn').onclick = () => setSleepTimer(60_000);
-      document.getElementById('clearBtn').onclick = () => {
-        if (confirm('Очистить плейлист?')) {
-          // ревок объектных URL
-          playlist.forEach(t => {
-            if (t.local && t.url && t.url.startsWith('blob:')) {
-              try { URL.revokeObjectURL(t.url); } catch {}
-            }
-          });
-          playlist = []; savePlaylist(); renderPlaylist();
-        }
-      };
-      document.getElementById('playPauseBtn').onclick = togglePlayPause;
-      document.getElementById('exportBtn').onclick = exportPlaylist;
-      document.getElementById('importBtn').onclick = importPlaylist;
-
-      document.addEventListener('keydown', (e) => {
-        if (e.code === 'Space') { e.preventDefault(); togglePlayPause(); }
-        else if (e.code === 'ArrowRight') { currentAudio().currentTime += 5; }
-        else if (e.code === 'ArrowLeft') { currentAudio().currentTime -= 5; }
-      });
-    }
-
-    // ===== Visualizer (adaptive) =====
-    let resizeObserver;
-    function initVisualizer() {
-      visualizer.innerHTML = '';
-      const barsCount = Math.floor(visualizer.clientWidth / 14);
-      for (let i = 0; i < Math.max(28, barsCount); i++) {
-        const bar = document.createElement('div');
-        bar.className = 'bar';
-        visualizer.appendChild(bar);
-      }
-      const bars = Array.from(visualizer.querySelectorAll('.bar'));
-
-      function animate() {
-        const base = currentAudio();
-        const amp = base.paused ? 0.18 : 1;
-        for (let i = 0; i < bars.length; i++) {
-          const r = Math.random() * amp;
-          const h = 40 + r * (visualizer.clientHeight - 70);
-          bars[i].style.height = Math.max(20, Math.min(visualizer.clientHeight - 20, h)) + 'px';
-        }
-        requestAnimationFrame(animate);
-      }
-      animate();
-
-      if (resizeObserver) resizeObserver.disconnect();
-      if ('ResizeObserver' in window) {
-        resizeObserver = new ResizeObserver(debounce(initVisualizer, 200));
-        resizeObserver.observe(visualizer);
-      } else {
-        window.addEventListener('resize', debounce(initVisualizer, 200));
-      }
-    }
-
-    // ===== Debounce =====
-    function debounce(fn, delay) {
-      let t = null;
-      return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), delay); };
+        audio.pause();
+        alert("⏱️ Таймер сна: воспроизведение остановлено");
+      }, 60000);
     }
   </script>
 </body>
