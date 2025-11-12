@@ -101,6 +101,16 @@
       transition: height 0.1s;
       border-radius: 4px;
     }
+
+    /* 📱 Адаптивность для телефонов */
+    @media (max-width: 768px) {
+      .main {
+        flex-direction: column;
+      }
+      #visualizer {
+        height: 150px;
+      }
+    }
   </style>
 </head>
 <body>
