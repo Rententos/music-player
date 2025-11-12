@@ -1,5 +1,4 @@
-
-   <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
@@ -67,6 +66,16 @@
   }
   #settingsPanel h3 {margin-top:0;}
   .slider {width:100%;}
+  /* Playlist */
+  #library {
+    margin-top:20px; width:80%; max-width:600px; padding:12px;
+  }
+  #playlist li {
+    margin:6px 0; padding:8px;
+    border-radius:10px;
+    cursor:pointer;
+  }
+  #playlist li:hover {background:rgba(255,255,255,0.15);}
 </style>
 </head>
 <body>
@@ -93,7 +102,7 @@
   </div>
 
   <!-- Playlist -->
-  <div id="library" class="glass" style="margin-top:20px; width:80%; max-width:600px; padding:12px;">
+  <div id="library" class="glass">
     <h2>📚 Библиотека</h2>
     <ul id="playlist"></ul>
   </div>
@@ -131,7 +140,6 @@ function renderPlaylist(){
   playlist.forEach((track,index)=>{
     const li=document.createElement("li");
     li.className="glass";
-    li.style.padding="8px"; li.style.margin="6px 0";
     li.textContent=track.title;
     li.onclick=()=>playTrack(index);
     playlistEl.appendChild(li);
@@ -145,9 +153,19 @@ settingsIcon.onclick=()=>settingsPanel.classList.toggle("open");
 
 document.getElementById("themeToggle").onclick=()=>{
   document.body.classList.toggle("light");
+  localStorage.setItem("theme", document.body.classList.contains("light") ? "light" : "dark");
 };
 document.getElementById("opacitySlider").oninput=(e)=>{
   document.documentElement.style.setProperty("--glass-opacity", e.target.value);
+  localStorage.setItem("opacity", e.target.value);
+};
+
+// Restore settings
+window.onload=()=>{
+  const theme=localStorage.getItem("theme");
+  if(theme==="light") document.body.classList.add("light");
+  const op=localStorage.getItem("opacity");
+  if(op) document.documentElement.style.setProperty("--glass-opacity", op);
 };
 </script>
 </body>
