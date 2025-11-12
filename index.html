@@ -1,179 +1,590 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Liquid Glass Music</title>
-<style>
-  :root {
-    --bg1: #0f141b;
-    --bg2: #182230;
-    --text: #ffffff;
-    --glass-opacity: 0.12;
-  }
-  body.light {
-    --bg1: #e9eef3;
-    --bg2: #f5f7fa;
-    --text: #0f1318;
-  }
-  body {
-    margin:0; font-family:system-ui,sans-serif;
-    background: radial-gradient(circle at 20% 20%, var(--bg2), var(--bg1));
-    color:var(--text); min-height:100vh;
-    display:flex; flex-direction:column; align-items:center;
-    transition:background .35s ease, color .35s ease;
-  }
-  .glass {
-    background: rgba(255,255,255,var(--glass-opacity));
-    border-radius:14px;
-    backdrop-filter: blur(12px) saturate(140%);
-    -webkit-backdrop-filter: blur(12px) saturate(140%);
-    border:1px solid rgba(255,255,255,0.15);
-    box-shadow:0 20px 40px rgba(0,0,0,0.35);
-    transition: background .3s ease;
-  }
-  /* Controls */
-  #controls {
-    margin-top:80px; width:80%; max-width:600px;
-    text-align:center; padding:20px;
-  }
-  #controls input {
-    padding:8px; border-radius:10px; border:none; margin:5px;
-  }
-  #controls button {
-    padding:10px; border-radius:12px; border:none; margin:5px;
-    cursor:pointer; background:rgba(255,255,255,0.15);
-    color:inherit; transition:background .2s, transform .2s;
-    font-size:20px;
-  }
-  #controls button:hover {background:rgba(255,255,255,0.3); transform:scale(1.1);}
-  /* Settings icon */
-  #settingsIcon {
-    position:fixed; top:20px; right:20px;
-    width:48px; height:48px; display:grid; place-items:center;
-    cursor:pointer; font-size:22px;
-  }
-  /* Settings panel */
-  #settingsPanel {
-    position:fixed; top:80px; right:20px;
-    width:260px; overflow:hidden;
-    max-height:0; opacity:0;
-    transition:max-height .6s ease, opacity .4s ease, padding .3s ease;
-    padding:0;
-  }
-  #settingsPanel.open {
-    max-height:300px; opacity:1; padding:16px;
-  }
-  #settingsPanel h3 {margin-top:0;}
-  .slider {width:100%;}
-  /* Playlist */
-  #library {
-    margin-top:20px; width:80%; max-width:600px; padding:12px;
-  }
-  #playlist li {
-    margin:6px 0; padding:8px;
-    border-radius:10px;
-    cursor:pointer;
-  }
-  #playlist li:hover {background:rgba(255,255,255,0.15);}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Liquid Glass Music — Roman</title>
+  <meta name="theme-color" content="#0f141b" />
+  <style>
+    /* ========= Theme variables ========= */
+    :root {
+      --bg1: #0f141b;
+      --bg2: #172130;
+      --text: #ffffff;
+      --muted: #b7c0cc;
+      --accent: #4cafef;
+      --accent-2: #7fd1ff;
+      --glass-opacity: 0.10; /* более прозрачный по умолчанию */
+      --glass-border: 0.14;
+      --shadow-outer: 0 30px 80px rgba(0,0,0,0.40);
+      --shadow-inner: inset 0 1px 0 rgba(255,255,255,0.10);
+    }
+    body.light {
+      --bg1: #e9eef3;
+      --bg2: #f5f7fa;
+      --text: #0f1318;
+      --muted: #4a596b;
+      --accent: #225a8a;
+      --accent-2: #3b78a8;
+      --glass-opacity: 0.10; /* сохраняем базовую прозрачность, настраивается слайдером */
+      --glass-border: 0.18;
+      --shadow-outer: 0 30px 80px rgba(0,0,0,0.20);
+      --shadow-inner: inset 0 1px 0 rgba(255,255,255,0.12);
+    }
+
+    /* ========= Base ========= */
+    *,*::before,*::after{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+      color:var(--text);
+      background: radial-gradient(1200px 800px at 25% 15%, var(--bg2) 0%, var(--bg1) 45%, #0b1016 100%);
+      transition: background .35s ease, color .35s ease;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+    }
+    @media (prefers-reduced-motion: reduce) { *{transition:none !important; animation:none !important;} }
+
+    /* ========= Liquid Glass ========= */
+    .glass {
+      background: rgba(255,255,255,var(--glass-opacity));
+      border: 1px solid rgba(255,255,255,var(--glass-border));
+      border-radius: 16px;
+      -webkit-backdrop-filter: blur(16px) saturate(160%);
+      backdrop-filter: blur(16px) saturate(160%);
+      box-shadow: var(--shadow-outer), var(--shadow-inner);
+      transition: background .25s ease, border-color .25s ease;
+    }
+    .panel-title {
+      font-weight: 700;
+      letter-spacing: .2px;
+    }
+
+    /* ========= Layout (как картинка №1) ========= */
+    .app {
+      width: min(1100px, 94vw);
+      height: min(720px, 92vh);
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 14px;
+    }
+
+    /* Верхний ряд: три круглых/скруглённых кнопки */
+    .top-actions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .top-btn {
+      height: 56px;
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+      cursor: pointer;
+      border-radius: 16px;
+    }
+    .top-btn:hover { border-color: var(--accent-2); transform: translateY(-1px); }
+
+    /* Средний ряд: слева Библиотека, справа Настройки */
+    .mid-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      min-height: 0;
+    }
+    .panel {
+      padding: 14px;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 10px;
+      min-height: 0;
+    }
+    .library-list {
+      overflow: auto;
+      padding: 8px;
+      border-radius: 12px;
+      -webkit-backdrop-filter: blur(12px) saturate(140%);
+      backdrop-filter: blur(12px) saturate(140%);
+      border: 1px solid rgba(255,255,255,var(--glass-border));
+      box-shadow: 0 18px 48px rgba(0,0,0,0.30);
+    }
+    .track-item {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:10px 12px;
+      margin:6px 0;
+      border-radius:12px;
+      cursor:pointer;
+      background: rgba(255,255,255,calc(var(--glass-opacity) + 0.04));
+      border: 1px solid rgba(255,255,255,var(--glass-border));
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 28px rgba(0,0,0,0.28);
+      transition: transform .12s ease, border-color .2s ease, background .2s ease;
+    }
+    .track-item:hover { transform: translateY(-1px); border-color: var(--accent-2); }
+    .track-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .track-tools { display:flex; align-items:center; gap:8px; }
+
+    /* Эквалайзер — капля под треком */
+    .eq-toggle { cursor: pointer; }
+    .eq-panel {
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      transition: max-height .45s ease, opacity .35s ease, padding .25s ease;
+      background: rgba(255,255,255,calc(var(--glass-opacity) + 0.06));
+      border: 1px solid rgba(255,255,255,var(--glass-border));
+      border-radius: 12px;
+      margin-top: 6px;
+      padding: 0 10px;
+      box-shadow: 0 12px 36px rgba(0,0,0,0.28);
+    }
+    .eq-panel.open { max-height: 180px; opacity: 1; padding: 10px; }
+    .eq-option {
+      padding: 8px;
+      margin: 6px 0;
+      border-radius: 10px;
+      background: rgba(255,255,255,calc(var(--glass-opacity) + 0.02));
+      cursor: pointer;
+      transition: background .2s ease;
+    }
+    .eq-option:hover { background: rgba(255,255,255,calc(var(--glass-opacity) + 0.08)); }
+
+    /* Нижний ряд: центральная панель управления */
+    .controls-panel {
+      padding: 16px;
+      display: grid;
+      grid-template-rows: auto auto auto;
+      gap: 12px;
+    }
+    .audio-bar {
+      display: grid;
+      grid-template-columns: 40px 1fr 40px;
+      align-items: center;
+      gap: 10px;
+    }
+    .progress {
+      height: 10px;
+      border-radius: 10px;
+      background: rgba(255,255,255,calc(var(--glass-opacity) + 0.04));
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,var(--glass-border));
+      box-shadow: 0 12px 36px rgba(0,0,0,0.28);
+    }
+    .progress .bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      transition: width .1s linear;
+    }
+
+    .control-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .ctrl-btn {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      font-size: 20px;
+      cursor: pointer;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,var(--glass-border));
+      background: rgba(255,255,255,calc(var(--glass-opacity) + 0.02));
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.32), var(--shadow-inner);
+      transition: transform .12s ease, border-color .2s ease, background .2s ease;
+    }
+    .ctrl-btn:hover { transform: translateY(-1px); border-color: var(--accent-2); }
+
+    /* Инпуты — настраиваемый стиль */
+    .inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .inputs input {
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,var(--glass-border));
+      background: rgba(255,255,255,calc(var(--glass-opacity) + 0.04));
+      color: var(--text);
+      outline: none;
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 12px 36px rgba(0,0,0,0.28);
+    }
+    .inputs input::placeholder { color: var(--muted); }
+
+    /* Настройки — отдельная панель, раскрываемая из верхней кнопки */
+    .settings-inner {
+      display: grid;
+      gap: 10px;
+    }
+    .set-btn {
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,var(--glass-border));
+      background: rgba(255,255,255,calc(var(--glass-opacity) + 0.02));
+      color: var(--text);
+      cursor: pointer;
+      transition: transform .12s ease, border-color .2s ease, background .2s ease;
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 12px 36px rgba(0,0,0,0.28);
+    }
+    .set-btn:hover { transform: translateY(-1px); border-color: var(--accent-2); }
+    .slider { width: 100%; }
+
+    /* Панель настройки — анимация капли */
+    .settings-panel {
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      transition: max-height .45s ease, opacity .35s ease, padding .25s ease;
+      padding: 0;
+    }
+    .settings-panel.open { max-height: 300px; opacity: 1; padding: 8px; }
+
+    /* Helper */
+    .row-title { font-weight: 700; }
+
+    /* Responsive */
+    @media (max-width: 960px) {
+      .mid-row { grid-template-columns: 1fr; }
+      .app { height: auto; }
+    }
+  </style>
 </head>
 <body>
-  <!-- Settings icon -->
-  <div id="settingsIcon" class="glass">⚙️</div>
-  <!-- Settings panel -->
-  <div id="settingsPanel" class="glass">
-    <h3>Настройки</h3>
-    <button id="themeToggle">🌗 Сменить тему</button>
-    <label>Прозрачность стекла:
-      <input type="range" id="opacitySlider" class="slider" min="0.05" max="0.3" step="0.01" value="0.12">
-    </label>
+  <div class="app">
+    <!-- Верхний ряд: три стеклянные кнопки -->
+    <div class="top-actions">
+      <div id="libBtn" class="glass top-btn" title="Библиотека">📚</div>
+      <div id="eqBtn" class="glass top-btn" title="Эквалайзер">🎚</div>
+      <div id="settingsBtn" class="glass top-btn" title="Настройки">⚙️</div>
+    </div>
+
+    <!-- Средний ряд: слева Библиотека, справа Настройки (как на 1 картинке) -->
+    <div class="mid-row">
+      <!-- Библиотека -->
+      <section class="glass panel">
+        <div class="panel-title">Библиотека</div>
+        <div id="libraryList" class="library-list">
+          <!-- Треки рендерятся скриптом -->
+        </div>
+      </section>
+
+      <!-- Настройки -->
+      <section class="glass panel">
+        <div class="panel-title">Настройки</div>
+        <div class="settings-inner">
+          <button id="themeToggle" class="set-btn">🌗 Сменить тему</button>
+          <label class="set-btn" style="display:grid; gap:8px;">
+            <span>Прозрачность стекла</span>
+            <input id="opacitySlider" class="slider" type="range" min="0.05" max="0.25" step="0.01" value="0.10" />
+          </label>
+
+          <!-- Ссылка на mp3 перенесена в Настройки (по запросу) -->
+          <div class="set-btn" style="display:grid; gap:8px;">
+            <span class="row-title">Добавить трек по ссылке</span>
+            <div class="inputs" style="grid-template-columns: 1fr;">
+              <input id="urlTitle" type="text" placeholder="Название трека" />
+              <input id="urlInput" type="url" placeholder="Ссылка на mp3 (https://…)" />
+            </div>
+            <button id="addByUrl" class="set-btn">➕ Добавить</button>
+          </div>
+
+          <!-- Загрузка файла отдельно -->
+          <div class="set-btn" style="display:grid; gap:8px;">
+            <span class="row-title">Добавить трек файлом</span>
+            <input id="fileInput" type="file" accept="audio/*" />
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Нижний ряд: центральная панель управления (как на 1 картинке) -->
+    <section class="glass controls-panel">
+      <div class="audio-bar">
+        <div id="prevBtn" class="ctrl-btn" title="Назад">⏮</div>
+        <div class="progress"><div id="progressBar" class="bar"></div></div>
+        <div id="nextBtn" class="ctrl-btn" title="Вперёд">⏭</div>
+      </div>
+
+      <div class="control-row">
+        <div id="playPauseBtn" class="ctrl-btn" title="Плей/Пауза">⏯</div>
+        <div id="addQuick" class="ctrl-btn" title="Быстро добавить">➕</div>
+        <div id="sleepBtn" class="ctrl-btn" title="Сон 1 мин">⏱</div>
+        <div id="clearBtn" class="ctrl-btn" title="Очистить библиотеку">🗑</div>
+      </div>
+
+      <div class="inputs">
+        <input id="quickTitle" type="text" placeholder="Название" />
+        <input id="quickFile" type="file" accept="audio/*" />
+      </div>
+    </section>
   </div>
 
-  <!-- Player controls -->
-  <div id="controls" class="glass">
-    <audio id="audio" controls></audio><br>
-    <input type="text" id="trackTitle" placeholder="Название">
-    <input type="text" id="trackUrl" placeholder="Ссылка на mp3">
-    <button id="addBtn">➕</button>
-    <button id="playPauseBtn">⏯</button>
-    <button id="sleepBtn">⏱</button>
-    <button id="clearBtn">🗑</button>
-  </div>
+  <!-- Два аудиоканала для безопасного кроссфейда -->
+  <audio id="audioA" crossorigin="anonymous"></audio>
+  <audio id="audioB" crossorigin="anonymous"></audio>
 
-  <!-- Playlist -->
-  <div id="library" class="glass">
-    <h2>📚 Библиотека</h2>
-    <ul id="playlist"></ul>
-  </div>
+  <script>
+    // ========= State =========
+    const audioA = document.getElementById('audioA');
+    const audioB = document.getElementById('audioB');
+    let active = 'A';
+    let sleepTimer = null;
 
-<script>
-let playlist = loadPlaylist();
-const audio = document.getElementById("audio");
-const playlistEl = document.getElementById("playlist");
-let sleepTimer;
+    let tracks = load('lg_tracks') || sampleData();
+    let currentIndex = -1;
 
-/* Render playlist */
-function renderPlaylist(){
-  playlistEl.innerHTML="";
-  playlist.forEach((track,index)=>{
-    const li=document.createElement("li");
-    li.className="glass";
-    li.textContent=track.title;
-    li.onclick=()=>playTrack(index);
-    playlistEl.appendChild(li);
-  });
-}
+    // ========= Elements =========
+    const libraryListEl = document.getElementById('libraryList');
+    const progressBar = document.getElementById('progressBar');
 
-/* Player functions */
-function savePlaylist(){localStorage.setItem("myPlaylist",JSON.stringify(playlist));}
-function loadPlaylist(){const d=localStorage.getItem("myPlaylist");return d?JSON.parse(d):[];}
-function addTrack(){
-  const title=document.getElementById("trackTitle").value.trim();
-  const url=document.getElementById("trackUrl").value.trim();
-  if(title&&url){
-    playlist.push({title,url});
-    savePlaylist(); renderPlaylist();
-    document.getElementById("trackTitle").value="";
-    document.getElementById("trackUrl").value="";
-  }
-}
-function playTrack(index){audio.src=playlist[index].url; audio.play();}
-function togglePlayPause(){audio.paused?audio.play():audio.pause();}
-function setSleepTimer(){
-  clearTimeout(sleepTimer);
-  sleepTimer=setTimeout(()=>{audio.pause();alert("⏱️ Таймер сна: стоп");},60000);
-}
-function clearPlaylist(){playlist=[];savePlaylist();renderPlaylist();}
+    // Top buttons behavior (open-as-drop style)
+    const libBtn = document.getElementById('libBtn');
+    const eqBtn = document.getElementById('eqBtn');
+    const settingsBtn = document.getElementById('settingsBtn');
 
-/* Settings logic */
-const settingsIcon=document.getElementById("settingsIcon");
-const settingsPanel=document.getElementById("settingsPanel");
-settingsIcon.addEventListener("click",()=>settingsPanel.classList.toggle("open"));
+    // Settings
+    const themeToggle = document.getElementById('themeToggle');
+    const opacitySlider = document.getElementById('opacitySlider');
+    const fileInput = document.getElementById('fileInput');
+    const urlTitle = document.getElementById('urlTitle');
+    const urlInput = document.getElementById('urlInput');
+    const addByUrl = document.getElementById('addByUrl');
 
-document.getElementById("themeToggle").addEventListener("click",()=>{
-  document.body.classList.toggle("light");
-  localStorage.setItem("theme", document.body.classList.contains("light") ? "light" : "dark");
-});
-document.getElementById("opacitySlider").addEventListener("input",(e)=>{
-  document.documentElement.style.setProperty("--glass-opacity", e.target.value);
-  localStorage.setItem("opacity", e.target.value);
-});
+    // Controls
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const addQuick = document.getElementById('addQuick');
+    const sleepBtn = document.getElementById('sleepBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const quickTitle = document.getElementById('quickTitle');
+    const quickFile = document.getElementById('quickFile');
 
-/* Restore settings instantly */
-window.addEventListener("DOMContentLoaded",()=>{
-  const theme=localStorage.getItem("theme");
-  if(theme==="light") document.body.classList.add("light");
-  const op=localStorage.getItem("opacity");
-  if(op) document.documentElement.style.setProperty("--glass-opacity", op);
-  renderPlaylist();
-});
+    // ========= Utils =========
+    function save(key,val){ localStorage.setItem(key, JSON.stringify(val)); }
+    function load(key){ try { return JSON.parse(localStorage.getItem(key)); } catch { return null; } }
+    function id(){ return Math.random().toString(36).slice(2,9); }
+    function sampleData(){
+      return [
+        { id: id(), title: 'Glass Sunrise', url: 'https://www2.cs.uic.edu/~i101/SoundFiles/StarWars60.wav' },
+        { id: id(), title: 'Liquid Night', url: 'https://www2.cs.uic.edu/~i101/SoundFiles/ImperialMarch60.wav' },
+        { id: id(), title: 'Velvet Bass', url: 'https://www2.cs.uic.edu/~i101/SoundFiles/CantinaBand60.wav' }
+      ];
+    }
 
-/* Register player buttons */
-document.getElementById("addBtn").addEventListener("click", addTrack);
-document.getElementById("playPauseBtn").addEventListener("click", togglePlayPause);
-document.getElementById("sleepBtn").addEventListener("click", setSleepTimer);
-document.getElementById("clearBtn").addEventListener("click", clearPlaylist);
-</script>
+    // ========= Render =========
+    function renderLibrary(){
+      libraryListEl.innerHTML = '';
+      tracks.forEach((t, idx) => {
+        const row = document.createElement('div');
+        row.className = 'track-item';
+        const title = document.createElement('div');
+        title.className = 'track-title';
+        title.textContent = t.title;
+
+        const tools = document.createElement('div');
+        tools.className = 'track-tools';
+
+        const eqIcon = document.createElement('span');
+        eqIcon.className = 'eq-toggle';
+        eqIcon.textContent = '🎚';
+        eqIcon.title = 'Эквалайзер';
+
+        const playIcon = document.createElement('span');
+        playIcon.textContent = '⏯';
+        playIcon.title = 'Играть/Пауза';
+        playIcon.style.cursor = 'pointer';
+
+        tools.append(eqIcon, playIcon);
+        row.append(title, tools);
+
+        // EQ panel droplet under track
+        const eqPanel = document.createElement('div');
+        eqPanel.className = 'eq-panel';
+        ['Бас','Тре́бл','Вокал','Эхо'].forEach(opt=>{
+          const item = document.createElement('div');
+          item.className = 'eq-option';
+          item.textContent = opt;
+          eqPanel.appendChild(item);
+        });
+
+        row.addEventListener('click', () => playIndex(idx));
+        eqIcon.addEventListener('click', (e)=>{ e.stopPropagation(); eqPanel.classList.toggle('open'); });
+        playIcon.addEventListener('click', (e)=>{ e.stopPropagation(); playIndex(idx); });
+
+        libraryListEl.appendChild(row);
+        libraryListEl.appendChild(eqPanel);
+      });
+    }
+
+    // ========= Play logic with crossfade =========
+    async function playIndex(idx){
+      const t = tracks[idx]; if(!t) return;
+      currentIndex = idx;
+
+      const from = active === 'A' ? audioA : audioB;
+      const to = active === 'A' ? audioB : audioA;
+
+      try {
+        to.src = t.url;
+        to.volume = 0;
+        await to.play();
+
+        const step = 0.05, interval = 120;
+        const fade = setInterval(() => {
+          from.volume = Math.max(0, from.volume - step);
+          to.volume = Math.min(1, to.volume + step);
+          if (from.volume <= 0 && to.volume >= 1) {
+            clearInterval(fade);
+            from.pause();
+            active = active === 'A' ? 'B' : 'A';
+          }
+        }, interval);
+      } catch {
+        alert('Не удалось воспроизвести трек. Проверь ссылку/файл.');
+      }
+    }
+
+    function togglePlayPause(){
+      const a = active === 'A' ? audioA : audioB;
+      if (a.src) { a.paused ? a.play() : a.pause(); }
+      else if (tracks.length) { playIndex(0); }
+    }
+
+    function navigate(dir){
+      if (currentIndex === -1) return;
+      const next = Math.max(0, Math.min(tracks.length - 1, currentIndex + dir));
+      playIndex(next);
+    }
+
+    // ========= Progress =========
+    setInterval(()=>{
+      const a = active === 'A' ? audioA : audioB;
+      if (a.duration > 0) {
+        progressBar.style.width = `${(a.currentTime / a.duration) * 100}%`;
+      } else {
+        progressBar.style.width = '0%';
+      }
+    }, 200);
+
+    // ========= Settings =========
+    function applyTheme(theme){
+      const isLight = theme === 'light';
+      document.body.classList.toggle('light', isLight);
+      localStorage.setItem('lg_theme', isLight ? 'light' : 'dark');
+      const metaTheme = document.querySelector('meta[name="theme-color"]');
+      if (metaTheme) metaTheme.setAttribute('content', isLight ? '#f5f7fa' : '#0f141b');
+    }
+    function applyOpacity(val){
+      document.documentElement.style.setProperty('--glass-opacity', val);
+      localStorage.setItem('lg_opacity', String(val));
+    }
+
+    // ========= Add tracks =========
+    function addFile(file){
+      if (!file) return;
+      const url = URL.createObjectURL(file);
+      const baseTitle = file.name.replace(/\.(mp3|wav|ogg|m4a|flac)$/i, '');
+      tracks.push({ id: id(), title: baseTitle + ' (локально)', url });
+      save('lg_tracks', tracks);
+      renderLibrary();
+    }
+    function addByLink(){
+      const title = urlTitle.value.trim();
+      const url = urlInput.value.trim();
+      if (!title || !url) return alert('Укажи название и ссылку.');
+      if (!/^https?:\/\//i.test(url)) return alert('Ссылка должна начинаться с http:// или https://');
+      tracks.push({ id: id(), title, url });
+      save('lg_tracks', tracks);
+      renderLibrary();
+      urlTitle.value = ''; urlInput.value = '';
+    }
+
+    // ========= Init / Bind =========
+    window.addEventListener('DOMContentLoaded', () => {
+      // Restore theme & opacity
+      const theme = load('lg_theme') || 'dark';
+      applyTheme(theme);
+      const op = load('lg_opacity'); if (op) applyOpacity(op);
+      if (op) opacitySlider.value = op;
+
+      renderLibrary();
+
+      // Top buttons (navigate-like; for now library/settings are always visible, eq toggles info panel hint)
+      libBtn.addEventListener('click', ()=> {
+        // Небольшая иллюзия нажатия: подсветим библиотеку
+        libraryListEl.parentElement.style.borderColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-2');
+        setTimeout(()=> libraryListEl.parentElement.style.borderColor = `rgba(255,255,255,var(--glass-border))`, 220);
+      });
+      eqBtn.addEventListener('click', ()=> {
+        // Подсветим все открытые eq-панели (если есть)
+        document.querySelectorAll('.eq-panel.open').forEach(p=>{
+          p.style.borderColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-2');
+          setTimeout(()=> p.style.borderColor = `rgba(255,255,255,var(--glass-border))`, 220);
+        });
+      });
+      settingsBtn.addEventListener('click', ()=> {
+        // Раскрытие настроек "каплей" — панель уже видна, сделаем локальную подсветку
+        const rightPanel = document.querySelectorAll('.panel')[1];
+        rightPanel.style.borderColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-2');
+        setTimeout(()=> rightPanel.style.borderColor = `rgba(255,255,255,var(--glass-border))`, 220);
+      });
+
+      // Settings controls
+      themeToggle.addEventListener('click', ()=> applyTheme(document.body.classList.contains('light') ? 'dark' : 'light'));
+      opacitySlider.addEventListener('input', (e)=> applyOpacity(e.target.value));
+      fileInput.addEventListener('change', (e)=> addFile(e.target.files[0]));
+      addByUrl.addEventListener('click', addByLink);
+
+      // Player controls
+      playPauseBtn.addEventListener('click', togglePlayPause);
+      prevBtn.addEventListener('click', ()=> navigate(-1));
+      nextBtn.addEventListener('click', ()=> navigate(1));
+      sleepBtn.addEventListener('click', ()=> {
+        clearTimeout(sleepTimer);
+        sleepTimer = setTimeout(()=> { audioA.pause(); audioB.pause(); alert('⏱️ Таймер сна: воспроизведение остановлено'); }, 60_000);
+        alert('Таймер сна установлен: 1 минута');
+      });
+      clearBtn.addEventListener('click', ()=> {
+        if (!confirm('Очистить библиотеку?')) return;
+        // revoke blob urls
+        tracks.forEach(t => { if (t.url && t.url.startsWith('blob:')) { try { URL.revokeObjectURL(t.url); } catch {} } });
+        tracks = [];
+        save('lg_tracks', tracks);
+        renderLibrary();
+      });
+      addQuick.addEventListener('click', ()=> {
+        const title = quickTitle.value.trim();
+        const file = quickFile.files && quickFile.files[0];
+        if (file) { addFile(file); quickTitle.value=''; quickFile.value=''; return; }
+        if (!title) return alert('Укажи название или выбери файл.');
+        alert('Чтобы быстро добавить трек с названием, добавь файл справа или используй настройку по ссылке.');
+      });
+
+      // Hotkeys
+      document.addEventListener('keydown',(e)=>{
+        if (e.code === 'Space') { e.preventDefault(); togglePlayPause(); }
+        else if (e.code === 'ArrowRight') { const a = active === 'A' ? audioA : audioB; a.currentTime += 5; }
+        else if (e.code === 'ArrowLeft') { const a = active === 'A' ? audioA : audioB; a.currentTime -= 5; }
+      });
+    });
+  </script>
 </body>
 </html>
