@@ -14,9 +14,9 @@
       --muted: #b7c0cc;
       --accent: #4cafef;
       --accent-2: #7fd1ff;
-      --glass-opacity: 0.10; /* более прозрачный по умолчанию */
-      --glass-border: 0.14;
-      --shadow-outer: 0 30px 80px rgba(0,0,0,0.40);
+      --glass-opacity: 0.10;    /* более прозрачный стеклянный стиль */
+      --glass-border: 0.16;
+      --shadow-outer: 0 34px 90px rgba(0,0,0,0.45);
       --shadow-inner: inset 0 1px 0 rgba(255,255,255,0.10);
     }
     body.light {
@@ -26,9 +26,8 @@
       --muted: #4a596b;
       --accent: #225a8a;
       --accent-2: #3b78a8;
-      --glass-opacity: 0.10;
-      --glass-border: 0.18;
-      --shadow-outer: 0 30px 80px rgba(0,0,0,0.22);
+      --glass-border: 0.20;
+      --shadow-outer: 0 34px 90px rgba(0,0,0,0.25);
       --shadow-inner: inset 0 1px 0 rgba(255,255,255,0.12);
     }
 
@@ -39,269 +38,267 @@
       margin:0;
       font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
       color:var(--text);
-      background: radial-gradient(1200px 800px at 25% 15%, var(--bg2) 0%, var(--bg1) 45%, #0b1016 100%);
+      background: radial-gradient(1200px 800px at 30% 18%, var(--bg2) 0%, var(--bg1) 46%, #0b1016 100%);
       transition: background .35s ease, color .35s ease;
-      display:flex;
-      align-items:center;
-      justify-content:center;
       overflow:hidden;
     }
     @media (prefers-reduced-motion: reduce) { *{transition:none !important; animation:none !important;} }
 
-    /* ===== Liquid Glass ===== */
+    /* ===== Liquid Glass primitives ===== */
     .glass {
       background: rgba(255,255,255,var(--glass-opacity));
       border: 1px solid rgba(255,255,255,var(--glass-border));
       border-radius: 16px;
-      -webkit-backdrop-filter: blur(16px) saturate(160%);
-      backdrop-filter: blur(16px) saturate(160%);
+      -webkit-backdrop-filter: blur(18px) saturate(165%);
+      backdrop-filter: blur(18px) saturate(165%);
       box-shadow: var(--shadow-outer), var(--shadow-inner);
-      transition: background .25s ease, border-color .25s ease;
+      transition: background .25s ease,border-color .25s ease,transform .15s ease;
     }
-    .glass-strong {
-      background: rgba(255,255,255,calc(var(--glass-opacity)+0.04));
+    .glass-soft {
+      background: rgba(255,255,255,calc(var(--glass-opacity) + 0.04));
       border: 1px solid rgba(255,255,255,var(--glass-border));
-      border-radius: 12px;
-      -webkit-backdrop-filter: blur(12px) saturate(140%);
-      backdrop-filter: blur(12px) saturate(140%);
-      box-shadow: 0 22px 60px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.08);
+      border-radius: 14px;
+      -webkit-backdrop-filter: blur(14px) saturate(155%);
+      backdrop-filter: blur(14px) saturate(155%);
+      box-shadow: 0 26px 70px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.08);
     }
+    .icon-btn {
+      width: 52px; height: 52px;
+      display: grid; place-items: center;
+      font-size: 22px; cursor: pointer; border-radius: 16px;
+      border: 1px solid rgba(255,255,255,var(--glass-border));
+      background: rgba(255,255,255,calc(var(--glass-opacity) + 0.02));
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 22px 60px rgba(0,0,0,0.34), var(--shadow-inner);
+    }
+    .icon-btn:hover { transform: translateY(-1px); border-color: var(--accent-2); }
 
-    /* ===== Layout (как на картинке №1) ===== */
+    /* ===== Layout ===== */
     .app {
-      width: min(1100px, 94vw);
-      height: min(720px, 92vh);
+      width: min(1180px, 95vw);
+      height: min(760px, 94vh);
+      margin: 16px auto;
       display: grid;
-      grid-template-rows: auto 1fr auto;
+      grid-template-columns: 280px 1fr 280px;
+      grid-template-rows: 64px 1fr 110px;
+      grid-template-areas:
+        "sidebar header settings"
+        "sidebar center  settings"
+        "sidebar controls settings";
       gap: 14px;
     }
 
-    /* Верх: три стеклянные кнопки */
-    .top-actions {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-    }
-    .top-btn {
-      height: 56px;
-      display: grid;
-      place-items: center;
-      font-size: 22px;
-      cursor: pointer;
-      border-radius: 16px;
-    }
-    .top-btn:hover { border-color: var(--accent-2); transform: translateY(-1px); }
-
-    /* Средний ряд: слева Библиотека, справа Настройки */
-    .mid-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      min-height: 0;
-    }
-    .panel {
-      padding: 14px;
+    /* Sidebar (левый верхний угол библиотека) */
+    .sidebar {
+      grid-area: sidebar;
+      padding: 12px;
       display: grid;
       grid-template-rows: auto 1fr;
       gap: 10px;
-      min-height: 0;
     }
-    .panel-title { font-weight: 700; letter-spacing: .2px; }
-
-    .library-list {
+    .sidebar-title { font-weight: 700; letter-spacing: .2px; }
+    .library {
+      padding: 10px;
       overflow: auto;
-      padding: 8px;
-      border-radius: 12px;
+      display: grid; gap: 10px;
     }
-    .track-item {
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      padding:10px 12px;
-      margin:6px 0;
-      border-radius:12px;
-      cursor:pointer;
-      transition: transform .12s ease, border-color .2s ease, background .2s ease;
+    .lib-item {
+      display: grid;
+      grid-template-columns: 52px 1fr auto;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: transform .12s ease,border-color .2s ease;
     }
-    .track-item:hover { transform: translateY(-1px); border-color: var(--accent-2); }
-    .track-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .track-tools { display:flex; align-items:center; gap:8px; }
-
-    /* Эквалайзер — капля под треком */
+    .lib-item:hover { transform: translateY(-1px); border-color: var(--accent-2); }
+    .cover-sm {
+      width: 52px; height: 52px; border-radius: 12px;
+      background: radial-gradient(60% 60% at 40% 30%, #2a3c49, #0f141b);
+      display: grid; place-items: center; font-size: 20px;
+      border: 1px solid rgba(255,255,255,var(--glass-border));
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.32);
+    }
+    .lib-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .lib-tools { display:flex; align-items:center; gap:8px; }
     .eq-toggle { cursor: pointer; }
     .eq-panel {
-      max-height: 0;
-      opacity: 0;
-      overflow: hidden;
+      grid-column: 1 / -1;
+      max-height: 0; opacity: 0; overflow: hidden;
       transition: max-height .45s ease, opacity .35s ease, padding .25s ease;
-      margin-top: 6px;
       padding: 0 10px;
     }
     .eq-panel.open { max-height: 180px; opacity: 1; padding: 10px; }
     .eq-option {
-      padding: 8px;
-      margin: 6px 0;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: background .2s ease;
+      padding: 8px; margin: 6px 0; border-radius: 10px;
+      cursor: pointer; transition: background .2s ease;
     }
     .eq-option:hover { background: rgba(255,255,255,0.16); }
 
-    /* Нижний ряд: центральная панель управления */
-    .controls-panel {
-      padding: 16px;
-      display: grid;
-      grid-template-rows: auto auto auto;
-      gap: 12px;
+    /* Header: center top (можно добавить поиск/логотип) */
+    .header {
+      grid-area: header;
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+      padding: 10px;
     }
-    .audio-bar {
-      display: grid;
-      grid-template-columns: 44px 1fr 44px;
-      align-items: center;
+
+    /* Settings area (правый верхний угол, скрытая панель по кнопке) */
+    .settings {
+      grid-area: settings;
+      position: relative;
+      padding: 10px;
+      display: grid; justify-items: end;
       gap: 10px;
     }
-    .progress {
-      height: 10px;
-      border-radius: 10px;
+    #settingsBtn { justify-self: end; }
+    .settings-panel {
+      position: absolute; top: 68px; right: 10px;
+      width: 320px;
+      max-height: 0; opacity: 0; overflow: hidden;
+      transition: max-height .5s ease, opacity .35s ease, padding .25s ease;
+      padding: 0;
+      z-index: 10;
+    }
+    .settings-panel.open { max-height: 360px; opacity: 1; padding: 12px; }
+    .settings-grid { display: grid; gap: 10px; }
+    .set-block { padding: 10px; border-radius: 12px; }
+    .set-btn { padding: 10px; border-radius: 12px; cursor: pointer; }
+    .slider { width: 100%; }
+
+    /* Center: основной экран — большая обложка + название по центру */
+    .center {
+      grid-area: center;
+      display: grid;
+      place-items: center;
+      padding: 16px;
+    }
+    .now-card {
+      width: min(640px, 72%);
+      display: grid; gap: 14px;
+      padding: 16px;
+    }
+    .cover {
+      width: 100%; aspect-ratio: 1 / 1; border-radius: 16px;
+      background: radial-gradient(80% 80% at 45% 35%, #2a3c49, #0f141b);
+      display: grid; place-items: center; font-size: 56px;
+      border: 1px solid rgba(255,255,255,var(--glass-border));
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 36px 90px rgba(0,0,0,0.42);
       overflow: hidden;
     }
+    .cover img { width: 100%; height: 100%; object-fit: cover; display: none; }
+    .now-title { font-weight: 800; font-size: clamp(18px,3.2vw,26px); text-align: center; }
+    .now-meta { color: var(--muted); text-align: center; }
+
+    /* Controls bottom bar */
+    .controls {
+      grid-area: controls;
+      padding: 14px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center; gap: 12px;
+    }
+    .progress {
+      height: 10px; border-radius: 10px; overflow: hidden;
+      border: 1px solid rgba(255,255,255,var(--glass-border));
+    }
     .progress .bar {
-      height: 100%;
-      width: 0%;
+      height: 100%; width: 0%;
       background: linear-gradient(90deg, var(--accent), var(--accent-2));
       transition: width .1s linear;
     }
+    .ctrl-row { display:flex; align-items:center; justify-content:center; gap:10px; }
 
-    .control-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-    .ctrl-btn {
-      width: 44px;
-      height: 44px;
-      display: grid;
-      place-items: center;
-      font-size: 20px;
-      cursor: pointer;
-      border-radius: 14px;
-      transition: transform .12s ease, border-color .2s ease, background .2s ease;
-    }
-    .ctrl-btn:hover { transform: translateY(-1px); border-color: var(--accent-2); }
-
-    /* Инпуты — компактные */
-    .inputs {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-    .inputs input[type="text"],
-    .inputs input[type="file"] {
-      padding: 10px 12px;
-      border-radius: 12px;
-      outline: none;
-    }
-    .inputs input::placeholder { color: var(--muted); }
-
-    /* Настройки — капля */
-    .settings-inner { display: grid; gap: 10px; }
-    .set-btn {
-      padding: 10px 12px;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: transform .12s ease, border-color .2s ease, background .2s ease;
-    }
-    .set-btn:hover { transform: translateY(-1px); border-color: var(--accent-2); }
-    .slider { width: 100%; }
-
-    /* Применение стекла к нужным блокам */
-    .use-glass { /* утилита для нужных элементов */
-      background: rgba(255,255,255,var(--glass-opacity));
-      border: 1px solid rgba(255,255,255,var(--glass-border));
-      border-radius: 12px;
-      -webkit-backdrop-filter: blur(12px) saturate(140%);
-      backdrop-filter: blur(12px) saturate(140%);
-      box-shadow: 0 22px 60px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.08);
-    }
+    /* Focus accessibility */
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
     /* Responsive */
-    @media (max-width: 960px) {
-      .mid-row { grid-template-columns: 1fr; }
-      .app { height: auto; }
-      .inputs { grid-template-columns: 1fr; }
+    @media (max-width: 1000px) {
+      .app {
+        grid-template-columns: 1fr;
+        grid-template-rows: 64px auto auto auto;
+        grid-template-areas:
+          "header"
+          "center"
+          "controls"
+          "sidebar";
+      }
+      .settings { position: fixed; top: 12px; right: 12px; grid-area: header; }
+      .sidebar { height: 40vh; overflow: hidden; }
+      .library { overflow: auto; }
     }
   </style>
 </head>
 <body>
   <div class="app">
-    <!-- Верх: три стеклянные кнопки -->
-    <div class="top-actions">
-      <div id="libBtn" class="glass top-btn" title="Библиотека">📚</div>
-      <div id="eqBtn" class="glass top-btn" title="Эквалайзер">🎚</div>
-      <div id="settingsBtn" class="glass top-btn" title="Настройки">⚙️</div>
-    </div>
+    <!-- Левый верхний угол: Библиотека -->
+    <aside class="glass sidebar">
+      <div class="sidebar-title">Библиотека</div>
+      <div id="library" class="glass-soft library"><!-- рендерится скриптом --></div>
+    </aside>
 
-    <!-- Средний ряд -->
-    <div class="mid-row">
-      <!-- Библиотека -->
-      <section class="glass panel">
-        <div class="panel-title">Библиотека</div>
-        <div id="libraryList" class="library-list glass-strong">
-          <!-- Треки рендерятся скриптом -->
-        </div>
-      </section>
+    <!-- Верх по центру (логотип/поиск — опционально) -->
+    <header class="glass header">
+      <div class="icon-btn" title="Главная">🎵</div>
+      <div class="icon-btn" title="Эквалайзер">🎚</div>
+    </header>
 
-      <!-- Настройки -->
-      <section class="glass panel">
-        <div class="panel-title">Настройки</div>
-        <div class="settings-inner">
-          <button id="themeToggle" class="set-btn use-glass">🌗 Сменить тему</button>
-
-          <label class="set-btn use-glass" style="display:grid; gap:8px;">
-            <span>Прозрачность стекла</span>
-            <input id="opacitySlider" class="slider" type="range" min="0.05" max="0.25" step="0.01" value="0.10" />
-          </label>
-
-          <!-- Ссылка на mp3 в настройках -->
-          <div class="set-btn use-glass" style="display:grid; gap:8px;">
-            <span style="font-weight:700;">Добавить трек по ссылке</span>
-            <div class="inputs" style="grid-template-columns: 1fr;">
-              <input id="urlTitle" class="use-glass" type="text" placeholder="Название трека" />
-              <input id="urlInput" class="use-glass" type="url" placeholder="Ссылка на mp3 (https://…)" />
-            </div>
-            <button id="addByUrl" class="set-btn use-glass">➕ Добавить</button>
+    <!-- Правый верхний угол: кнопка настроек и панель -->
+    <section class="settings">
+      <div id="settingsBtn" class="icon-btn glass" title="Настройки">⚙️</div>
+      <div id="settingsPanel" class="glass settings-panel">
+        <div class="settings-grid">
+          <div class="set-block glass-soft">
+            <button id="themeToggle" class="set-btn glass">🌗 Сменить тему</button>
           </div>
-
-          <!-- Загрузка файла -->
-          <div class="set-btn use-glass" style="display:grid; gap:8px;">
-            <span style="font-weight:700;">Добавить трек файлом</span>
-            <input id="fileInput" class="use-glass" type="file" accept="audio/*" />
+          <div class="set-block glass-soft">
+            <div style="margin-bottom:6px;">Прозрачность стекла</div>
+            <input id="opacitySlider" class="slider" type="range" min="0.05" max="0.30" step="0.01" value="0.10" />
+          </div>
+          <div class="set-block glass-soft">
+            <div style="font-weight:700;margin-bottom:6px;">Добавить трек по ссылке</div>
+            <input id="urlTitle" class="glass set-input" type="text" placeholder="Название трека" style="width:100%;padding:10px;border-radius:12px;margin-bottom:8px;" />
+            <input id="urlInput" class="glass set-input" type="url" placeholder="Ссылка на аудио (https://…)" style="width:100%;padding:10px;border-radius:12px;margin-bottom:8px;" />
+            <button id="addByUrl" class="set-btn glass">➕ Добавить</button>
+          </div>
+          <div class="set-block glass-soft">
+            <div style="font-weight:700;margin-bottom:6px;">Добавить трек файлом</div>
+            <input id="fileInput" class="glass" type="file" accept="audio/*" style="width:100%;padding:10px;border-radius:12px;" />
           </div>
         </div>
-      </section>
-    </div>
-
-    <!-- Нижний ряд: панель управления -->
-    <section class="glass controls-panel">
-      <div class="audio-bar">
-        <div id="prevBtn" class="ctrl-btn use-glass" title="Назад">⏮</div>
-        <div class="progress use-glass"><div id="progressBar" class="bar"></div></div>
-        <div id="nextBtn" class="ctrl-btn use-glass" title="Вперёд">⏭</div>
-      </div>
-
-      <div class="control-row">
-        <div id="playPauseBtn" class="ctrl-btn use-glass" title="Плей/Пауза">⏯</div>
-        <div id="sleepBtn" class="ctrl-btn use-glass" title="Сон 1 мин">⏱</div>
-        <div id="clearBtn" class="ctrl-btn use-glass" title="Очистить библиотеку">🗑</div>
-      </div>
-
-      <div class="inputs">
-        <input id="quickTitle" class="use-glass" type="text" placeholder="Название" />
-        <input id="quickFile" class="use-glass" type="file" accept="audio/*" />
       </div>
     </section>
+
+    <!-- Центр: обложка + название текущего трека -->
+    <main class="glass center">
+      <div class="glass-soft now-card">
+        <div class="cover">
+          <img id="coverImg" alt="">
+          <span id="coverIcon">♪</span>
+        </div>
+        <div id="nowTitle" class="now-title">Ничего не играет</div>
+        <div id="nowMeta" class="now-meta">—</div>
+      </div>
+    </main>
+
+    <!-- Нижняя панель: прогресс и управление -->
+    <footer class="glass controls">
+      <div class="ctrl-row">
+        <div id="prevBtn" class="icon-btn" title="Назад">⏮</div>
+        <div id="playPauseBtn" class="icon-btn" title="Плей/Пауза">⏯</div>
+        <div id="nextBtn" class="icon-btn" title="Вперёд">⏭</div>
+      </div>
+      <div class="progress glass-soft"><div id="progressBar" class="bar"></div></div>
+      <div class="ctrl-row">
+        <div id="sleepBtn" class="icon-btn" title="Сон 1 мин">⏱</div>
+        <div id="clearBtn" class="icon-btn" title="Очистить библиотеку">🗑</div>
+      </div>
+    </footer>
   </div>
 
   <!-- Два аудиоканала для безопасного кроссфейда -->
@@ -309,113 +306,185 @@
   <audio id="audioB" crossorigin="anonymous"></audio>
 
   <script>
-    // ===== State =====
+    /* ===== State ===== */
     const audioA = document.getElementById('audioA');
     const audioB = document.getElementById('audioB');
     let active = 'A';
     let sleepTimer = null;
 
+    // Tracks persisted (metadata) in localStorage, audio blobs in IndexedDB (persistent across reload)
     let tracks = load('lg_tracks') || sampleData();
     let currentIndex = -1;
 
-    // ===== Elements =====
-    const libraryListEl = document.getElementById('libraryList');
-    const progressBar = document.getElementById('progressBar');
-
-    // Top buttons
-    const libBtn = document.getElementById('libBtn');
-    const eqBtn = document.getElementById('eqBtn');
+    /* ===== Elements ===== */
+    const libraryEl = document.getElementById('library');
     const settingsBtn = document.getElementById('settingsBtn');
-
-    // Settings
+    const settingsPanel = document.getElementById('settingsPanel');
     const themeToggle = document.getElementById('themeToggle');
     const opacitySlider = document.getElementById('opacitySlider');
     const fileInput = document.getElementById('fileInput');
     const urlTitle = document.getElementById('urlTitle');
     const urlInput = document.getElementById('urlInput');
-    const addByUrl = document.getElementById('addByUrl');
+    const addByUrlBtn = document.getElementById('addByUrl');
 
-    // Controls
+    const coverImg = document.getElementById('coverImg');
+    const coverIcon = document.getElementById('coverIcon');
+    const nowTitle = document.getElementById('nowTitle');
+    const nowMeta = document.getElementById('nowMeta');
+    const progressBar = document.getElementById('progressBar');
+
     const playPauseBtn = document.getElementById('playPauseBtn');
-    const sleepBtn = document.getElementById('sleepBtn');
-    const clearBtn = document.getElementById('clearBtn');
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
-    const quickTitle = document.getElementById('quickTitle');
-    const quickFile = document.getElementById('quickFile');
+    const sleepBtn = document.getElementById('sleepBtn');
+    const clearBtn = document.getElementById('clearBtn');
 
-    // ===== Utils =====
+    /* ===== Utils ===== */
     function save(key,val){ localStorage.setItem(key, JSON.stringify(val)); }
     function load(key){ try { return JSON.parse(localStorage.getItem(key)); } catch { return null; } }
     function id(){ return Math.random().toString(36).slice(2,9); }
     function sampleData(){
       return [
-        { id: id(), title: 'Glass Sunrise', url: 'https://www2.cs.uic.edu/~i101/SoundFiles/StarWars60.wav' },
-        { id: id(), title: 'Liquid Night', url: 'https://www2.cs.uic.edu/~i101/SoundFiles/ImperialMarch60.wav' },
-        { id: id(), title: 'Velvet Bass', url: 'https://www2.cs.uic.edu/~i101/SoundFiles/CantinaBand60.wav' }
+        { id: id(), title: 'Glass Sunrise', artist: 'Aether', cover: null, srcType:'url', src: 'https://www2.cs.uic.edu/~i101/SoundFiles/StarWars60.wav' },
+        { id: id(), title: 'Liquid Night', artist: 'Noctis', cover: null, srcType:'url', src: 'https://www2.cs.uic.edu/~i101/SoundFiles/ImperialMarch60.wav' },
+        { id: id(), title: 'Velvet Bass', artist: 'Pulse', cover: null, srcType:'url', src: 'https://www2.cs.uic.edu/~i101/SoundFiles/CantinaBand60.wav' }
       ];
     }
 
-    // ===== Render =====
-    function renderLibrary(){
-      libraryListEl.innerHTML = '';
-      tracks.forEach((t, idx) => {
-        // строка трека
-        const row = document.createElement('div');
-        row.className = 'track-item use-glass';
-        const title = document.createElement('div');
-        title.className = 'track-title';
-        title.textContent = t.title;
-
-        const tools = document.createElement('div');
-        tools.className = 'track-tools';
-
-        const eqIcon = document.createElement('span');
-        eqIcon.className = 'eq-toggle';
-        eqIcon.textContent = '🎚';
-        eqIcon.title = 'Эквалайзер';
-
-        const playIcon = document.createElement('span');
-        playIcon.textContent = '⏯';
-        playIcon.title = 'Играть/Пауза';
-        playIcon.style.cursor = 'pointer';
-
-        tools.append(eqIcon, playIcon);
-        row.append(title, tools);
-
-        // Панель эквалайзера
-        const eqPanel = document.createElement('div');
-        eqPanel.className = 'eq-panel glass-strong';
-        ['Бас','Тре́бл','Вокал','Эхо'].forEach(opt=>{
-          const item = document.createElement('div');
-          item.className = 'eq-option use-glass';
-          item.textContent = opt;
-          eqPanel.appendChild(item);
-        });
-
-        // События
-        row.addEventListener('click', () => playIndex(idx));
-        eqIcon.addEventListener('click', (e)=>{ e.stopPropagation(); eqPanel.classList.toggle('open'); });
-        playIcon.addEventListener('click', (e)=>{ e.stopPropagation(); playIndex(idx); });
-
-        libraryListEl.appendChild(row);
-        libraryListEl.appendChild(eqPanel);
+    /* ===== IndexedDB for audio blobs ===== */
+    let db;
+    initDB().then(()=>console.log('IndexedDB ready')).catch(()=>console.warn('IndexedDB disabled'));
+    async function initDB(){
+      return new Promise((resolve,reject)=>{
+        const req = indexedDB.open('lgm_db', 1);
+        req.onupgradeneeded = () => {
+          const d = req.result;
+          if (!d.objectStoreNames.contains('audio')) d.createObjectStore('audio');
+          if (!d.objectStoreNames.contains('covers')) d.createObjectStore('covers');
+        };
+        req.onsuccess = ()=>{ db = req.result; resolve(); };
+        req.onerror = ()=> reject(req.error);
+      });
+    }
+    async function putBlob(store, key, blob){
+      if (!db) throw new Error('IDB not ready');
+      return new Promise((resolve,reject)=>{
+        const tx = db.transaction(store, 'readwrite');
+        tx.objectStore(store).put(blob, key);
+        tx.oncomplete = ()=> resolve();
+        tx.onerror = ()=> reject(tx.error);
+      });
+    }
+    async function getBlob(store, key){
+      if (!db) throw new Error('IDB not ready');
+      return new Promise((resolve,reject)=>{
+        const tx = db.transaction(store, 'readonly');
+        const req = tx.objectStore(store).get(key);
+        req.onsuccess = ()=> resolve(req.result || null);
+        req.onerror = ()=> reject(req.error);
+      });
+    }
+    async function delBlob(store, key){
+      if (!db) return;
+      return new Promise((resolve,reject)=>{
+        const tx = db.transaction(store, 'readwrite');
+        tx.objectStore(store).delete(key);
+        tx.oncomplete = ()=> resolve();
+        tx.onerror = ()=> reject(tx.error);
       });
     }
 
-    // ===== Play logic with crossfade =====
-    async function playIndex(idx){
-      const t = tracks[idx]; if(!t) return;
+    /* ===== Render library ===== */
+    function renderLibrary(){
+      libraryEl.innerHTML = '';
+      tracks.forEach((t, idx) => {
+        const row = document.createElement('div');
+        row.className = 'lib-item glass';
+        const cover = document.createElement('div');
+        cover.className = 'cover-sm glass-soft';
+        cover.textContent = '♪';
+        // miniature cover
+        if (t.cover) {
+          const img = document.createElement('img');
+          img.src = t.cover; img.style.width='100%'; img.style.height='100%'; img.style.objectFit='cover';
+          cover.textContent=''; cover.appendChild(img);
+        }
+
+        const title = document.createElement('div');
+        title.className = 'lib-title';
+        title.textContent = t.title;
+
+        const tools = document.createElement('div');
+        tools.className = 'lib-tools';
+        const eqIcon = document.createElement('span');
+        eqIcon.className = 'eq-toggle'; eqIcon.textContent = '🎚'; eqIcon.title = 'Эквалайзер';
+        const playIcon = document.createElement('span');
+        playIcon.textContent = '⏯'; playIcon.style.cursor='pointer'; playIcon.title='Играть/Пауза';
+
+        tools.append(eqIcon, playIcon);
+
+        // eq droplet
+        const eqPanel = document.createElement('div');
+        eqPanel.className = 'eq-panel glass-soft';
+        ['Бас','Тре́бл','Вокал','Эхо'].forEach(opt=>{
+          const o = document.createElement('div');
+          o.className = 'eq-option glass'; o.textContent = opt;
+          eqPanel.appendChild(o);
+        });
+
+        row.append(cover, title, tools);
+        libraryEl.appendChild(row);
+        libraryEl.appendChild(eqPanel);
+
+        row.addEventListener('click', ()=> playTrackByIndex(idx));
+        eqIcon.addEventListener('click', (e)=> { e.stopPropagation(); eqPanel.classList.toggle('open'); });
+        playIcon.addEventListener('click', (e)=> { e.stopPropagation(); playTrackByIndex(idx); });
+      });
+    }
+
+    /* ===== Track playback with crossfade ===== */
+    async function resolveTrackURL(t){
+      if (t.srcType === 'url') return t.src;
+      if (t.srcType === 'blob') {
+        try {
+          const blob = await getBlob('audio', t.id);
+          if (!blob) throw new Error('blob missing');
+          return URL.createObjectURL(blob);
+        } catch {
+          alert('Локальный файл недоступен. Пожалуйста, добавьте его снова.');
+          return null;
+        }
+      }
+      return null;
+    }
+
+    async function playTrackByIndex(idx){
+      const t = tracks[idx]; if (!t) return;
       currentIndex = idx;
+
+      // Center card updates
+      nowTitle.textContent = t.title;
+      nowMeta.textContent = t.artist ? t.artist : 'Локально/Ссылка';
+      if (t.cover) {
+        coverImg.src = t.cover; coverImg.style.display = 'block'; coverIcon.style.display='none';
+      } else {
+        coverImg.style.display = 'none'; coverIcon.style.display='grid';
+      }
 
       const from = active === 'A' ? audioA : audioB;
       const to = active === 'A' ? audioB : audioA;
 
       try {
-        to.src = t.url;
+        const url = await resolveTrackURL(t);
+        if (!url) return;
+        to.src = url;
         to.volume = 0;
         await to.play();
 
+        // start progress
+        startProgress();
+
+        // crossfade
         const step = 0.05, interval = 120;
         const fade = setInterval(() => {
           from.volume = Math.max(0, from.volume - step);
@@ -424,10 +493,14 @@
             clearInterval(fade);
             from.pause();
             active = active === 'A' ? 'B' : 'A';
+            // revoke temporary URL from blob to avoid leaks
+            if (t.srcType === 'blob') {
+              try { URL.revokeObjectURL(url); } catch {}
+            }
           }
         }, interval);
       } catch (err) {
-        alert('Не удалось воспроизвести трек. Проверь ссылку/файл.');
+        alert('Не удалось воспроизвести трек. Проверь источник.');
         console.error(err);
       }
     }
@@ -435,16 +508,15 @@
     function togglePlayPause(){
       const a = active === 'A' ? audioA : audioB;
       if (a.src) { a.paused ? a.play() : a.pause(); }
-      else if (tracks.length) { playIndex(0); }
+      else if (tracks.length) { playTrackByIndex(0); }
     }
-
     function navigate(dir){
-      if (currentIndex === -1) return;
+      if (currentIndex < 0) return;
       const next = Math.max(0, Math.min(tracks.length - 1, currentIndex + dir));
-      playIndex(next);
+      playTrackByIndex(next);
     }
 
-    // ===== Progress =====
+    /* ===== Progress bar ===== */
     let progressTimer = null;
     function startProgress(){
       stopProgress();
@@ -458,70 +530,70 @@
       }, 200);
     }
     function stopProgress(){ if (progressTimer) { clearInterval(progressTimer); progressTimer = null; } }
-    audioA.addEventListener('play', startProgress);
-    audioB.addEventListener('play', startProgress);
     audioA.addEventListener('pause', stopProgress);
     audioB.addEventListener('pause', stopProgress);
 
-    // ===== Settings =====
+    /* ===== Settings & theme/opacity ===== */
     function applyTheme(theme){
       const isLight = theme === 'light';
       document.body.classList.toggle('light', isLight);
-      localStorage.setItem('lg_theme', isLight ? 'light' : 'dark');
+      save('lg_theme', isLight ? 'light' : 'dark');
       const metaTheme = document.querySelector('meta[name="theme-color"]');
       if (metaTheme) metaTheme.setAttribute('content', isLight ? '#f5f7fa' : '#0f141b');
     }
     function applyOpacity(val){
       const n = Number(val);
-      const clamped = Math.min(0.35, Math.max(0.03, isNaN(n) ? 0.10 : n));
+      const clamped = Math.min(0.30, Math.max(0.05, isNaN(n) ? 0.10 : n));
       document.documentElement.style.setProperty('--glass-opacity', clamped);
-      localStorage.setItem('lg_opacity', String(clamped));
+      save('lg_opacity', clamped);
     }
 
-    // ===== Add tracks =====
-    function addFile(file){
-      if (!file) return alert('Выберите аудиофайл.');
-      const url = URL.createObjectURL(file);
-      const baseTitle = file.name.replace(/\.(mp3|wav|ogg|m4a|flac)$/i, '');
-      tracks.push({ id: id(), title: baseTitle || 'Без названия (локально)', url });
-      save('lg_tracks', tracks);
-      renderLibrary();
-      // Не ревокаем сразу, пока трек в библиотеке; ревок при очистке
-    }
-    function addByLink(){
+    /* ===== Add tracks (URL + File) ===== */
+    async function addByUrl(){
       const title = (urlTitle.value || '').trim();
-      const url = (urlInput.value || '').trim();
+      const src = (urlInput.value || '').trim();
       if (!title) return alert('Укажи название.');
-      if (!/^https?:\/\/.+/i.test(url)) return alert('Ссылка должна начинаться с http:// или https://');
-      tracks.push({ id: id(), title, url });
-      save('lg_tracks', tracks);
+      if (!/^https?:\/\/.+/i.test(src)) return alert('Ссылка должна начинаться с http:// или https://');
+      const t = { id: id(), title, artist: 'Link', cover: null, srcType:'url', src };
+      tracks.push(t); save('lg_tracks', tracks);
       renderLibrary();
       urlTitle.value = ''; urlInput.value = '';
     }
 
-    // ===== Init / Bind =====
-    window.addEventListener('DOMContentLoaded', () => {
+    async function addByFile(file){
+      if (!file) return alert('Выберите аудиофайл.');
+      const name = file.name.replace(/\.(mp3|wav|ogg|m4a|flac|aac|aiff|alac)$/i, '') || 'Без названия';
+      const t = { id: id(), title: name, artist: 'Local', cover: null, srcType:'blob', src: null };
+      try {
+        await putBlob('audio', t.id, file);
+      } catch (e) {
+        // fallback: not persistent, but immediate
+        t.srcType = 'url'; t.src = URL.createObjectURL(file);
+      }
+      tracks.push(t); save('lg_tracks', tracks);
+      renderLibrary();
+    }
+
+    /* ===== Settings panel toggle ===== */
+    settingsBtn.addEventListener('click', ()=>{
+      settingsPanel.classList.toggle('open');
+    });
+
+    /* ===== Controls binding & init ===== */
+    window.addEventListener('DOMContentLoaded', ()=>{
       // Restore theme & opacity
       applyTheme(load('lg_theme') || 'dark');
       const op = load('lg_opacity'); applyOpacity(op ?? 0.10); if (op) opacitySlider.value = op;
 
       renderLibrary();
 
-      // Top buttons: легкая подсветка панелей
-      libBtn.addEventListener('click', ()=> flashBorder(libraryListEl.parentElement));
-      eqBtn.addEventListener('click', ()=> {
-        document.querySelectorAll('.eq-panel.open').forEach(p=> flashBorder(p));
+      // Settings
+      themeToggle.addEventListener('click', ()=>{
+        applyTheme(document.body.classList.contains('light') ? 'dark' : 'light');
       });
-      settingsBtn.addEventListener('click', ()=> {
-        const rightPanel = document.querySelectorAll('.panel')[1];
-        flashBorder(rightPanel);
-      });
-
-      // Settings controls
-      themeToggle.addEventListener('click', ()=> applyTheme(document.body.classList.contains('light') ? 'dark' : 'light'));
       opacitySlider.addEventListener('input', (e)=> applyOpacity(e.target.value));
-      fileInput.addEventListener('change', (e)=> addFile(e.target.files[0]));
-      addByUrl.addEventListener('click', addByLink);
+      addByUrlBtn.addEventListener('click', addByUrl);
+      fileInput.addEventListener('change', (e)=> addByFile(e.target.files[0]));
 
       // Player controls
       playPauseBtn.addEventListener('click', togglePlayPause);
@@ -532,22 +604,20 @@
         sleepTimer = setTimeout(()=> { audioA.pause(); audioB.pause(); alert('⏱️ Таймер сна: воспроизведение остановлено'); }, 60_000);
         alert('Таймер сна установлен: 1 минута');
       });
-      clearBtn.addEventListener('click', ()=> {
+      clearBtn.addEventListener('click', async ()=> {
         if (!confirm('Очистить библиотеку?')) return;
-        tracks.forEach(t => { if (t.url && t.url.startsWith('blob:')) { try { URL.revokeObjectURL(t.url); } catch {} } });
-        tracks = [];
-        save('lg_tracks', tracks);
+        // очистка IDB
+        for (const t of tracks) {
+          if (t.srcType === 'blob') { try { await delBlob('audio', t.id); } catch {} }
+          if (t.cover && t.cover.startsWith('blob:')) { try { await delBlob('covers', t.id); } catch {} }
+        }
+        // очистка временных URL
+        tracks.forEach(t=>{
+          if (t.srcType === 'url' && t.src && t.src.startsWith('blob:')) { try { URL.revokeObjectURL(t.src); } catch{} }
+        });
+        tracks = []; save('lg_tracks', tracks);
         renderLibrary();
-      });
-
-      // Быстрое добавление: имя + файл (файл обязателен)
-      quickFile.addEventListener('change', (e)=> {
-        const file = e.target.files[0];
-        if (!file) return;
-        const name = quickTitle.value.trim();
-        if (name) Object.defineProperty(file, 'name', { value: name + '.' + file.name.split('.').pop(), configurable: true });
-        addFile(file);
-        quickTitle.value=''; quickFile.value='';
+        nowTitle.textContent='Ничего не играет'; nowMeta.textContent='—'; coverImg.style.display='none'; coverIcon.style.display='grid';
       });
 
       // Hotkeys
@@ -557,14 +627,6 @@
         else if (e.code === 'ArrowLeft') { const a = active === 'A' ? audioA : audioB; a.currentTime -= 5; }
       });
     });
-
-    // ===== Helpers =====
-    function flashBorder(el){
-      if (!el) return;
-      const prev = el.style.borderColor;
-      el.style.borderColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-2');
-      setTimeout(()=> el.style.borderColor = prev || `rgba(255,255,255,var(--glass-border))`, 220);
-    }
   </script>
 </body>
 </html>
