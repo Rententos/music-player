@@ -1,85 +1,11 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Liquid Glass Music — Roman</title>
-  <meta name="theme-color" content="#0f141b" />
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <div class="app">
-    <!-- Sidebar -->
-    <aside class="glass sidebar">
-      <div class="sidebar-title">Библиотека</div>
-      <div id="library" class="glass library"></div>
-    </aside>
-
-    <!-- Header -->
-    <header class="glass header">
-      <div class="icon-btn" title="Главная">🎵</div>
-      <div class="icon-btn" title="Эквалайзер">🎚</div>
-    </header>
-
-    <!-- Settings -->
-    <section class="settings">
-      <div id="settingsBtn" class="icon-btn glass" title="Настройки">⚙️</div>
-      <div id="settingsPanel" class="glass settings-panel">
-        <div class="settings-grid">
-          <button id="themeToggle" class="set-btn glass">🌗 Сменить тему</button>
-          <label class="set-btn glass" style="display:grid; gap:8px;">
-            <span>Прозрачность стекла</span>
-            <input id="opacitySlider" type="range" min="0.05" max="0.30" step="0.01" value="0.10" />
-          </label>
-          <div class="set-btn glass" style="display:grid; gap:8px;">
-            <span>Добавить трек по ссылке</span>
-            <input id="urlTitle" type="text" placeholder="Название трека" />
-            <input id="urlInput" type="url" placeholder="Ссылка на аудио (https://…)" />
-            <button id="addByUrl">➕ Добавить</button>
-          </div>
-          <div class="set-btn glass" style="display:grid; gap:8px;">
-            <span>Добавить трек файлом</span>
-            <input id="fileInput" type="file" accept="audio/*" />
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Center -->
-    <main class="glass center">
-      <div class="glass now-card">
-        <div class="cover">
-          <img id="coverImg" alt="">
-          <span id="coverIcon">♪</span>
-        </div>
-        <div id="nowTitle" class="now-title">Ничего не играет</div>
-        <div id="nowMeta" class="now-meta">—</div>
-      </div>
-    </main>
-
-    <!-- Controls -->
-    <footer class="glass controls">
-      <div class="ctrl-row">
-        <div id="prevBtn" class="icon-btn" title="Назад">⏮</div>
-        <div id="playPauseBtn" class="icon-btn" title="Плей/Пауза">⏯</div>
-        <div id="nextBtn" class="icon-btn" title="Вперёд">⏭</div>
-      </div>
-      <div class="progress glass"><div id="progressBar" class="bar"></div></div>
-      <div class="ctrl-row">
-        <div id="sleepBtn" class="icon-btn" title="Сон 1 мин">⏱</div>
-        <div id="clearBtn" class="icon-btn" title="Очистить библиотеку">🗑</div>
-      </div>
-    </footer>
-  </div>
-
-  <!-- Два аудиоканала -->
-  <audio id="audioA" crossorigin="anonymous"></audio>
-  <audio id="audioB" crossorigin="anonymous"></audio>
-
-  <script src="script.js"></script>
-</body>
-</html>
-/* ===== Theme variables ===== */
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Liquid Glass Music — Roman</title>
+<meta name="theme-color" content="#0f141b" />
+<style>
 :root {
   --bg1: #0f141b;
   --bg2: #172130;
@@ -92,7 +18,6 @@
   --shadow-outer: 0 34px 90px rgba(0,0,0,0.45);
   --shadow-inner: inset 0 1px 0 rgba(255,255,255,0.10);
 }
-
 body.light {
   --bg1: #fdfdfd;
   --bg2: #f5f7fa;
@@ -103,8 +28,6 @@ body.light {
   --glass-border: 0.20;
   --shadow-outer: 0 34px 90px rgba(0,0,0,0.25);
   --shadow-inner: inset 0 1px 0 rgba(255,255,255,0.12);
-
-  /* Эффект лампы */
   background: radial-gradient(circle at 50% 20%, 
     rgba(255,255,255,1) 0%, 
     rgba(255,255,255,0.85) 30%, 
@@ -112,12 +35,8 @@ body.light {
     rgba(230,235,240,1) 100%);
   color: var(--text);
 }
+body, body.light { text-shadow: 0 1px 2px rgba(0,0,0,0.15); }
 
-body, body.light {
-  text-shadow: 0 1px 2px rgba(0,0,0,0.15);
-}
-
-/* ===== Liquid Glass ===== */
 .glass {
   background: rgba(255,255,255,var(--glass-opacity));
   border: 1px solid rgba(255,255,255,var(--glass-border));
@@ -126,7 +45,6 @@ body, body.light {
   backdrop-filter: blur(18px) saturate(165%);
   box-shadow: var(--shadow-outer), var(--shadow-inner);
 }
-
 .icon-btn {
   width: 52px; height: 52px;
   display: grid; place-items: center;
@@ -139,7 +57,6 @@ body, body.light {
 }
 .icon-btn:hover { transform: translateY(-1px); border-color: var(--accent-2); }
 
-/* ===== Layout ===== */
 .app {
   width: min(1180px, 95vw);
   height: min(760px, 94vh);
@@ -183,263 +100,48 @@ body, body.light {
 .progress { height: 10px; border-radius: 10px; overflow: hidden; }
 .progress .bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width .1s linear; }
 .ctrl-row { display:flex; align-items:center; justify-content:center; gap:10px; }
-/* ===== State ===== */
-const audioA = document.getElementById('audioA');
-const audioB = document.getElementById('audioB');
-let active = 'A';
-let sleepTimer = null;
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Sidebar -->
+  <aside class="glass sidebar">
+    <div class="sidebar-title">Библиотека</div>
+    <div id="library" class="glass library"></div>
+  </aside>
 
-let tracks = load('lg_tracks') || sampleData();
-let currentIndex = -1;
+  <!-- Header -->
+  <header class="glass header">
+    <div class="icon-btn" title="Главная">🎵</div>
+    <div class="icon-btn" title="Эквалайзер">🎚</div>
+  </header>
 
-/* ===== Elements ===== */
-const libraryEl = document.getElementById('library');
-const settingsBtn = document.getElementById('settingsBtn');
-const settingsPanel = document.getElementById('settingsPanel');
-const themeToggle = document.getElementById('themeToggle');
-const opacitySlider = document.getElementById('opacitySlider');
-const fileInput = document.getElementById('fileInput');
-const urlTitle = document.getElementById('urlTitle');
-const urlInput = document.getElementById('urlInput');
-const addByUrlBtn = document.getElementById('addByUrl');
+  <!-- Settings -->
+  <section class="settings">
+    <div id="settingsBtn" class="icon-btn glass" title="Настройки">⚙️</div>
+    <div id="settingsPanel" class="glass settings-panel">
+      <div class="settings-grid">
+        <button id="themeToggle" class="set-btn glass">🌗 Сменить тему</button>
+        <label class="set-btn glass" style="display:grid; gap:8px;">
+          <span>Прозрачность стекла</span>
+          <input id="opacitySlider" type="range" min="0.05" max="0.30" step="0.01" value="0.10" />
+        </label>
+        <div class="set-btn glass" style="display:grid; gap:8px;">
+          <span>Добавить трек по ссылке</span>
+          <input id="urlTitle" type="text" placeholder="Название трека" />
+          <input id="urlInput" type="url" placeholder="Ссылка на аудио (https://…)" />
+          <button id="addByUrl">➕ Добавить</button>
+        </div>
+        <div class="set-btn glass" style="display:grid; gap:8px;">
+          <span>Добавить трек файлом</span>
+          <input id="fileInput" type="file" accept="audio/*" />
+        </div>
+      </div>
+    </div>
+  </section>
 
-const coverImg = document.getElementById('coverImg');
-const coverIcon = document.getElementById('coverIcon');
-const nowTitle = document.getElementById('nowTitle');
-const nowMeta = document.getElementById('nowMeta');
-const progressBar = document.getElementById('progressBar');
-
-const playPauseBtn = document.getElementById('playPauseBtn');
-const prevBtn = document.getElementById('prevBtn');
-const nextBtn = document.getElementById('nextBtn');
-const sleepBtn = document.getElementById('sleepBtn');
-const clearBtn = document.getElementById('clearBtn');
-
-/* ===== Utils ===== */
-function save(key,val){ localStorage.setItem(key, JSON.stringify(val)); }
-function load(key){ try { return JSON.parse(localStorage.getItem(key)); } catch { return null; } }
-function id(){ return Math.random().toString(36).slice(2,9); }
-function sampleData(){
-  return [
-    { id: id(), title: 'Glass Sunrise', artist: 'Aether', cover: null, srcType:'url', src: 'https://www2.cs.uic.edu/~i101/SoundFiles/StarWars60.wav' },
-    { id: id(), title: 'Liquid Night', artist: 'Noctis', cover: null, srcType:'url', src: 'https://www2.cs.uic.edu/~i101/SoundFiles/ImperialMarch60.wav' },
-    { id: id(), title: 'Velvet Bass', artist: 'Pulse', cover: null, srcType:'url', src: 'https://www2.cs.uic.edu/~i101/SoundFiles/CantinaBand60.wav' }
-  ];
-}
-
-/* ===== IndexedDB for audio blobs ===== */
-let db;
-initDB();
-function initDB(){
-  const req = indexedDB.open('lgm_db', 1);
-  req.onupgradeneeded = () => {
-    const d = req.result;
-    if (!d.objectStoreNames.contains('audio')) d.createObjectStore('audio');
-  };
-  req.onsuccess = ()=>{ db = req.result; };
-}
-function putBlob(store, key, blob){
-  return new Promise((resolve,reject)=>{
-    const tx = db.transaction(store, 'readwrite');
-    tx.objectStore(store).put(blob, key);
-    tx.oncomplete = ()=> resolve();
-    tx.onerror = ()=> reject(tx.error);
-  });
-}
-function getBlob(store, key){
-  return new Promise((resolve,reject)=>{
-    const tx = db.transaction(store, 'readonly');
-    const req = tx.objectStore(store).get(key);
-    req.onsuccess = ()=> resolve(req.result || null);
-    req.onerror = ()=> reject(req.error);
-  });
-}
-function delBlob(store, key){
-  return new Promise((resolve,reject)=>{
-    const tx = db.transaction(store, 'readwrite');
-    tx.objectStore(store).delete(key);
-    tx.oncomplete = ()=> resolve();
-    tx.onerror = ()=> reject(tx.error);
-  });
-}
-
-/* ===== Render library ===== */
-function renderLibrary(){
-  libraryEl.innerHTML = '';
-  tracks.forEach((t, idx) => {
-    const row = document.createElement('div');
-    row.className = 'lib-item glass';
-    const cover = document.createElement('div');
-    cover.className = 'cover-sm';
-    cover.textContent = '♪';
-    if (t.cover) {
-      const img = document.createElement('img');
-      img.src = t.cover;
-      img.style.width='100%'; img.style.height='100%'; img.style.objectFit='cover';
-      cover.textContent=''; cover.appendChild(img);
-    }
-    const title = document.createElement('div');
-    title.className = 'lib-title';
-    title.textContent = t.title;
-    const tools = document.createElement('div');
-    tools.className = 'lib-tools';
-    const playIcon = document.createElement('span');
-    playIcon.textContent = '⏯'; playIcon.style.cursor='pointer';
-    tools.append(playIcon);
-    row.append(cover, title, tools);
-    libraryEl.appendChild(row);
-    row.addEventListener('click', ()=> playTrackByIndex(idx));
-    playIcon.addEventListener('click', (e)=> { e.stopPropagation(); playTrackByIndex(idx); });
-  });
-}
-
-/* ===== Playback ===== */
-async function resolveTrackURL(t){
-  if (t.srcType === 'url') return t.src;
-  if (t.srcType === 'blob') {
-    const blob = await getBlob('audio', t.id);
-    if (!blob) return null;
-    return URL.createObjectURL(blob);
-  }
-  return null;
-}
-async function playTrackByIndex(idx){
-  const t = tracks[idx]; if (!t) return;
-  currentIndex = idx;
-  nowTitle.textContent = t.title;
-  nowMeta.textContent = t.artist || '—';
-  if (t.cover) { coverImg.src = t.cover; coverImg.style.display='block'; coverIcon.style.display='none'; }
-  else { coverImg.style.display='none'; coverIcon.style.display='grid'; }
-  const from = active === 'A' ? audioA : audioB;
-  const to = active === 'A' ? audioB : audioA;
-  const url = await resolveTrackURL(t);
-  if (!url) return;
-  to.src = url; to.volume = 0; await to.play();
-  startProgress();
-  const step = 0.05, interval = 120;
-  const fade = setInterval(() => {
-    from.volume = Math.max(0, from.volume - step);
-    to.volume = Math.min(1, to.volume + step);
-    if (from.volume <= 0 && to.volume >= 1) {
-      clearInterval(fade);
-      from.pause();
-      active = active === 'A' ? 'B' : 'A';
-    }
-  }, interval);
-}
-function togglePlayPause(){
-  const a = active === 'A' ? audioA : audioB;
-  if (a.src) { a.paused ? a.play() : a.pause(); }
-  else if (tracks.length) { playTrackByIndex(0); }
-}
-function navigate(dir){
-  if (currentIndex < 0) return;
-  const next = Math.max(0, Math.min(tracks.length - 1, currentIndex + dir));
-  playTrackByIndex(next);
-}
-
-/* ===== Progress ===== */
-let progressTimer = null;
-function startProgress(){
-  stopProgress();
-  progressTimer = setInterval(()=>{
-    const a = active === 'A' ? audioA : audioB;
-    if (a.duration > 0) {
-      progressBar.style.width = `${(a.currentTime / a.duration) * 100}%`;
-    } else {
-      progressBar.style.width = '0%';
-    }
-  }, 200);
-}
-function stopProgress(){ if (progressTimer) { clearInterval(progressTimer); progressTimer = null; } }
-
-/* ===== Settings ===== */
-function applyTheme(theme){
-  const isLight = theme === 'light';
-  document.body.classList.toggle('light', isLight);
-  save('lg_theme', isLight ? 'light' : 'dark');
-}
-function applyOpacity(val){
-  const n = Number(val);
-  const clamped = Math.min(0.30, Math.max(0.05, isNaN(n) ? 0.10 : n));
-  document.documentElement.style.setProperty('--glass-opacity', clamped);
-  save('lg_opacity', clamped);
-}
-
-/* ===== Add tracks ===== */
-async function addByUrl(){
-  const title = (urlTitle.value || '').trim();
-  const src = (urlInput.value || '').trim();
-  if (!title || !src) return;
-  const t = { id: id(), title, artist: 'Link', cover: null, srcType:'url', src };
-  tracks.push(t); save('lg_tracks', tracks); renderLibrary();
-  urlTitle.value = ''; urlInput.value = '';
-}
-async function addByFile(file){
-  if (!file) return;
-  const name = file.name.replace(/\.(mp3|wav|ogg|m4a|flac|aac)$/i, '') || 'Без названия';
-  const t = { id: id(), title: name, artist: 'Local', cover: null, srcType:'blob' };
-  try {
-      try {
-    await putBlob('audio', t.id, file);
-  } catch (e) {
-    // fallback: временный URL
-    t.srcType = 'url';
-    t.src = URL.createObjectURL(file);
-  }
-  tracks.push(t);
-  save('lg_tracks', tracks);
-  renderLibrary();
-}
-
-/* ===== Settings panel toggle ===== */
-settingsBtn.addEventListener('click', ()=>{
-  settingsPanel.classList.toggle('open');
-});
-
-/* ===== Controls binding & init ===== */
-window.addEventListener('DOMContentLoaded', ()=>{
-  // Restore theme & opacity
-  applyTheme(load('lg_theme') || 'dark');
-  const op = load('lg_opacity'); applyOpacity(op ?? 0.10); if (op) opacitySlider.value = op;
-
-  renderLibrary();
-
-  // Settings
-  themeToggle.addEventListener('click', ()=>{
-    applyTheme(document.body.classList.contains('light') ? 'dark' : 'light');
-  });
-  opacitySlider.addEventListener('input', (e)=> applyOpacity(e.target.value));
-  addByUrlBtn.addEventListener('click', addByUrl);
-  fileInput.addEventListener('change', (e)=> addByFile(e.target.files[0]));
-
-  // Player controls
-  playPauseBtn.addEventListener('click', togglePlayPause);
-  prevBtn.addEventListener('click', ()=> navigate(-1));
-  nextBtn.addEventListener('click', ()=> navigate(1));
-  sleepBtn.addEventListener('click', ()=> {
-    clearTimeout(sleepTimer);
-    sleepTimer = setTimeout(()=> { audioA.pause(); audioB.pause(); alert('⏱️ Таймер сна: воспроизведение остановлено'); }, 60_000);
-    alert('Таймер сна установлен: 1 минута');
-  });
-  clearBtn.addEventListener('click', async ()=> {
-    if (!confirm('Очистить библиотеку?')) return;
-    for (const t of tracks) {
-      if (t.srcType === 'blob') { try { await delBlob('audio', t.id); } catch {} }
-    }
-    tracks.forEach(t=>{
-      if (t.srcType === 'url' && t.src && t.src.startsWith('blob:')) { try { URL.revokeObjectURL(t.src); } catch{} }
-    });
-    tracks = []; save('lg_tracks', tracks);
-    renderLibrary();
-    nowTitle.textContent='Ничего не играет'; nowMeta.textContent='—'; coverImg.style.display='none'; coverIcon.style.display='grid';
-  });
-
-  // Hotkeys
-  document.addEventListener('keydown',(e)=>{
-    if (e.code === 'Space') { e.preventDefault(); togglePlayPause(); }
-    else if (e.code === 'ArrowRight') { const a = active === 'A' ? audioA : audioB; a.currentTime += 5; }
-    else if (e.code === 'ArrowLeft') { const a = active === 'A' ? audioA : audioB; a.currentTime -= 5; }
-  });
-});
-
+  <!-- Center -->
+  <main class="glass center">
+    <div class="glass now-card">
+      <div class="cover">
+        <img id="coverImg
