@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>Liquid Glass Player + Voice (Learn, Fixed)</title>
+  <title>Liquid Glass Player + Voice (Transcode)</title>
   <style>
     body {
       margin: 0; height: 100vh; display: flex; justify-content: center; align-items: center;
@@ -12,17 +12,16 @@
     }
     body.light { background: linear-gradient(135deg, #f0f0f0, #dcdcdc); color: #000; }
 
-    .theme-toggle, .voice-toggle, .learn-toggle {
+    .theme-toggle, .voice-toggle {
       position: absolute; top: 20px; background: rgba(255,255,255,0.2);
       border: none; border-radius: 10px; padding: 8px 12px; cursor: pointer; color: inherit; transition: 0.3s;
     }
     .theme-toggle { right: 20px; }
     .voice-toggle  { left: 20px; }
-    .learn-toggle  { left: 120px; }
-    .theme-toggle:hover, .voice-toggle:hover, .learn-toggle:hover { background: rgba(255,255,255,0.4); }
+    .theme-toggle:hover, .voice-toggle:hover { background: rgba(255,255,255,0.4); }
 
     .player {
-      width: 420px; padding: 20px; border-radius: 25px;
+      width: 440px; padding: 20px; border-radius: 25px;
       background: rgba(255,255,255,0.1);
       backdrop-filter: blur(20px) saturate(150%);
       box-shadow: 0 8px 25px rgba(0,0,0,0.5);
@@ -74,28 +73,12 @@
     .voice-indicator { margin-top: 10px; font-size: 12px; opacity: 0.8; }
     .listening { color: #ffcc00; }
 
-    .learn-panel {
-      margin-top: 12px; width: 100%; background: rgba(255,255,255,0.08); border-radius: 12px; padding: 10px;
-      display: none;
-    }
-    .learn-panel.active { display: block; }
-    .learn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .learn-panel input, .learn-panel select, .learn-panel button {
-      width: 100%; padding: 8px; border-radius: 8px; border: none; outline: none;
-      background: rgba(255,255,255,0.15); color: inherit;
-    }
-    .learn-panel button { cursor: pointer; transition: 0.3s; }
-    .learn-panel button:hover { background: rgba(255,255,255,0.3); }
-    .learn-tip { font-size: 12px; opacity: .8; margin-top: 8px; }
-
     .status { margin-top: 10px; font-size: 12px; opacity: .9; min-height: 16px; text-align: center; }
-    .restore-tip { margin-top: 10px; font-size: 12px; opacity: .85; text-align: center; }
   </style>
 </head>
 <body>
   <button class="theme-toggle" title="Сменить тему">🌗 Тема</button>
   <button class="voice-toggle" title="Голосовой режим">🎙️ Голос</button>
-  <button class="learn-toggle" title="Режим обучения">🧠 Обучить</button>
 
   <div class="player">
     <div class="cover"><img id="cover" src="cover.jpg" alt="Обложка"></div>
@@ -128,57 +111,18 @@
       <ul id="playlist"></ul>
     </div>
     <div class="file-input">
-      <input type="file" id="filePicker" accept="audio/mp3,audio/mpeg,audio/ogg,audio/wav,audio/*" multiple>
-      <div class="small">Выберите один или несколько аудиофайлов (mp3/ogg/wav)</div>
+      <input type="file" id="filePicker" accept="*/*" multiple>
+      <div class="small">Поддерживаются любые аудиоформаты — неподдерживаемые будут конвертироваться автоматически</div>
     </div>
 
     <div class="voice-indicator" id="voiceIndicator">Голос: ожидание</div>
-    <div class="learn-panel" id="learnPanel">
-      <div class="learn-grid">
-        <div>
-          <label class="small">Фраза (как ты говоришь)</label>
-          <input id="learnPhrase" placeholder="например: включи любимую">
-        </div>
-        <div>
-          <label class="small">Действие</label>
-          <select id="learnAction">
-            <option value="play">Воспроизвести</option>
-            <option value="pause">Пауза</option>
-            <option value="next">Следующий</option>
-            <option value="prev">Предыдущий</option>
-            <option value="shuffleOn">Перемешивание включить</option>
-            <option value="shuffleOff">Перемешивание выключить</option>
-            <option value="repeatNone">Повтор выкл</option>
-            <option value="repeatAll">Повтор все</option>
-            <option value="repeatOne">Повтор один</option>
-            <option value="volumeSet">Громкость (проценты)</option>
-            <option value="volumeUp">Громче</option>
-            <option value="volumeDown">Тише</option>
-            <option value="seekForward">Перемотка вперёд (секунды)</option>
-            <option value="seekBack">Перемотка назад (секунды)</option>
-            <option value="trackByNumber">Трек по номеру</option>
-            <option value="toggleTheme">Сменить тему</option>
-          </select>
-        </div>
-      </div>
-      <div class="learn-grid" style="margin-top:10px;">
-        <div>
-          <label class="small">Числовой параметр (необязательно)</label>
-          <input id="learnParam" placeholder="напр. 70 или 10">
-        </div>
-        <div>
-          <label class="small">Сохранение</label>
-          <button id="learnSave">Сохранить команду</button>
-        </div>
-      </div>
-      <div class="learn-tip">Совет: произнеси фразу, увидишь её над плеером, затем назначь действие и параметр.</div>
-    </div>
-
     <div class="status" id="status"></div>
-    <div class="restore-tip" id="restoreTip"></div>
   </div>
 
   <audio id="audio" preload="metadata"></audio>
+
+  <!-- FFmpeg.wasm для автотранскодирования -->
+  <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.6/dist/ffmpeg.min.js"></script>
 
   <script>
     // Элементы
@@ -201,72 +145,15 @@
     const themeToggle = document.querySelector('.theme-toggle');
     const voiceToggle = document.querySelector('.voice-toggle');
     const voiceIndicator = document.getElementById('voiceIndicator');
-    const learnToggle = document.querySelector('.learn-toggle');
-    const learnPanel = document.getElementById('learnPanel');
-    const learnPhrase = document.getElementById('learnPhrase');
-    const learnAction = document.getElementById('learnAction');
-    const learnParam = document.getElementById('learnParam');
-    const learnSave = document.getElementById('learnSave');
     const statusEl = document.getElementById('status');
-    const restoreTip = document.getElementById('restoreTip');
 
     // Состояния
     let playlist = []; let currentIndex = -1;
     let shuffle = false; let repeat = 'none';
-    let voiceEnabled = false; let restoring = false;
-
-    // Персистентность состояния
-    const STATE_KEY = 'liquid-player-state';
-    function saveState() {
-      try {
-        const state = {
-          themeLight: document.body.classList.contains('light'),
-          volume: audio.volume,
-          shuffle, repeat,
-          playlist: playlist.map(p => ({ name: p.name, fileName: p.file?.name || p.fileName })),
-          currentIndex, currentTime: audio.currentTime
-        };
-        localStorage.setItem(STATE_KEY, JSON.stringify(state));
-      } catch {}
-    }
-    function restoreState() {
-      const raw = localStorage.getItem(STATE_KEY);
-      if (!raw) return;
-      try {
-        const s = JSON.parse(raw);
-        document.body.classList.toggle('light', !!s.themeLight);
-        audio.volume = typeof s.volume === 'number' ? s.volume : 1;
-        volumeControl.value = audio.volume;
-        shuffle = !!s.shuffle; repeat = s.repeat || 'none';
-        shuffleBtn.style.background = shuffle ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.15)';
-        repeatBtn.textContent = {none:'🔁',all:'🔂',one:'🔁1'}[repeat];
-        repeatBtn.style.background = repeat === 'none' ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.5)';
-
-        playlist = (s.playlist || []).map(p => ({ name: p.name, fileName: p.fileName }));
-        renderPlaylist();
-        currentIndex = typeof s.currentIndex === 'number' ? s.currentIndex : 0;
-
-        trackTitle.textContent = playlist[currentIndex]?.name || '—';
-        trackArtist.textContent = '—';
-        coverImg.src = 'cover.jpg';
-
-        if (typeof s.currentTime === 'number') {
-          audio.addEventListener('loadedmetadata', () => {
-            audio.currentTime = Math.min(s.currentTime, audio.duration || s.currentTime);
-          }, { once: true });
-        }
-
-        if (s.playlist?.length) {
-          restoring = true;
-          restoreTip.innerHTML = 'Для восстановления треков нажмите «Выбрать файлы» и укажите те же файлы — сопоставлю их по имени.';
-        }
-      } catch {}
-    }
-    window.addEventListener('beforeunload', saveState);
-    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveState(); });
+    let voiceEnabled = false;
 
     // Тема
-    themeToggle.addEventListener('click', () => { document.body.classList.toggle('light'); saveState(); });
+    themeToggle.addEventListener('click', () => { document.body.classList.toggle('light'); });
 
     // Горячие клавиши
     window.addEventListener('keydown', (e) => {
@@ -275,11 +162,73 @@
       if (e.code === 'ArrowLeft') { audio.currentTime = Math.max(audio.currentTime - 5, 0); }
     });
 
-    // Управление
+    // ======= Автотранскодирование =======
+    const { FFmpeg } = FFmpegWASM;
+    const ffmpeg = new FFmpeg();
+
+    let ffmpegReady = false;
+    async function ensureFFmpeg() {
+      if (ffmpegReady) return;
+      setStatus('Загрузка конвертера…');
+      await ffmpeg.load({
+        coreURL: 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/ffmpeg-core.js',
+        wasmURL: 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/ffmpeg-core.wasm'
+      });
+      ffmpegReady = true;
+      setStatus('');
+    }
+
+    function canPlayFile(file) {
+      // Если MIME известен и браузер его поддерживает как audio — ок
+      const type = file.type || '';
+      if (type.startsWith('audio/')) {
+        const can = audio.canPlayType(type);
+        if (can === 'probably' || can === 'maybe') return true;
+      }
+      // Если расширение стандартное — попробуем
+      const name = file.name.toLowerCase();
+      if (/\.(mp3|ogg|wav|aac|m4a|flac)$/i.test(name)) {
+        // Браузер может не поддержать контейнер/кодек; будем проверять при воспроизведении
+        return !!/\.(mp3|ogg|wav)$/i.test(name);
+      }
+      return false;
+    }
+
+    async function makePlayable(file) {
+      // Если браузер может — используем оригинальный файл
+      if (canPlayFile(file)) {
+        return { blobUrl: URL.createObjectURL(file), format: 'original' };
+      }
+      // Иначе — транскодируем в WAV (pcm_s16le, 44.1kHz, стерео)
+      await ensureFFmpeg();
+      setStatus(`Конвертация: ${file.name}…`);
+      const inputName = 'input_' + Date.now();
+      const outputName = 'output_' + Date.now() + '.wav';
+
+      const arrayBuffer = await file.arrayBuffer();
+      await ffmpeg.writeFile(inputName, new Uint8Array(arrayBuffer));
+
+      // -vn (без видео), PCM WAV, 44.1kHz, 2 канала
+      await ffmpeg.exec(['-i', inputName, '-vn', '-acodec', 'pcm_s16le', '-ar', '44100', '-ac', '2', outputName]);
+
+      const data = await ffmpeg.readFile(outputName);
+      const blob = new Blob([data.buffer], { type: 'audio/wav' });
+      const url = URL.createObjectURL(blob);
+
+      // Очистка
+      await ffmpeg.deleteFile(inputName).catch(()=>{});
+      await ffmpeg.deleteFile(outputName).catch(()=>{});
+
+      setStatus('');
+      return { blobUrl: url, format: 'wav' };
+    }
+
+    // ======= Управление =======
     playBtn.addEventListener('click', togglePlay);
     async function togglePlay() {
       if (!audio.src) { setStatus('Нет трека. Выберите файлы.'); return; }
       audio.muted = false;
+      audio.volume = Math.max(0.01, parseFloat(volumeControl.value||'1'));
       try {
         if (audio.paused) {
           await audio.play();
@@ -289,12 +238,12 @@
           audio.pause();
           playBtn.classList.remove('active'); playBtn.textContent = '▶️'; equalizer.style.opacity = 0.3;
         }
-        saveState();
       } catch (err) {
-        setStatus('Не удалось воспроизвести. Проверь громкость и выбери файл заново.');
+        setStatus('Нажмите ▶️ для старта (политика автоплея).');
         console.warn('Play error:', err);
       }
     }
+
     prevBtn.addEventListener('click', playPrev);
     nextBtn.addEventListener('click', playNext);
     function playPrev() {
@@ -322,66 +271,57 @@
       if (shuffle) { currentIndex = randomIndex(currentIndex); loadTrack(currentIndex, true); return; }
       if (repeat === 'all') { currentIndex = (currentIndex + 1) % playlist.length; loadTrack(currentIndex, true); return; }
       playBtn.classList.remove('active'); playBtn.textContent = '▶️'; equalizer.style.opacity = 0.3;
-      saveState();
     });
 
     seek.addEventListener('input', () => { if (!audio.duration) return; audio.currentTime = (seek.value / 100) * audio.duration; });
-    seek.addEventListener('change', saveState);
 
     volumeControl.addEventListener('input', () => {
       audio.volume = parseFloat(volumeControl.value);
       setStatus(audio.volume === 0 ? 'Громкость: 0 (без звука)' : '');
     });
-    volumeControl.addEventListener('change', saveState);
     audio.volume = parseFloat(volumeControl.value);
     audio.muted = false;
 
     shuffleBtn.addEventListener('click', () => {
       shuffle = !shuffle;
       shuffleBtn.style.background = shuffle ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.15)';
-      saveState();
     });
     repeatBtn.addEventListener('click', () => {
       repeat = repeat === 'none' ? 'all' : repeat === 'all' ? 'one' : 'none';
       repeatBtn.textContent = {none:'🔁',all:'🔂',one:'🔁1'}[repeat];
       repeatBtn.style.background = repeat === 'none' ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.5)';
-      saveState();
     });
 
-    // Плейлист и восстановление
-    filePicker.addEventListener('change', (e) => {
+    // ======= Плейлист и загрузка файлов =======
+    filePicker.addEventListener('change', async (e) => {
       const files = Array.from(e.target.files || []);
       if (!files.length) return;
 
-      if (restoring && playlist.length) {
-        const byName = new Map(files.map(f => [f.name, f]));
-        playlist = playlist.map(item => {
-          const f = byName.get(item.fileName || item.name);
-          if (f) return { name: item.name, fileName: f.name, url: URL.createObjectURL(f), file: f };
-          return item;
+      setStatus('Подготовка треков…');
+      playlist = [];
+      // Последовательно готовим треки (можно распараллелить, но UI будет проще последовательно)
+      for (const f of files) {
+        const playable = await makePlayable(f);
+        playlist.push({
+          name: f.name + (playable.format === 'wav' ? ' (конвертировано)' : ''),
+          originalName: f.name,
+          url: playable.blobUrl,
+          format: playable.format
         });
-        restoring = false;
-        restoreTip.textContent = '';
-      } else {
-        // Фильтрация по типу — гарантируем аудио
-        const audioFiles = files.filter(f => (f.type || '').startsWith('audio/'));
-        if (!audioFiles.length) { setStatus('Файлы не аудио. Выберите mp3/ogg/wav.'); return; }
-        playlist = audioFiles.map(f => ({ name: f.name, fileName: f.name, url: URL.createObjectURL(f), file: f }));
       }
 
       renderPlaylist();
       currentIndex = 0;
-      loadTrack(currentIndex, true);
-      saveState();
+      await loadTrack(currentIndex, false);
+      setStatus('Файл загружен. Нажмите ▶️');
     });
 
     function renderPlaylist() {
       playlistEl.innerHTML = '';
       playlist.forEach((item, idx) => {
         const li = document.createElement('li');
-        const label = item.name || item.fileName || `Трек ${idx+1}`;
-        li.innerHTML = `<span>${label}</span><span class="small">${idx+1}/${playlist.length}</span>`;
-        li.addEventListener('click', () => { currentIndex = idx; loadTrack(currentIndex, true); saveState(); });
+        li.innerHTML = `<span>${item.name}</span><span class="small">${idx+1}/${playlist.length}</span>`;
+        li.addEventListener('click', () => { currentIndex = idx; loadTrack(currentIndex, true); });
         if (idx === currentIndex) li.classList.add('active');
         playlistEl.appendChild(li);
       });
@@ -389,86 +329,30 @@
 
     async function loadTrack(index, autoplay = false) {
       const item = playlist[index]; if (!item) return;
-      if (!item.url && item.file) item.url = URL.createObjectURL(item.file);
       audio.src = item.url || '';
       audio.muted = false;
-      audio.volume = parseFloat(volumeControl.value || '1');
+      audio.volume = Math.max(0.01, parseFloat(volumeControl.value || '1'));
 
-      trackTitle.textContent = item.name || item.fileName || '—';
+      trackTitle.textContent = item.originalName || item.name || '—';
       trackArtist.textContent = '—';
       [...playlistEl.children].forEach((li, i) => li.classList.toggle('active', i === index));
 
-      await setCoverFromFile(item.file);
-      try { const colors = await extractDominantColors(coverImg); setDynamicBackground(colors); }
-      catch { setDynamicBackground([{r:255,g:204,b:0},{r:46,g:46,b:46}]); }
+      // Обложка: дефолт
+      coverImg.src = 'cover.jpg';
 
-      if (autoplay && audio.src) {
-        try {
-          await audio.play();
-          playBtn.classList.add('active'); playBtn.textContent = '⏸️'; equalizer.style.opacity = 1;
-          setStatus('');
-        } catch (err) {
-          setStatus('Нажмите ▶️ для старта (политика автоплея).');
-          playBtn.classList.remove('active'); playBtn.textContent = '▶️'; equalizer.style.opacity = 0.3;
-        }
-      } else {
+      try {
+        await audio.play();
+        playBtn.classList.add('active'); playBtn.textContent = '⏸️'; equalizer.style.opacity = 1;
+        setStatus('');
+        if (!autoplay) { audio.pause(); playBtn.classList.remove('active'); playBtn.textContent = '▶️'; equalizer.style.opacity = 0.3; }
+      } catch (err) {
+        // Если автоплей заблокирован — просто ждём нажатия ▶️
         playBtn.classList.remove('active'); playBtn.textContent = '▶️'; equalizer.style.opacity = 0.3;
+        if (autoplay) setStatus('Нажмите ▶️ для старта (политика автоплея).');
       }
-
-      saveState();
     }
 
-    async function setCoverFromFile(file) {
-      coverImg.src = 'cover.jpg'; if (!file) return;
-      if (file.type?.startsWith('image/')) { coverImg.src = URL.createObjectURL(file); return; }
-      coverImg.onerror = () => (coverImg.src = 'cover.jpg');
-    }
-
-    function extractDominantColors(imgEl) {
-      return new Promise((resolve, reject) => {
-        const img = new Image(); img.crossOrigin = 'anonymous'; img.src = imgEl.src;
-        img.onload = () => {
-          const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d');
-          const w = canvas.width = 64, h = canvas.height = 64; ctx.drawImage(img, 0, 0, w, h);
-          const data = ctx.getImageData(0, 0, w, h).data;
-          let r=0,g=0,b=0,count=0; for (let i=0;i<data.length;i+=4){ r+=data[i]; g+=data[i+1]; b+=data[i+2]; count++; }
-          r = Math.round(r/count); g = Math.round(g/count); b = Math.round(b/count);
-          const cr = 255 - r, cg = 255 - g, cb = 255 - b; resolve([{r,g,b},{r:cr,g:cg,b:cb}]);
-        };
-        img.onerror = reject;
-      });
-    }
-    function setDynamicBackground(colors){
-      const [c1, c2] = colors;
-      const g1 = `rgb(${c1.r},${c1.g},${c1.b})`;
-      const g2 = `rgb(${c2.r},${c2.g},${c2.b})`;
-      document.body.style.background = `linear-gradient(135deg, ${g1}, ${g2})`;
-    }
-    function formatTime(sec) { const m = Math.floor(sec / 60) || 0; const s = Math.floor(sec % 60) || 0; return `${m}:${s.toString().padStart(2,'0')}`; }
-    function setStatus(text){ statusEl.textContent = text || ''; }
-
-    // ===== Обучаемые команды (персистентность) =====
-    const CMD_KEY = 'liquid-player-commands';
-    let userCommands = loadCommands();
-    function loadCommands(){ try { return JSON.parse(localStorage.getItem(CMD_KEY)) || []; } catch { return []; } }
-    function saveCommands(){ localStorage.setItem(CMD_KEY, JSON.stringify(userCommands)); }
-
-    learnToggle.addEventListener('click', () => { learnPanel.classList.toggle('active'); });
-    learnSave.addEventListener('click', () => {
-      const phrase = (learnPhrase.value || '').trim().toLowerCase();
-      const action = learnAction.value;
-      const param = (learnParam.value || '').trim();
-      if (!phrase) { alert('Введите фразу'); return; }
-      const existing = userCommands.find(c => c.phrase === phrase);
-      if (existing) { existing.action = action; existing.param = param; }
-      else { userCommands.push({ phrase, action, param }); }
-      saveCommands();
-      learnPhrase.value = ''; learnParam.value = '';
-      setStatus('Команда сохранена');
-      setTimeout(()=>setStatus(''), 1500);
-    });
-
-    // ===== Голосовой помощник (только слушает и действует, без TTS) =====
+    // ======= Голосовой помощник (молчаливый) =======
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     let recognition;
     voiceToggle.addEventListener('click', () => {
@@ -507,69 +391,35 @@
       const numMatch = cmd.match(/\d+/);
       const num = numMatch ? parseInt(numMatch[0], 10) : null;
 
-      // Пользовательские команды
-      const uc = userCommands.find(c => cmd.includes(c.phrase));
-      if (uc) { executeUserAction(uc, num); saveState(); return; }
-
-      // Стандартные команды
-      if (/(пауза|стоп)/.test(cmd)) { audio.pause(); playBtn.classList.remove('active'); playBtn.textContent='▶️'; equalizer.style.opacity = 0.3; saveState(); return; }
+      if (/(пауза|стоп)/.test(cmd)) { audio.pause(); playBtn.classList.remove('active'); playBtn.textContent='▶️'; equalizer.style.opacity = 0.3; return; }
       if (/(воспроизведи|проиграй|продолжи|запусти|play)/.test(cmd)) {
         if (!audio.src && playlist.length){ loadTrack(0,true); }
         else { audio.play().catch(()=>{}); playBtn.classList.add('active'); playBtn.textContent='⏸️'; equalizer.style.opacity = 1; }
-        saveState(); return;
+        return;
       }
-      if (/следующ(ий|е)/.test(cmd)) { playNext(); saveState(); return; }
-      if (/предыдущ(ий|е)/.test(cmd)) { playPrev(); saveState(); return; }
+      if (/следующ(ий|е)/.test(cmd)) { playNext(); return; }
+      if (/предыдущ(ий|е)/.test(cmd)) { playPrev(); return; }
 
-      if (/(громче|увеличь громкость)/.test(cmd)) { audio.volume = Math.min(1, audio.volume + 0.1); volumeControl.value = audio.volume; saveState(); return; }
-      if (/(тише|уменьш(и|ь) громкость)/.test(cmd)) { audio.volume = Math.max(0, audio.volume - 0.1); volumeControl.value = audio.volume; saveState(); return; }
-      if (/громк(ость)? \d+/.test(cmd) && num !== null) { const v = Math.max(0, Math.min(1, num/100)); audio.volume = v; volumeControl.value = v; saveState(); return; }
+      if (/(громче|увеличь громкость)/.test(cmd)) { audio.volume = Math.min(1, audio.volume + 0.1); volumeControl.value = audio.volume; return; }
+      if (/(тише|уменьш(и|ь) громкость)/.test(cmd)) { audio.volume = Math.max(0, audio.volume - 0.1); volumeControl.value = audio.volume; return; }
+      if (/громк(ость)? \d+/.test(cmd) && num !== null) { const v = Math.max(0, Math.min(1, num/100)); audio.volume = v; volumeControl.value = v; return; }
 
-      if (/(перемотай|перемотка|перемотать|вперёд)/.test(cmd) && num) { audio.currentTime = Math.min(audio.currentTime + num, audio.duration || 0); saveState(); return; }
-      if (/(назад|отмотай)/.test(cmd) && num) { audio.currentTime = Math.max(audio.currentTime - num, 0); saveState(); return; }
+      if (/(перемотай|перемотка|перемотать|вперёд)/.test(cmd) && num) { audio.currentTime = Math.min(audio.currentTime + num, audio.duration || 0); return; }
+      if (/(назад|отмотай)/.test(cmd) && num) { audio.currentTime = Math.max(audio.currentTime - num, 0); return; }
 
-      if (/(перемешивание|перемешай|shuffle) включ(и|ить)/.test(cmd)) { shuffle = true; shuffleBtn.style.background='rgba(255,255,255,0.5)'; saveState(); return; }
-      if (/(перемешивание|shuffle) выключ(и|ить)/.test(cmd)) { shuffle = false; shuffleBtn.style.background='rgba(255,255,255,0.15)'; saveState(); return; }
+      if (/(перемешивание|перемешай|shuffle) включ(и|ить)/.test(cmd)) { shuffle = true; shuffleBtn.style.background='rgba(255,255,255,0.5)'; return; }
+      if (/(перемешивание|shuffle) выключ(и|ить)/.test(cmd)) { shuffle = false; shuffleBtn.style.background='rgba(255,255,255,0.15)'; return; }
 
-      if (/повтор (все|всё|all)/.test(cmd)) { repeat='all'; repeatBtn.textContent='🔂'; repeatBtn.style.background='rgba(255,255,255,0.5)'; saveState(); return; }
-      if (/повтор (один|one|трек)/.test(cmd)) { repeat='one'; repeatBtn.textContent='🔁1'; repeatBtn.style.background='rgba(255,255,255,0.5)'; saveState(); return; }
-      if (/повтор выключ(и|ить)/.test(cmd)) { repeat='none'; repeatBtn.textContent='🔁'; repeatBtn.style.background='rgba(255,255,255,0.15)'; saveState(); return; }
+      if (/повтор (все|всё|all)/.test(cmd)) { repeat='all'; repeatBtn.textContent='🔂'; repeatBtn.style.background='rgba(255,255,255,0.5)'; return; }
+      if (/повтор (один|one|трек)/.test(cmd)) { repeat='one'; repeatBtn.textContent='🔁1'; repeatBtn.style.background='rgba(255,255,255,0.5)'; return; }
+      if (/повтор выключ(и|ить)/.test(cmd)) { repeat='none'; repeatBtn.textContent='🔁'; repeatBtn.style.background='rgba(255,255,255,0.15)'; return; }
 
-      if (/трек номер \d+/.test(cmd) && num) { const idx = Math.max(1, Math.min(playlist.length, num)) - 1; currentIndex = idx; loadTrack(currentIndex, true); saveState(); return; }
+      if (/трек номер \d+/.test(cmd) && num) { const idx = Math.max(1, Math.min(playlist.length, num)) - 1; currentIndex = idx; loadTrack(currentIndex, true); return; }
       // Нераспознанные — игнор
     }
 
-    function executeUserAction(uc, num) {
-      const p = uc.param ? parseInt(uc.param, 10) : null;
-      switch (uc.action) {
-        case 'play': audio.play().catch(()=>{}); playBtn.classList.add('active'); playBtn.textContent='⏸️'; equalizer.style.opacity = 1; break;
-        case 'pause': audio.pause(); playBtn.classList.remove('active'); playBtn.textContent='▶️'; equalizer.style.opacity = 0.3; break;
-        case 'next': playNext(); break;
-        case 'prev': playPrev(); break;
-        case 'shuffleOn': shuffle = true; shuffleBtn.style.background='rgba(255,255,255,0.5)'; break;
-        case 'shuffleOff': shuffle = false; shuffleBtn.style.background='rgba(255,255,255,0.15)'; break;
-        case 'repeatNone': repeat='none'; repeatBtn.textContent='🔁'; repeatBtn.style.background='rgba(255,255,255,0.15)'; break;
-        case 'repeatAll': repeat='all'; repeatBtn.textContent='🔂'; repeatBtn.style.background='rgba(255,255,255,0.5)'; break;
-        case 'repeatOne': repeat='one'; repeatBtn.textContent='🔁1'; repeatBtn.style.background='rgba(255,255,255,0.5)'; break;
-        case 'volumeSet': {
-          const v = Math.max(0, Math.min(1, (p ?? num ?? 100)/100));
-          audio.volume = v; volumeControl.value = v; break;
-        }
-        case 'volumeUp': audio.volume = Math.min(1, audio.volume + 0.1); volumeControl.value = audio.volume; break;
-        case 'volumeDown': audio.volume = Math.max(0, audio.volume - 0.1); volumeControl.value = audio.volume; break;
-        case 'seekForward': { const s = p ?? num ?? 5; audio.currentTime = Math.min(audio.currentTime + s, audio.duration || 0); break; }
-        case 'seekBack': { const s = p ?? num ?? 5; audio.currentTime = Math.max(audio.currentTime - s, 0); break; }
-        case 'trackByNumber': {
-          const n = p ?? num ?? 1; const idx = Math.max(1, Math.min(playlist.length, n)) - 1;
-          currentIndex = idx; loadTrack(currentIndex, true); break;
-        }
-        case 'toggleTheme': document.body.classList.toggle('light'); break;
-        default: break;
-      }
-    }
-
-    // Инициализация
-    restoreState();
+    function formatTime(sec) { const m = Math.floor(sec / 60) || 0; const s = Math.floor(sec % 60) || 0; return `${m}:${s.toString().padStart(2,'0')}`; }
+    function setStatus(text){ statusEl.textContent = text || ''; }
   </script>
 </body>
 </html>
