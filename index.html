@@ -1,10 +1,9 @@
-
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>Liquid Glass Player + Voice (Persistent)</title>
+  <title>Liquid Glass Player + Voice (Learn, Persistent)</title>
   <style>
     body {
       margin: 0; height: 100vh; display: flex; justify-content: center; align-items: center;
@@ -13,16 +12,17 @@
     }
     body.light { background: linear-gradient(135deg, #f0f0f0, #dcdcdc); color: #000; }
 
-    .theme-toggle, .voice-toggle {
+    .theme-toggle, .voice-toggle, .learn-toggle {
       position: absolute; top: 20px; background: rgba(255,255,255,0.2);
       border: none; border-radius: 10px; padding: 8px 12px; cursor: pointer; color: inherit; transition: 0.3s;
     }
     .theme-toggle { right: 20px; }
     .voice-toggle  { left: 20px; }
-    .theme-toggle:hover, .voice-toggle:hover { background: rgba(255,255,255,0.4); }
+    .learn-toggle  { left: 120px; }
+    .theme-toggle:hover, .voice-toggle:hover, .learn-toggle:hover { background: rgba(255,255,255,0.4); }
 
     .player {
-      width: 380px; padding: 20px; border-radius: 25px;
+      width: 420px; padding: 20px; border-radius: 25px;
       background: rgba(255,255,255,0.1);
       backdrop-filter: blur(20px) saturate(150%);
       box-shadow: 0 8px 25px rgba(0,0,0,0.5);
@@ -30,7 +30,7 @@
       transition: background 0.5s;
     }
 
-    .cover img { width: 220px; height: 220px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); object-fit: cover; }
+    .cover img { width: 240px; height: 240px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); object-fit: cover; }
     .track-info { text-align: center; margin: 15px 0; }
     .track-info h2 { margin: 0; font-size: 20px; }
     .track-info p { margin: 0; font-size: 14px; opacity: 0.8; }
@@ -50,6 +50,7 @@
     .time { font-size: 12px; opacity: 0.7; }
 
     .extra { display: flex; gap: 15px; margin-top: 15px; }
+
     .volume { display: flex; align-items: center; gap: 10px; margin-top: 10px; width: 100%; }
     .volume input[type="range"] { flex: 1; accent-color: #ffcc00; }
 
@@ -73,12 +74,27 @@
     .voice-indicator { margin-top: 10px; font-size: 12px; opacity: 0.8; }
     .listening { color: #ffcc00; }
 
+    .learn-panel {
+      margin-top: 12px; width: 100%; background: rgba(255,255,255,0.08); border-radius: 12px; padding: 10px;
+      display: none;
+    }
+    .learn-panel.active { display: block; }
+    .learn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .learn-panel input, .learn-panel select, .learn-panel button {
+      width: 100%; padding: 8px; border-radius: 8px; border: none; outline: none;
+      background: rgba(255,255,255,0.15); color: inherit;
+    }
+    .learn-panel button { cursor: pointer; transition: 0.3s; }
+    .learn-panel button:hover { background: rgba(255,255,255,0.3); }
+    .learn-tip { font-size: 12px; opacity: .8; margin-top: 8px; }
+
     .restore-tip { margin-top: 10px; font-size: 12px; opacity: 0.85; text-align: center; }
   </style>
 </head>
 <body>
   <button class="theme-toggle" title="Сменить тему">🌗 Тема</button>
   <button class="voice-toggle" title="Голосовой режим">🎙️ Голос</button>
+  <button class="learn-toggle" title="Режим обучения">🧠 Обучить</button>
 
   <div class="player">
     <div class="cover"><img id="cover" src="cover.jpg" alt="Обложка"></div>
@@ -116,6 +132,46 @@
     </div>
 
     <div class="voice-indicator" id="voiceIndicator">Голос: ожидание</div>
+    <div class="learn-panel" id="learnPanel">
+      <div class="learn-grid">
+        <div>
+          <label class="small">Фраза (как ты говоришь)</label>
+          <input id="learnPhrase" placeholder="например: включи любимую">
+        </div>
+        <div>
+          <label class="small">Действие</label>
+          <select id="learnAction">
+            <option value="play">Воспроизвести</option>
+            <option value="pause">Пауза</option>
+            <option value="next">Следующий</option>
+            <option value="prev">Предыдущий</option>
+            <option value="shuffleOn">Перемешивание включить</option>
+            <option value="shuffleOff">Перемешивание выключить</option>
+            <option value="repeatNone">Повтор выкл</option>
+            <option value="repeatAll">Повтор все</option>
+            <option value="repeatOne">Повтор один</option>
+            <option value="volumeSet">Громкость (проценты)</option>
+            <option value="volumeUp">Громче</option>
+            <option value="volumeDown">Тише</option>
+            <option value="seekForward">Перемотка вперёд (секунды)</option>
+            <option value="seekBack">Перемотка назад (секунды)</option>
+            <option value="trackByNumber">Выбрать трек по номеру</option>
+            <option value="toggleTheme">Сменить тему</option>
+          </select>
+        </div>
+      </div>
+      <div class="learn-grid" style="margin-top:10px;">
+        <div>
+          <label class="small">Числовой параметр (необязательно)</label>
+          <input id="learnParam" placeholder="напр. 70 или 10">
+        </div>
+        <div>
+          <label class="small">Сохранение</label>
+          <button id="learnSave">Сохранить команду</button>
+        </div>
+      </div>
+      <div class="learn-tip">Совет: произнеси фразу, увидишь её над плеером, затем назначь действие и параметр.</div>
+    </div>
     <div class="restore-tip" id="restoreTip"></div>
   </div>
 
@@ -142,18 +198,24 @@
     const themeToggle = document.querySelector('.theme-toggle');
     const voiceToggle = document.querySelector('.voice-toggle');
     const voiceIndicator = document.getElementById('voiceIndicator');
+    const learnToggle = document.querySelector('.learn-toggle');
+    const learnPanel = document.getElementById('learnPanel');
+    const learnPhrase = document.getElementById('learnPhrase');
+    const learnAction = document.getElementById('learnAction');
+    const learnParam = document.getElementById('learnParam');
+    const learnSave = document.getElementById('learnSave');
     const restoreTip = document.getElementById('restoreTip');
 
     // Состояния
-    let playlist = [];         // [{name, url, fileHandle?, fileName}]
-    let currentIndex = -1;
-    let shuffle = false;
-    let repeat = 'none';       // 'none' | 'one' | 'all'
+    let playlist = []; let currentIndex = -1;
+    let shuffle = false; let repeat = 'none';
     let voiceEnabled = false;
     let restoring = false;
 
-    // ====== ПЕРСИСТЕНТНОСТЬ ======
-    const STORAGE_KEY = 'liquid-player-state';
+    // Персистентность
+    const STATE_KEY = 'liquid-player-state';
+    const CMD_KEY = 'liquid-player-commands';
+    let userCommands = loadCommands();
 
     function saveState() {
       try {
@@ -162,71 +224,52 @@
           volume: audio.volume,
           shuffle,
           repeat,
-          playlist: playlist.map(p => ({
-            name: p.name || p.fileName,
-            fileName: p.fileName || p.name,
-            // fileHandle не сериализуем в localStorage — сохраним через File System Access отдельно
-          })),
+          playlist: playlist.map(p => ({ name: p.name, fileName: p.file?.name || p.fileName })),
           currentIndex,
-          currentTime: audio.currentTime,
+          currentTime: audio.currentTime
         };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        localStorage.setItem(STATE_KEY, JSON.stringify(state));
       } catch {}
     }
-
-    async function restoreState() {
-      const raw = localStorage.getItem(STORAGE_KEY);
+    function restoreState() {
+      const raw = localStorage.getItem(STATE_KEY);
       if (!raw) return;
       try {
-        const state = JSON.parse(raw);
-        // Тема, громкость, режимы
-        document.body.classList.toggle('light', !!state.themeLight);
-        audio.volume = typeof state.volume === 'number' ? state.volume : 1;
+        const s = JSON.parse(raw);
+        document.body.classList.toggle('light', !!s.themeLight);
+        audio.volume = typeof s.volume === 'number' ? s.volume : 1;
         volumeControl.value = audio.volume;
-        shuffle = !!state.shuffle;
-        repeat = state.repeat || 'none';
+        shuffle = !!s.shuffle; repeat = s.repeat || 'none';
         shuffleBtn.style.background = shuffle ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.15)';
-        const map = { none: '🔁', all: '🔂', one: '🔁1' };
-        repeatBtn.textContent = map[repeat];
+        repeatBtn.textContent = {none:'🔁',all:'🔂',one:'🔁1'}[repeat];
         repeatBtn.style.background = repeat === 'none' ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.5)';
 
-        // Восстановление плейлиста
-        playlist = (state.playlist || []).map(p => ({ name: p.name, fileName: p.fileName }));
+        playlist = (s.playlist || []).map(p => ({ name: p.name, fileName: p.fileName }));
         renderPlaylist();
+        currentIndex = typeof s.currentIndex === 'number' ? s.currentIndex : 0;
 
-        currentIndex = typeof state.currentIndex === 'number' ? state.currentIndex : 0;
-
-        // Попытка восстановить файлы через File System Access API
-        if ('showOpenFilePicker' in window && state.playlist?.length) {
-          restoring = true;
-          restoreTip.innerHTML = 'Для полного восстановления треков нажмите: <b>Выбрать файлы</b> и укажите те же файлы. Я сопоставлю их по имени.';
-        } else if (state.playlist?.length) {
-          restoreTip.textContent = 'Выберите те же файлы — плейлист будет сопоставлен по имени.';
-        }
-
-        // Задаём заглушки интерфейса
         trackTitle.textContent = playlist[currentIndex]?.name || '—';
         trackArtist.textContent = '—';
         coverImg.src = 'cover.jpg';
 
-        // Текущая позиция (установим после загрузки реальных файлов)
-        if (typeof state.currentTime === 'number') {
+        if (typeof s.currentTime === 'number') {
           audio.addEventListener('loadedmetadata', () => {
-            audio.currentTime = Math.min(state.currentTime, audio.duration || state.currentTime);
+            audio.currentTime = Math.min(s.currentTime, audio.duration || s.currentTime);
           }, { once: true });
+        }
+
+        if (s.playlist?.length) {
+          restoring = true;
+          restoreTip.innerHTML = 'Для восстановления треков нажмите «Выбрать файлы» и укажите те же файлы — я сопоставлю их по имени.';
         }
       } catch {}
     }
 
-    // Сохраняем при ключевых событиях
     window.addEventListener('beforeunload', saveState);
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveState(); });
 
-    // ====== БАЗОВОЕ УПРАВЛЕНИЕ ======
-    themeToggle.addEventListener('click', () => {
-      document.body.classList.toggle('light');
-      saveState();
-    });
+    // Тема
+    themeToggle.addEventListener('click', () => { document.body.classList.toggle('light'); saveState(); });
 
     // Горячие клавиши
     window.addEventListener('keydown', (e) => {
@@ -235,6 +278,7 @@
       if (e.code === 'ArrowLeft') { audio.currentTime = Math.max(audio.currentTime - 5, 0); }
     });
 
+    // Управление
     playBtn.addEventListener('click', togglePlay);
     function togglePlay() {
       if (!audio.src) return;
@@ -242,10 +286,8 @@
       else { audio.pause(); playBtn.classList.remove('active'); playBtn.textContent = '▶️'; equalizer.style.opacity = 0.3; }
       saveState();
     }
-
     prevBtn.addEventListener('click', playPrev);
     nextBtn.addEventListener('click', playNext);
-
     function playPrev() {
       if (!playlist.length) return;
       currentIndex = shuffle ? randomIndex(currentIndex) : (currentIndex - 1 + playlist.length) % playlist.length;
@@ -262,14 +304,9 @@
       return idx;
     }
 
-    audio.addEventListener('loadedmetadata', () => {
-      durationEl.textContent = formatTime(audio.duration); seek.value = 0;
-    });
+    audio.addEventListener('loadedmetadata', () => { durationEl.textContent = formatTime(audio.duration); seek.value = 0; });
     audio.addEventListener('timeupdate', () => {
-      if (audio.duration) {
-        seek.value = (audio.currentTime / audio.duration) * 100;
-        currentTimeEl.textContent = formatTime(audio.currentTime);
-      }
+      if (audio.duration) { seek.value = (audio.currentTime / audio.duration) * 100; currentTimeEl.textContent = formatTime(audio.currentTime); }
     });
     audio.addEventListener('ended', () => {
       if (repeat === 'one') { audio.currentTime = 0; audio.play(); return; }
@@ -279,9 +316,7 @@
       saveState();
     });
 
-    seek.addEventListener('input', () => {
-      if (!audio.duration) return; audio.currentTime = (seek.value / 100) * audio.duration;
-    });
+    seek.addEventListener('input', () => { if (!audio.duration) return; audio.currentTime = (seek.value / 100) * audio.duration; });
     seek.addEventListener('change', saveState);
 
     volumeControl.addEventListener('input', () => { audio.volume = parseFloat(volumeControl.value); });
@@ -294,28 +329,25 @@
       speak(shuffle ? 'Перемешивание включено' : 'Перемешивание выключено');
       saveState();
     });
-
     repeatBtn.addEventListener('click', () => {
       repeat = repeat === 'none' ? 'all' : repeat === 'all' ? 'one' : 'none';
-      const map = { none: '🔁', all: '🔂', one: '🔁1' };
-      repeatBtn.textContent = map[repeat];
+      repeatBtn.textContent = {none:'🔁',all:'🔂',one:'🔁1'}[repeat];
       repeatBtn.style.background = repeat === 'none' ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.5)';
       speak(repeat === 'none' ? 'Повтор выключен' : repeat === 'all' ? 'Повтор всех' : 'Повтор одного');
       saveState();
     });
 
-    // Загрузка файлов
-    filePicker.addEventListener('change', async (e) => {
+    // Плейлист и восстановление
+    filePicker.addEventListener('change', (e) => {
       const files = Array.from(e.target.files || []);
       if (!files.length) return;
 
-      // Если восстанавливаем — сопоставляем по имени
       if (restoring && playlist.length) {
         const byName = new Map(files.map(f => [f.name, f]));
         playlist = playlist.map(item => {
           const f = byName.get(item.fileName || item.name);
           if (f) return { name: item.name, fileName: f.name, url: URL.createObjectURL(f), file: f };
-          return item; // без файла останется placeholder
+          return item;
         });
         restoring = false;
         restoreTip.textContent = '';
@@ -325,7 +357,7 @@
 
       renderPlaylist();
       currentIndex = 0;
-      await loadTrack(currentIndex, true);
+      loadTrack(currentIndex, true);
       saveState();
     });
 
@@ -389,13 +421,9 @@
       document.body.style.background = `linear-gradient(135deg, ${g1}, ${g2})`;
     }
 
-    function formatTime(sec) {
-      const m = Math.floor(sec / 60) || 0;
-      const s = Math.floor(sec % 60) || 0;
-      return `${m}:${s.toString().padStart(2,'0')}`;
-    }
+    function formatTime(sec) { const m = Math.floor(sec / 60) || 0; const s = Math.floor(sec % 60) || 0; return `${m}:${s.toString().padStart(2,'0')}`; }
 
-    // ===== Голосовой помощник (ASR + TTS) =====
+    // Голосовой помощник (ASR + TTS)
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const synth = window.speechSynthesis;
 
@@ -405,6 +433,24 @@
       voiceIndicator.textContent = voiceEnabled ? 'Голос: включён' : 'Голос: ожидание';
       if (voiceEnabled) startListening(); else stopListening();
     });
+
+    learnToggle.addEventListener('click', () => { learnPanel.classList.toggle('active'); });
+
+    learnSave.addEventListener('click', () => {
+      const phrase = (learnPhrase.value || '').trim().toLowerCase();
+      const action = learnAction.value;
+      const param = (learnParam.value || '').trim();
+      if (!phrase) { alert('Введите фразу'); return; }
+      const existing = userCommands.find(c => c.phrase === phrase);
+      if (existing) { existing.action = action; existing.param = param; }
+      else { userCommands.push({ phrase, action, param }); }
+      saveCommands();
+      speak('Команда сохранена');
+      learnPhrase.value = ''; learnParam.value = '';
+    });
+
+    function loadCommands(){ try { return JSON.parse(localStorage.getItem(CMD_KEY)) || []; } catch { return []; } }
+    function saveCommands(){ localStorage.setItem(CMD_KEY, JSON.stringify(userCommands)); }
 
     let recognition;
     function startListening() {
@@ -427,7 +473,6 @@
 
       recognition.start();
     }
-
     function stopListening() {
       if (recognition) { recognition.onend = null; recognition.stop(); recognition = null; }
       voiceIndicator.textContent = 'Голос: ожидание';
@@ -436,16 +481,21 @@
     function speak(text) {
       if (!synth) return;
       const utter = new SpeechSynthesisUtterance(text);
-      utter.lang = 'ru-RU';
-      utter.rate = 1.0;
+      utter.lang = 'ru-RU'; utter.rate = 1.0;
       synth.speak(utter);
     }
 
     function handleVoiceCommand(cmd) {
-      const num = (cmd.match(/\d+/) ? parseInt(cmd.match(/\d+/)[0], 10) : null);
+      const numMatch = cmd.match(/\d+/);
+      const num = numMatch ? parseInt(numMatch[0], 10) : null;
 
+      // Пользовательские команды имеют приоритет
+      const uc = userCommands.find(c => cmd.includes(c.phrase));
+      if (uc) { executeUserAction(uc, num); return; }
+
+      // Стандартные
       if (/(пауза|стоп)/.test(cmd)) { audio.pause(); playBtn.classList.remove('active'); playBtn.textContent='▶️'; equalizer.style.opacity = 0.3; speak('Пауза'); saveState(); return; }
-      if (/(воспроизведи|проиграй|продолжи|запусти)/.test(cmd)) {
+      if (/(воспроизведи|проиграй|продолжи|запусти|play)/.test(cmd)) {
         if (!audio.src && playlist.length){ loadTrack(0,true); }
         else { audio.play(); playBtn.classList.add('active'); playBtn.textContent='⏸️'; equalizer.style.opacity = 1; }
         speak('Воспроизведение'); saveState(); return;
@@ -471,14 +521,46 @@
       if (/трек номер \d+/.test(cmd) && num) { const idx = Math.max(1, Math.min(playlist.length, num)) - 1; currentIndex = idx; loadTrack(currentIndex, true); speak(`Воспроизвожу трек номер ${num}`); saveState(); return; }
 
       if (/(помощь|что ты умеешь)/.test(cmd)) {
-        speak('Я могу управлять воспроизведением, громкостью, перемоткой, перемешиванием и повтором. Скажи: воспроизведи или пауза.');
+        speak('Я управляю воспроизведением, громкостью, перемоткой, перемешиванием и повтором. Скажи: воспроизведи или пауза. В режиме обучения можно добавлять свои фразы.');
         return;
       }
 
       speak('Команда не распознана');
     }
 
-    // ==== Инициализация ====
+    function executeUserAction(uc, num) {
+      const p = uc.param ? parseInt(uc.param, 10) : null;
+      switch (uc.action) {
+        case 'play': audio.play(); playBtn.classList.add('active'); playBtn.textContent='⏸️'; equalizer.style.opacity = 1; speak('Воспроизведение'); break;
+        case 'pause': audio.pause(); playBtn.classList.remove('active'); playBtn.textContent='▶️'; equalizer.style.opacity = 0.3; speak('Пауза'); break;
+        case 'next': playNext(); speak('Следующий'); break;
+        case 'prev': playPrev(); speak('Предыдущий'); break;
+        case 'shuffleOn': shuffle = true; shuffleBtn.style.background='rgba(255,255,255,0.5)'; speak('Перемешивание включено'); break;
+        case 'shuffleOff': shuffle = false; shuffleBtn.style.background='rgba(255,255,255,0.15)'; speak('Перемешивание выключено'); break;
+        case 'repeatNone': repeat='none'; repeatBtn.textContent='🔁'; repeatBtn.style.background='rgba(255,255,255,0.15)'; speak('Повтор выкл'); break;
+        case 'repeatAll': repeat='all'; repeatBtn.textContent='🔂'; repeatBtn.style.background='rgba(255,255,255,0.5)'; speak('Повтор все'); break;
+        case 'repeatOne': repeat='one'; repeatBtn.textContent='🔁1'; repeatBtn.style.background='rgba(255,255,255,0.5)'; speak('Повтор один'); break;
+        case 'volumeSet': {
+          const v = Math.max(0, Math.min(1, (p ?? num ?? 100)/100));
+          audio.volume = v; volumeControl.value = v; speak(`Громкость ${Math.round(v*100)} процентов`);
+          break;
+        }
+        case 'volumeUp': audio.volume = Math.min(1, audio.volume + 0.1); volumeControl.value = audio.volume; speak(`Громкость ${Math.round(audio.volume*100)} процентов`); break;
+        case 'volumeDown': audio.volume = Math.max(0, audio.volume - 0.1); volumeControl.value = audio.volume; speak(`Громкость ${Math.round(audio.volume*100)} процентов`); break;
+        case 'seekForward': { const s = p ?? num ?? 5; audio.currentTime = Math.min(audio.currentTime + s, audio.duration || 0); speak(`Вперёд на ${s} секунд`); break; }
+        case 'seekBack': { const s = p ?? num ?? 5; audio.currentTime = Math.max(audio.currentTime - s, 0); speak(`Назад на ${s} секунд`); break; }
+        case 'trackByNumber': {
+          const n = p ?? num ?? 1; const idx = Math.max(1, Math.min(playlist.length, n)) - 1;
+          currentIndex = idx; loadTrack(currentIndex, true); speak(`Трек номер ${n}`);
+          break;
+        }
+        case 'toggleTheme': document.body.classList.toggle('light'); speak('Тема изменена'); break;
+        default: speak('Я не знаю это действие'); return;
+      }
+      saveState();
+    }
+
+    // Инициализация
     restoreState();
   </script>
 </body>
