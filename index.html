@@ -1,172 +1,532 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Liquid Glass Music</title>
-<style>
-  :root {
-    --bg1: #0f141b;
-    --bg2: #182230;
-    --text: #ffffff;
-    --glass-opacity: 0.12;
-  }
-  body.light {
-    --bg1: #e9eef3;
-    --bg2: #f5f7fa;
-    --text: #0f1318;
-  }
-  body {
-    margin:0; font-family:system-ui,sans-serif;
-    background: radial-gradient(circle at 20% 20%, var(--bg2), var(--bg1));
-    color:var(--text); min-height:100vh;
-    display:flex; flex-direction:column; align-items:center;
-    transition:background .35s ease, color .35s ease;
-  }
-  .glass {
-    background: rgba(255,255,255,var(--glass-opacity));
-    border-radius:14px;
-    backdrop-filter: blur(12px) saturate(140%);
-    -webkit-backdrop-filter: blur(12px) saturate(140%);
-    border:1px solid rgba(255,255,255,0.15);
-    box-shadow:0 20px 40px rgba(0,0,0,0.35);
-    transition: background .3s ease;
-  }
-  /* Controls */
-  #controls {
-    margin-top:80px; width:80%; max-width:600px;
-    text-align:center; padding:20px;
-  }
-  #controls input {
-    padding:8px; border-radius:10px; border:none; margin:5px;
-  }
-  #controls button {
-    padding:10px; border-radius:12px; border:none; margin:5px;
-    cursor:pointer; background:rgba(255,255,255,0.15);
-    color:inherit; transition:background .2s, transform .2s;
-    font-size:20px;
-  }
-  #controls button:hover {background:rgba(255,255,255,0.3); transform:scale(1.1);}
-  /* Settings icon */
-  #settingsIcon {
-    position:fixed; top:20px; right:20px;
-    width:48px; height:48px; display:grid; place-items:center;
-    cursor:pointer; font-size:22px;
-  }
-  /* Settings panel */
-  #settingsPanel {
-    position:fixed; top:80px; right:20px;
-    width:260px; overflow:hidden;
-    max-height:0; opacity:0;
-    transition:max-height .6s ease, opacity .4s ease, padding .3s ease;
-    padding:0;
-  }
-  #settingsPanel.open {
-    max-height:300px; opacity:1; padding:16px;
-  }
-  #settingsPanel h3 {margin-top:0;}
-  .slider {width:100%;}
-  /* Playlist */
-  #library {
-    margin-top:20px; width:80%; max-width:600px; padding:12px;
-  }
-  #playlist li {
-    margin:6px 0; padding:8px;
-    border-radius:10px;
-    cursor:pointer;
-  }
-  #playlist li:hover {background:rgba(255,255,255,0.15);}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Music Player — Local</title>
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="stylesheet" href="./styles.css?v=1.0.3" />
 </head>
 <body>
-  <!-- Settings icon -->
-  <div id="settingsIcon" class="glass">⚙️</div>
-  <!-- Settings panel -->
-  <div id="settingsPanel" class="glass">
-    <h3>Настройки</h3>
-    <button id="themeToggle">🌗 Сменить тему</button>
-    <label>Прозрачность стекла:
-      <input type="range" id="opacitySlider" class="slider" min="0.05" max="0.3" step="0.01" value="0.12">
-    </label>
+  <div id="app" class="app light">
+    <header class="topbar">
+      <div class="brand">PewPew Player</div>
+      <div class="controls">
+        <button id="themeBtn" class="btn">Тема</button>
+        <button id="voiceBtn" class="btn">Голос</button>
+        <button id="openSettings" class="btn">Настройки</button>
+      </div>
+    </header>
+
+    <main class="main">
+      <section class="left">
+        <div class="player-card">
+          <img id="cover" class="cover" src="" alt="cover" />
+          <div class="track-info">
+            <div id="title" class="title">—</div>
+            <div id="artist" class="artist">—</div>
+          </div>
+          <audio id="audio" preload="metadata"></audio>
+
+          <div class="transport">
+            <button id="prev" class="btn">⏮</button>
+            <button id="play" class="btn">▶</button>
+            <button id="next" class="btn">⏭</button>
+            <input id="seek" type="range" min="0" max="100" value="0" />
+            <input id="vol" type="range" min="0" max="1" step="0.01" value="0.8" />
+          </div>
+        </div>
+
+        <div class="playlist-area">
+          <h3>Плейлист (перетащи для сортировки)</h3>
+          <ul id="playlist" class="playlist" aria-label="Playlist"></ul>
+
+          <div class="playlist-actions">
+            <input id="fileInput" type="file" accept="audio/*" multiple />
+            <button id="addUrl" class="btn">Добавить URL</button>
+            <button id="clear" class="btn">Очистить</button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="right" id="settingsPanel" aria-hidden="true">
+        <h4>Настройки</h4>
+        <label><input type="checkbox" id="persistTheme"> Сохранять тему</label>
+        <label><input type="checkbox" id="persistPlaylist"> Сохранять плейлист</label>
+        <label>Громкость: <input id="settingVol" type="range" min="0" max="1" step="0.01" value="0.8"></label>
+        <button id="exportPlaylist" class="btn">Экспорт</button>
+        <button id="importPlaylist" class="btn">Импорт</button>
+        <input id="importFile" type="file" accept="application/json" style="display:none" />
+        <hr/>
+        <div class="about">PewPew Player — локальный плеер, PWA + Electron ready.</div>
+      </aside>
+    </main>
+
+    <footer class="footer">Готово офлайн; голос: Web Speech API; synthesis: SpeechSynthesis</footer>
   </div>
 
-  <!-- Player controls -->
-  <div id="controls" class="glass">
-    <audio id="audio" controls></audio><br>
-    <input type="text" id="trackTitle" placeholder="Название">
-    <input type="text" id="trackUrl" placeholder="Ссылка на mp3">
-    <button onclick="addTrack()">➕</button>
-    <button onclick="togglePlayPause()">⏯</button>
-    <button onclick="setSleepTimer()">⏱</button>
-    <button onclick="clearPlaylist()">🗑</button>
-  </div>
-
-  <!-- Playlist -->
-  <div id="library" class="glass">
-    <h2>📚 Библиотека</h2>
-    <ul id="playlist"></ul>
-  </div>
-
-<script>
-let playlist = loadPlaylist();
-const audio = document.getElementById("audio");
-const playlistEl = document.getElementById("playlist");
-let sleepTimer;
-
-renderPlaylist();
-
-function savePlaylist(){localStorage.setItem("myPlaylist",JSON.stringify(playlist));}
-function loadPlaylist(){const d=localStorage.getItem("myPlaylist");return d?JSON.parse(d):[];}
-
-function addTrack(){
-  const title=document.getElementById("trackTitle").value.trim();
-  const url=document.getElementById("trackUrl").value.trim();
-  if(title&&url){
-    playlist.push({title,url});
-    savePlaylist(); renderPlaylist();
-    document.getElementById("trackTitle").value="";
-    document.getElementById("trackUrl").value="";
-  }
-}
-function playTrack(index){audio.src=playlist[index].url; audio.play();}
-function togglePlayPause(){audio.paused?audio.play():audio.pause();}
-function setSleepTimer(){
-  clearTimeout(sleepTimer);
-  sleepTimer=setTimeout(()=>{audio.pause();alert("⏱️ Таймер сна: стоп");},60000);
-}
-function clearPlaylist(){playlist=[];savePlaylist();renderPlaylist();}
-function renderPlaylist(){
-  playlistEl.innerHTML="";
-  playlist.forEach((track,index)=>{
-    const li=document.createElement("li");
-    li.className="glass";
-    li.textContent=track.title;
-    li.onclick=()=>playTrack(index);
-    playlistEl.appendChild(li);
-  });
-}
-
-/* Settings logic */
-const settingsIcon=document.getElementById("settingsIcon");
-const settingsPanel=document.getElementById("settingsPanel");
-settingsIcon.onclick=()=>settingsPanel.classList.toggle("open");
-
-document.getElementById("themeToggle").onclick=()=>{
-  document.body.classList.toggle("light");
-  localStorage.setItem("theme", document.body.classList.contains("light") ? "light" : "dark");
-};
-document.getElementById("opacitySlider").oninput=(e)=>{
-  document.documentElement.style.setProperty("--glass-opacity", e.target.value);
-  localStorage.setItem("opacity", e.target.value);
-};
-
-// Restore settings
-window.onload=()=>{
-  const theme=localStorage.getItem("theme");
-  if(theme==="light") document.body.classList.add("light");
-  const op=localStorage.getItem("opacity");
-  if(op) document.documentElement.style.setProperty("--glass-opacity", op);
-};
-</script>
+  <script src="./app.js?v=1.0.3"></script>
 </body>
 </html>
+:root{
+  --bg:#ffffff; --fg:#111; --muted:#666; --accent:#2b6cb0;
+  --card:#f7f7f8; --glass: rgba(255,255,255,0.6);
+}
+body,html,#app{height:100%;margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--fg)}
+.app{display:flex;flex-direction:column;min-height:100vh}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid #eee;background:linear-gradient(180deg,rgba(255,255,255,0.6),transparent)}
+.brand{font-weight:700}
+.btn{background:transparent;border:1px solid #ddd;padding:6px 10px;border-radius:6px;cursor:pointer;margin-left:8px}
+.main{display:flex;flex:1;gap:16px;padding:16px}
+.left{flex:1;min-width:320px}
+.right{width:320px;background:var(--card);padding:12px;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.06);align-self:flex-start}
+.player-card{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:8px;background:linear-gradient(180deg,var(--glass),transparent);box-shadow:0 4px 12px rgba(0,0,0,0.04)}
+.cover{width:100%;height:200px;object-fit:cover;background:#ddd;border-radius:6px}
+.track-info{display:flex;flex-direction:column}
+.title{font-weight:600;font-size:1.1rem}
+.artist{color:var(--muted);font-size:0.9rem}
+.transport{display:flex;align-items:center;gap:8px;margin-top:8px}
+input[type=range]{flex:1}
+.playlist-area{margin-top:16px}
+.playlist{list-style:none;padding:0;margin:8px 0;border:1px dashed #eee;border-radius:6px;min-height:120px}
+.playlist li{padding:10px;border-bottom:1px solid #f1f1f1;display:flex;justify-content:space-between;align-items:center;cursor:grab}
+.playlist li.dragging{opacity:0.5}
+.playlist-actions{display:flex;gap:8px;align-items:center;margin-top:8px}
+.footer{padding:8px 16px;border-top:1px solid #eee;font-size:0.85rem;color:var(--muted)}
+
+/* dark theme */
+.app.dark{--bg:#0f1720;--fg:#e6eef6;--muted:#9aa9bb;--card:#0b1220;--glass: rgba(255,255,255,0.02);--accent:#60a5fa}
+.app.light{--bg:#ffffff}
+
+/* responsive */
+@media (max-width:900px){
+  .main{flex-direction:column}
+  .right{width:100%}
+}
+// Минимальная, но полная логика плеера + drag & drop + persistence + voice
+(() => {
+  const $ = sel => document.querySelector(sel);
+  const qs = sel => Array.from(document.querySelectorAll(sel));
+
+  // Elements
+  const audio = $('#audio');
+  const playBtn = $('#play');
+  const prevBtn = $('#prev');
+  const nextBtn = $('#next');
+  const seek = $('#seek');
+  const vol = $('#vol');
+  const titleEl = $('#title');
+  const artistEl = $('#artist');
+  const coverImg = $('#cover');
+  const playlistEl = $('#playlist');
+  const fileInput = $('#fileInput');
+  const addUrlBtn = $('#addUrl');
+  const clearBtn = $('#clear');
+  const themeBtn = $('#themeBtn');
+  const voiceBtn = $('#voiceBtn');
+  const settingsPanel = $('#settingsPanel');
+  const openSettings = $('#openSettings');
+  const persistTheme = $('#persistTheme');
+  const persistPlaylist = $('#persistPlaylist');
+  const settingVol = $('#settingVol');
+  const exportBtn = $('#exportPlaylist');
+  const importBtn = $('#importPlaylist');
+  const importFile = $('#importFile');
+
+  // State
+  let state = {
+    playlist: [],
+    index: 0,
+    playing: false,
+    theme: localStorage.getItem('theme') || 'light'
+  };
+
+  // Init UI
+  const setThemeClass = t => {
+    document.getElementById('app').classList.remove('light','dark');
+    document.getElementById('app').classList.add(t);
+    state.theme = t;
+    if (persistTheme.checked) localStorage.setItem('theme', t);
+  };
+  setThemeClass(state.theme);
+
+  // Load persisted playlist
+  if (localStorage.getItem('persistPlaylist') === 'true') {
+    try {
+      const data = JSON.parse(localStorage.getItem('playlist') || '[]');
+      if (Array.isArray(data)) state.playlist = data;
+    } catch (e) { state.playlist = [] }
+    persistPlaylist.checked = true;
+  } else {
+    persistPlaylist.checked = false;
+  }
+
+  // Helpers
+  function savePlaylist() {
+    if (persistPlaylist.checked) {
+      localStorage.setItem('playlist', JSON.stringify(state.playlist));
+      localStorage.setItem('persistPlaylist','true');
+    } else {
+      localStorage.removeItem('playlist');
+      localStorage.setItem('persistPlaylist','false');
+    }
+  }
+
+  function addTrack(entry) {
+    // entry: {src, title, artist, cover}
+    state.playlist.push(entry);
+    renderPlaylist();
+    savePlaylist();
+  }
+
+  function renderPlaylist() {
+    playlistEl.innerHTML = '';
+    state.playlist.forEach((t, i) => {
+      const li = document.createElement('li');
+      li.draggable = true;
+      li.dataset.index = i;
+      li.innerHTML = `<span>${t.title || t.src.split('/').pop() || 'Unknown'}</span>
+                      <div>
+                        <button class="btn playone" data-i="${i}">▶</button>
+                        <button class="btn remove" data-i="${i}">✖</button>
+                      </div>`;
+      playlistEl.appendChild(li);
+    });
+  }
+
+  function loadTrack(i) {
+    if (!state.playlist[i]) return;
+    const t = state.playlist[i];
+    audio.src = t.src;
+    titleEl.textContent = t.title || '—';
+    artistEl.textContent = t.artist || '';
+    coverImg.src = t.cover || '';
+    state.index = i;
+    highlightCurrent();
+  }
+
+  function highlightCurrent() {
+    qs('#playlist li').forEach(li => li.classList.remove('current'));
+    const curr = playlistEl.querySelector(`li[data-index="${state.index}"]`);
+    if (curr) curr.classList.add('current');
+  }
+
+  // Playback controls
+  playBtn.addEventListener('click', () => {
+    if (!audio.src) {
+      if (state.playlist.length) loadTrack(0);
+      else return;
+    }
+    if (audio.paused) audio.play();
+    else audio.pause();
+  });
+
+  prevBtn.addEventListener('click', () => {
+    state.index = (state.index - 1 + state.playlist.length) % Math.max(1,state.playlist.length);
+    loadTrack(state.index);
+    audio.play();
+  });
+
+  nextBtn.addEventListener('click', () => {
+    state.index = (state.index + 1) % Math.max(1,state.playlist.length);
+    loadTrack(state.index);
+    audio.play();
+  });
+
+  audio.addEventListener('play', () => { playBtn.textContent = '⏸'; state.playing = true; });
+  audio.addEventListener('pause', () => { playBtn.textContent = '▶'; state.playing = false; });
+  audio.addEventListener('timeupdate', () => {
+    if (!isFinite(audio.duration)) return;
+    seek.value = (audio.currentTime / audio.duration) * 100;
+  });
+  seek.addEventListener('input', () => {
+    if (!isFinite(audio.duration)) return;
+    audio.currentTime = (seek.value/100) * audio.duration;
+  });
+
+  vol.addEventListener('input', () => { audio.volume = vol.value; settingVol.value = vol.value; });
+  settingVol.addEventListener('input', () => { audio.volume = settingVol.value; vol.value = settingVol.value; });
+
+  // Playlist interactions
+  playlistEl.addEventListener('click', e => {
+    const p = e.target.closest('button');
+    if (!p) return;
+    const i = Number(p.dataset.i);
+    if (p.classList.contains('playone')) {
+      loadTrack(i);
+      audio.play();
+    } else if (p.classList.contains('remove')) {
+      state.playlist.splice(i,1);
+      renderPlaylist();
+      savePlaylist();
+      if (i === state.index) {
+        loadTrack(Math.min(i, state.playlist.length-1));
+      }
+    }
+  });
+
+  // File input
+  fileInput.addEventListener('change', async (ev) => {
+    const files = Array.from(ev.target.files || []);
+    for (const f of files) {
+      const url = URL.createObjectURL(f);
+      addTrack({src: url, title: f.name, artist: '', cover: ''});
+    }
+    fileInput.value = '';
+  });
+
+  // Add URL
+  addUrlBtn.addEventListener('click', () => {
+    const url = prompt('Вставь прямой URL на аудио (https://...)');
+    if (url) addTrack({src: url, title: url.split('/').pop(), artist:'', cover:''});
+  });
+
+  // Clear
+  clearBtn.addEventListener('click', () => {
+    if (!confirm('Очистить плейлист?')) return;
+    state.playlist = [];
+    renderPlaylist();
+    savePlaylist();
+    audio.pause(); audio.src = '';
+    titleEl.textContent = '—';
+    artistEl.textContent = '';
+  });
+
+  // Drag & drop sorting (simple)
+  let dragEl = null;
+  playlistEl.addEventListener('dragstart', (e) => {
+    dragEl = e.target;
+    e.target.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+  });
+  playlistEl.addEventListener('dragend', (e) => {
+    if (e.target) e.target.classList.remove('dragging');
+    dragEl = null;
+    renderPlaylist();
+    savePlaylist();
+  });
+  playlistEl.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    const after = getDragAfterElement(playlistEl, e.clientY);
+    if (after == null) playlistEl.appendChild(dragEl);
+    else playlistEl.insertBefore(dragEl, after);
+    // update state.playlist to match DOM order
+    const newOrder = Array.from(playlistEl.children).map(li => Number(li.dataset.index));
+    state.playlist = newOrder.map(idx => state.playlist[idx]).filter(Boolean);
+    // reindex DOM items
+    playlistEl.querySelectorAll('li').forEach((li, idx) => li.dataset.index = idx);
+  });
+
+  function getDragAfterElement(container, y) {
+    const draggableElements = [...container.querySelectorAll('li:not(.dragging)')];
+    return draggableElements.reduce((closest, child) => {
+      const box = child.getBoundingClientRect();
+      const offset = y - box.top - box.height/2;
+      if (offset < 0 && offset > (closest.offset || -Infinity)) {
+        return {offset, element: child};
+      } else return closest;
+    }, {offset: -Infinity}).element;
+  }
+
+  // Theme toggle
+  themeBtn.addEventListener('click', () => {
+    const newTheme = document.getElementById('app').classList.contains('dark') ? 'light' : 'dark';
+    setThemeClass(newTheme);
+  });
+
+  // Settings panel
+  openSettings.addEventListener('click', () => {
+    const hidden = settingsPanel.getAttribute('aria-hidden') === 'true';
+    settingsPanel.setAttribute('aria-hidden', hidden ? 'false' : 'true');
+  });
+
+  persistTheme.addEventListener('change', () => {
+    if (!persistTheme.checked) localStorage.removeItem('theme');
+    else localStorage.setItem('theme', state.theme);
+  });
+
+  persistPlaylist.addEventListener('change', () => {
+    savePlaylist();
+  });
+
+  exportBtn.addEventListener('click', () => {
+    const blob = new Blob([JSON.stringify(state.playlist, null, 2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'playlist.json';
+    a.click();
+  });
+
+  importBtn.addEventListener('click', () => importFile.click());
+  importFile.addEventListener('change', (e) => {
+    const f = e.target.files[0];
+    if (!f) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result);
+        if (Array.isArray(data)) {
+          state.playlist = data;
+          renderPlaylist();
+          savePlaylist();
+        } else alert('Файл не содержит плейлист');
+      } catch(err){ alert('Ошибка чтения файла') }
+    };
+    reader.readAsText(f);
+    importFile.value = '';
+  });
+
+  // Voice: распознавание и ответ
+  let recognition = null;
+  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SR();
+    recognition.lang = 'ru-RU';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    recognition.onresult = (e) => {
+      const text = e.results[0][0].transcript.trim().toLowerCase();
+      handleVoiceCommand(text);
+    };
+    recognition.onend = () => { voiceBtn.classList.remove('listening'); };
+  } else {
+    recognition = null;
+  }
+
+  function speak(text) {
+    if (!('speechSynthesis' in window)) return;
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'ru-RU';
+    u.rate = 1;
+    speechSynthesis.cancel();
+    speechSynthesis.speak(u);
+  }
+
+  voiceBtn.addEventListener('click', () => {
+    if (!recognition) { speak('Голосовой ввод не поддерживается в этом браузере'); return; }
+    try {
+      recognition.start();
+      voiceBtn.classList.add('listening');
+    } catch(e){ console.warn(e) }
+  });
+
+  function handleVoiceCommand(text) {
+    // Простая логика команд
+    if (text.includes('плей') || text.includes('играй')) {
+      if (!audio.src && state.playlist.length) loadTrack(0);
+      audio.play();
+      speak('Воспроизведение');
+    } else if (text.includes('пауза') || text.includes('стоп')) {
+      audio.pause(); speak('Пауза');
+    } else if (text.includes('след') || text.includes('далее')) {
+      nextBtn.click(); speak('Следующий трек');
+    } else if (text.includes('пред') || text.includes('назад')) {
+      prevBtn.click(); speak('Предыдущий трек');
+    } else if (text.match(/громче|тише/)) {
+      if (text.includes('громче')) vol.value = Math.min(1, Number(vol.value) + 0.1);
+      else vol.value = Math.max(0, Number(vol.value) - 0.1);
+      vol.dispatchEvent(new Event('input'));
+      speak('Громкость установлена');
+    } else if (text.includes('добавь') || text.includes('добавить')) {
+      speak('Пришли ссылку в окно добавления URL');
+    } else {
+      speak('Команда не распознана');
+    }
+  }
+
+  // Service worker registration (safe: check support)
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(()=>{});
+  }
+
+  // Initial render and load first if persisted
+  renderPlaylist();
+  if (state.playlist.length) loadTrack(0);
+
+  // Accessibility: keyboard shortcuts
+  window.addEventListener('keydown', e => {
+    if (e.code === 'Space' && document.activeElement.tagName !== 'INPUT') { e.preventDefault(); playBtn.click(); }
+    if (e.code === 'ArrowRight') nextBtn.click();
+    if (e.code === 'ArrowLeft') prevBtn.click();
+  });
+
+  // Small UX: highlight current after load
+  audio.addEventListener('ended', () => nextBtn.click());
+
+  // Expose a tiny debug on window for quick repairs
+  window.__PewPew = {
+    state,
+    addTrack,
+    loadTrack,
+    renderPlaylist,
+    speak
+  };
+})();
+const CACHE = 'pewpew-v1';
+const ASSETS = [
+  '/',
+  '/index.html',
+  '/styles.css',
+  '/app.js',
+  '/manifest.json'
+];
+self.addEventListener('install', evt => {
+  evt.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
+  self.skipWaiting();
+});
+self.addEventListener('activate', evt => {
+  evt.waitUntil(self.clients.claim());
+});
+self.addEventListener('fetch', evt => {
+  if (evt.request.method !== 'GET') return;
+  evt.respondWith(
+    caches.match(evt.request).then(resp => resp || fetch(evt.request).catch(()=>caches.match('/index.html')))
+  );
+});
+{
+  "name":"PewPew Player",
+  "short_name":"PewPew",
+  "start_url":"/",
+  "display":"standalone",
+  "background_color":"#0f1720",
+  "theme_color":"#2b6cb0",
+  "icons":[
+    {"src":"icon-192.png","sizes":"192x192","type":"image/png"},
+    {"src":"icon-512.png","sizes":"512x512","type":"image/png"}
+  ]
+}
+{
+  "name": "pewpew-player",
+  "version": "1.0.0",
+  "main": "electron-main.js",
+  "scripts": {
+    "start": "http-server -c-1 -p 5173 .",
+    "electron": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^25.0.0",
+    "http-server": "^14.1.1"
+  }
+}
+const { app, BrowserWindow } = require('electron');
+const path = require('path');
+
+function createWindow(){
+  const win = new BrowserWindow({
+    width: 1100,
+    height: 700,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      preload: path.join(__dirname,'preload.js')
+    }
+  });
+  win.loadFile('index.html');
+  // win.webContents.openDevTools();
+}
+
+app.whenReady().then(createWindow);
+app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
+app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); });
+// Пока пустой — оставлен для безопасности и расширения
+window.addEventListener('DOMContentLoaded', () => {});
